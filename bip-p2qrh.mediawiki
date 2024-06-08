@@ -14,7 +14,7 @@
 
 === Abstract ===
 
-This document proposes a new SegWit output type, with spending rules based on SQIsign signatures. A constraint is that no hard fork or modifications leading to an increase in block size are required to maintain no more than a significant decrease in block transaction density. This document is inspired by [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP-341], which introduced the design of the P2TR address format using Schnorr signatures.
+This document proposes a new SegWit output type, with spending rules based on SQIsign signatures. (For more on why SQIsign is chosen, see the Security section) A constraint is that no hard fork or modifications leading to an increase in block size are necessary. This document is inspired by [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP-341], which introduced the design of the P2TR address format using Schnorr signatures.```
 
 === Copyright ===
 
@@ -29,7 +29,7 @@ The vulnerability of existing bitcoin addresses is investigated in [https://www2
 The following table is non-exhaustive, but meant to be informative to the average Bitcoin user.
 
 {|
-|+ Vulnerable address types matrix
+|+ Vulnerable address types
 |-
 ! Address type !! Vulnerable !! Prefix !! Example
 |-
@@ -43,6 +43,8 @@ The following table is non-exhaustive, but meant to be informative to the averag
 |}
 
 It should be noted that Taproot addresses are vulnerable in that they encode a 32-byte x-only public key. It's possible Taproot keys are harder for a Shor's implementation to decrypt.
+
+Should quantum advantage become manifest, a convention is proposed in spending the full 65-byte P2PK key used by the coinbase output in Block 1 back to itself. It is proposed to call this the [https://mempool.space/address/0496b538e853519c726a2c91e61ec11600ae1390813a627c66fb8be7947be63c52da7589379515d4e0a604f8141781e62294721166bf621e73a82cbf2342c858ee Canary address]. The reasoning behind this is that this can only be done by Satoshi, and given his absence, this can only be spent by others if there is a significant vulnerability in secp256k1. Should the Canary coins move, that will signal that Bitcoin is presently vulnerable. Without the Canary, or an address like it, there may be some doubt as to whether the coins were moved with keys belonging to the original owner.
 
 As an interesting aside, coinbase outputs to P2PK keys go as far as block 200,000, so it's possible there are between 1-2 million coins that are vulnerable from the first epoch. These coins can be considered "Satoshi's Shield." Any addresses with a balance of less than the original block subsidy of 50 coins can be considered incentive incompatible to capture until all of these are mined. 
 
@@ -59,6 +61,8 @@ It is proposed to use SegWit version 3. This results in addresses that start wit
 The proposal above also leaves a gap in case it makes sense to use version 2, or bc1z, for implementation of other address formats such as those that employ Cross Input Signature Aggregation (CISA).
 
 The name P2QRH means Pay to Quantum Resistant Hash. This is similar to how P2PKH, as defined in [BIP-16](https://github.com/bitcoin/bips/blob/master/bip-0016.mediawiki#specification).
+
+P2QR addresses will be needed to maintain TapScript compatibility, and will encode the SQIsign public key. P2QRH addresses will use SHA-256 / MD160, similar to BIP-16, to reduce the size of new outputs.
 
 For descriptors, `qrh()` should be used.
 
