@@ -42,7 +42,7 @@ The following table is non-exhaustive, but meant to be informative to the averag
 | P2TR || Yes || bc1p || bc1p92aslsnseq786wxfk3ekra90ds9ku47qttupfjsqmmj4z82xdq4q3rr58u
 |}
 
-It should be noted that Taproot addresses are vulnerable in that they encode a 32-byte x-only public key. It's possible Taproot keys are harder for a Shor's implementation to decrypt.
+It should be noted that Taproot addresses are vulnerable in that they encode a 32-byte x-only public key, from which a full public key can be reconstructed.
 
 Should quantum advantage manifest, a convention is proposed in spending the full 65-byte P2PK key used by the coinbase output in Block 1 back to itself. It is proposed to call this the [https://mempool.space/address/0496b538e853519c726a2c91e61ec11600ae1390813a627c66fb8be7947be63c52da7589379515d4e0a604f8141781e62294721166bf621e73a82cbf2342c858ee Canary address]. The reasoning behind this is that this can only be done by Satoshi, and given his absence, this can only be spent by others if there is a significant vulnerability in secp256k1. Should the Canary coins move, that will signal that Bitcoin is presently vulnerable. Without the Canary, or an address like it, there may be some doubt as to whether the coins were moved with keys belonging to the original owner.
 
