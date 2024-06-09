@@ -28,7 +28,7 @@ This proposal aims to improve the quantum resistance of Bitcoin's signature secu
 
 The vulnerability of existing bitcoin addresses is investigated in [https://www2.deloitte.com/nl/nl/pages/innovatie/artikelen/quantum-computers-and-the-bitcoin-blockchain.html this Deloitte report]. The report estimates that in 2020 approximately 25% of the bitcoin supply is held within addresses vulnerable to quantum attack.
 
-Currently, any address is vulnerable to quantum attack the moment it's spent from and when that transaction is submitted publicly to the mempool. P2QRH protects transactions submitted to the mempool, and preserves the free market by reducing the need for private, out of band transactions directly to mining pools.
+Currently, any address is vulnerable to quantum attack the moment it's spent from and when that transaction is submitted publicly to the mempool. P2QRH protects transactions submitted to the mempool and helps preserve the free market by reducing the need for private, out-of-band transactions directly to mining pools.
 
 The following table is non-exhaustive, but meant to be informative to the average Bitcoin user.
 
@@ -52,7 +52,7 @@ Should quantum advantage manifest, a convention is proposed in spending the full
 
 As an interesting aside, coinbase outputs to P2PK keys go as far as block 200,000, so it's possible there are between 1-2 million coins that are vulnerable from the first epoch. These coins can be considered "Satoshi's Shield." Any addresses with a balance of less than the original block subsidy of 50 coins can be considered incentive incompatible to capture until all of these are mined.
 
-In comparison, [https://ethresear.ch/t/how-to-hard-fork-to-save-most-users-funds-in-a-quantum-emergency/18901 Vitalik Buterin's proposed solution] for quantum emergency in Ethereum is to hard fork the chain, revert all blocks after a sufficient amount of theft, and use STARKs based on BIP-32 seeds to act as the authoritative secret when signing. This approach is deemed far too heavy-handed for Bitcoin.
+Lastly, it is worth noting by way of comparison that [https://ethresear.ch/t/how-to-hard-fork-to-save-most-users-funds-in-a-quantum-emergency/18901 Vitalik Buterin's proposed solution] in an Ethereum quantum emergency is quite different from the approach in this BIP. His plan involves a hard fork of the chain, reverting all blocks after a sufficient amount of theft, and using STARKs based on BIP-32 seeds to act as the authoritative secret when signing. These measures are deemed far too heavy-handed for Bitcoin.
 
 == Description ==
 
@@ -97,6 +97,7 @@ Ideally SQIsignHD proves to be flexible enough to support [https://www.pierrickd
 Signature verification speed as it compares to Schnorr or ECDSA isn't seen as high a consideration as signature size due to block space being the primary constraint in this proposal, however, as a P2QRH implementation materializes, a benchmark will be added for comparison.
 
 An additional consideration are security levels. Longer signature sizes provide more security. NIST has standardized five security levels. NIST security level I provides security equivalent to 128-bit keys, and security level V provides 256-bit security. Feedback is welcomed as to whether there should be two address types available, one for high-velocity coins that is cheaper, and one for low-velocity coins where a premium is considered worthwhile. Additionally, it's possible that existing address types are fine for high-velocity coins so long as transactions are submitted out of band, and practically-speaking, most P2QRH users will opt for NIST V security, at which point, it's only worth implementing the strongest available signature algorithm variant.
+
 
 == Specification ==
 
@@ -149,4 +150,4 @@ To help implementors understand updates to this BIP, we keep a list of substanti
 
 == Acknowledgements ==
 
-Much gratitude to my co-founder, Kyle Crews for proofreading and editing, to David C. who provided the name, QuBit. Same for those who took the time to review and contribute, including AB, (and hopefully many more).
+Much gratitude to my co-founder, Kyle Crews for proofreading and editing, and to David C. who suggested the name "QuBit." Thank you as well to those who took the time to review and contribute, including AB (and hopefully many more).
