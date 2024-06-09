@@ -14,17 +14,21 @@
 
 === Abstract ===
 
-This document proposes a new SegWit output type, with spending rules based on SQIsign signatures. (For more on why SQIsign is chosen, see the Security section.) A constraint is that no hard fork or modifications leading to an increase in block size are necessary. This document is inspired by [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP-341], which introduced the design of the P2TR address format using Schnorr signatures.
+This document proposes a new SegWit output type, with spending rules based on SQIsign signatures. (For more on why SQIsign is chosen, see the Security section.) A constraint is that no hard fork or modifications leading to an increase in block size are necessary. This document is inspired by [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP-341], which introduced the design of the P2TR address type using Schnorr signatures.
+
 
 === Copyright ===
 
 This document is licensed under the 3-clause BSD license.
+
 
 === Motivation ===
 
 This proposal aims to improve the quantum resistance of Bitcoin's signature security should the Discrete Logarithm Problem which secures Elliptic Curve Cryptography (EC DLP) no longer prove to be computationally hard, likely through quantum advantage. [https://arxiv.org/pdf/quant-ph/0301141 A variant of Shor's algorithm] is believed to be capable of deriving the private key from a public key exponentially faster, which here will be referred to as quantum key decryption. This means that doubling the key length, such as using a hypothetical secp512k1 curve, would only make finding the key twice as hard. Shor's algorithm in particular will likely require only 2^21 steps to recover the private key. The computational complexity of this is investigated further in the paper, [https://pubs.aip.org/avs/aqs/article/4/1/013801/2835275/The-impact-of-hardware-specifications-on-reaching ''The impact of hardware specifications on reaching quantum advantage in the fault tolerant regime''].
 
 The vulnerability of existing bitcoin addresses is investigated in [https://www2.deloitte.com/nl/nl/pages/innovatie/artikelen/quantum-computers-and-the-bitcoin-blockchain.html this Deloitte report]. The report estimates that in 2020 approximately 25% of the bitcoin supply is held within addresses vulnerable to quantum attack.
+
+Currently, any address is vulnerable to quantum attack the moment it's spent from and when that transaction is submitted publicly to the mempool. P2QRH protects transactions submitted to the mempool and helps preserve the free market by reducing the need for private, out-of-band transactions directly to mining pools.
 
 The following table is non-exhaustive, but meant to be informative to the average Bitcoin user.
 
@@ -47,6 +51,8 @@ It should be noted that Taproot addresses are vulnerable in that they encode a 3
 Should quantum advantage manifest, a convention is proposed in spending the full 65-byte P2PK key used by the coinbase output in Block 1 back to itself. It is proposed to call this the [https://mempool.space/address/0496b538e853519c726a2c91e61ec11600ae1390813a627c66fb8be7947be63c52da7589379515d4e0a604f8141781e62294721166bf621e73a82cbf2342c858ee Canary address]. The reasoning behind this is that this can only be done by Satoshi, and given his absence, this can only be spent by others if there is a significant vulnerability in secp256k1. Should the Canary coins move, that will signal that Bitcoin is presently vulnerable. Without the Canary, or an address like it, there may be some doubt as to whether the coins were moved with keys belonging to the original owner.
 
 As an interesting aside, coinbase outputs to P2PK keys go as far as block 200,000, so it's possible there are between 1-2 million coins that are vulnerable from the first epoch. These coins can be considered "Satoshi's Shield." Any addresses with a balance of less than the original block subsidy of 50 coins can be considered incentive incompatible to capture until all of these are mined.
+
+Lastly, it is worth noting by way of comparison that [https://ethresear.ch/t/how-to-hard-fork-to-save-most-users-funds-in-a-quantum-emergency/18901 Vitalik Buterin's proposed solution] in an Ethereum quantum emergency is quite different from the approach in this BIP. His plan involves a hard fork of the chain, reverting all blocks after a sufficient amount of theft, and using STARKs based on BIP-32 seeds to act as the authoritative secret when signing. These measures are deemed far too heavy-handed for Bitcoin.
 
 == Description ==
 
@@ -72,21 +78,25 @@ For descriptors, <code>qrh()</code> should be used.
 
 Quaternion isogeny signature algorithms represent the state of the art in post-quantum cryptography, beyond lattice cryptography, especially when key and signature length are major constraints.
 
-Quantum resistant signature algorithms ordered by signature size:
+Quantum resistant signature algorithms ordered by shortest proposed signature size:
 
 * [https://sphincs.org SPHINCS+] - 17KB
 * [https://eprint.iacr.org/2014/457.pdf pqNTRUsign] - 702 bytes
 * [https://falcon-sign.info FALCON] - 666 bytes
-* [https://sqisign.org SQIsign] - 177 bytes
-* [https://eprint.iacr.org/2024/760.pdf SQIsign2D-West] - 148 bytes
-* [https://link.springer.com/chapter/10.1007/978-3-031-58716-0_1 FastSQIsignHD] - 107 bytes
+* [https://sqisign.org SQIsign] - 177-335 bytes
+* [https://eprint.iacr.org/2024/760.pdf SQIsign2D-West] - 148-294 bytes
+* [https://link.springer.com/content/pdf/10.1007/978-3-031-58716-0_1.pdf SQIsignHD] - 109 bytes
 
 In comparison:
 
 * ECDSA - 70-72 bytes
 * Schnorr - 64 bytes
 
-Ideally FastSQIsignHD proves to be flexible enough to support [https://www.pierrickdartois.fr/homepage/wp-content/uploads/2022/04/Report_OSIDH_DARTOIS.pdf Isogeny Diffie-Hellman] and the key tweaking necessary to support TapScript.
+Ideally SQIsignHD proves to be flexible enough to support [https://www.pierrickdartois.fr/homepage/wp-content/uploads/2022/04/Report_OSIDH_DARTOIS.pdf Isogeny Diffie-Hellman] and the key tweaking necessary to support TapScript.
+
+Signature verification speed as it compares to Schnorr or ECDSA isn't seen as high a consideration as signature size due to block space being the primary constraint in this proposal, however, as a P2QRH implementation materializes, a benchmark will be added for comparison.
+
+An additional consideration are security levels. Longer signature sizes provide more security. NIST has standardized five security levels. NIST security level I provides security equivalent to 128-bit keys, and security level V provides 256-bit security. Feedback is welcomed as to whether there should be two address types available, one for high-velocity coins that is cheaper, and one for low-velocity coins where a premium is considered worthwhile. Additionally, it's possible that existing address types are fine for high-velocity coins so long as transactions are submitted out of band, and practically-speaking, most P2QRH users will opt for NIST V security, at which point, it's only worth implementing the strongest available signature algorithm variant.
 
 
 == Specification ==
@@ -140,6 +150,4 @@ To help implementors understand updates to this BIP, we keep a list of substanti
 
 == Acknowledgements ==
 
-TBD
-
-Much gratitude to my co-founder, Kyle Crews for proofreading and editing, and also to Dave C. who provided the name, QuBit.
+Much gratitude to my co-founder, Kyle Crews for proofreading and editing, and to David C. who suggested the name "QuBit." Thank you as well to those who took the time to review and contribute, including AB (and hopefully many more).
