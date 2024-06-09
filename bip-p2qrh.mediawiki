@@ -14,7 +14,7 @@
 
 === Abstract ===
 
-This document proposes a new SegWit output type, with spending rules based on SQIsign signatures. (For more on why SQIsign is chosen, see the Security section.) A constraint is that no hard fork or modifications leading to an increase in block size are necessary. This document is inspired by [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP-341], which introduced the design of the P2TR address format using Schnorr signatures.
+This document proposes a new SegWit output type, with spending rules based on SQIsign signatures. (For more on why SQIsign is chosen, see the Security section.) A constraint is that no hard fork or modifications leading to an increase in block size are necessary. This document is inspired by [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP-341], which introduced the design of the P2TR address type using Schnorr signatures.
 
 
 === Copyright ===
@@ -76,24 +76,25 @@ For descriptors, <code>qrh()</code> should be used.
 
 Quaternion isogeny signature algorithms represent the state of the art in post-quantum cryptography, beyond lattice cryptography, especially when key and signature length are major constraints.
 
-Quantum resistant signature algorithms ordered by signature size, large to small:
+Quantum resistant signature algorithms ordered by shortest proposed signature size:
 
 * [https://sphincs.org SPHINCS+] - 17KB
 * [https://eprint.iacr.org/2014/457.pdf pqNTRUsign] - 702 bytes
 * [https://falcon-sign.info FALCON] - 666 bytes
-* [https://sqisign.org SQIsign] - 177 bytes
-* [https://eprint.iacr.org/2024/760.pdf SQIsign2D-West] - 148 bytes
-* [https://link.springer.com/chapter/10.1007/978-3-031-58716-0_1 FastSQIsignHD] - 107 bytes
+* [https://sqisign.org SQIsign] - 177-335 bytes
+* [https://eprint.iacr.org/2024/760.pdf SQIsign2D-West] - 148-294 bytes
+* [https://link.springer.com/content/pdf/10.1007/978-3-031-58716-0_1.pdf SQIsignHD] - 109 bytes
 
 In comparison:
 
 * ECDSA - 70-72 bytes
 * Schnorr - 64 bytes
 
-Ideally FastSQIsignHD proves to be flexible enough to support [https://www.pierrickdartois.fr/homepage/wp-content/uploads/2022/04/Report_OSIDH_DARTOIS.pdf Isogeny Diffie-Hellman] and the key tweaking necessary to support TapScript.
+Ideally SQIsignHD proves to be flexible enough to support [https://www.pierrickdartois.fr/homepage/wp-content/uploads/2022/04/Report_OSIDH_DARTOIS.pdf Isogeny Diffie-Hellman] and the key tweaking necessary to support TapScript.
 
 Signature verification speed as it compares to Schnorr or ECDSA isn't seen as high a consideration as signature size due to block space being the primary constraint in this proposal, however, as a P2QRH implementation materializes, a benchmark will be added for comparison.
 
+An additional consideration are security levels. Longer signature sizes provide more security. NIST has standardized five security levels. NIST security level I provides security equivalent to 128-bit keys, and security level V provides 256-bit security. Feedback is welcomed as to whether there should be two address types available, one for high-velocity coins that is cheaper, and one for low-velocity coins where a premium is considered worthwhile. Additionally, it's possible that existing address types are fine for high-velocity coins so long as transactions are submitted out of band, and practically-speaking, most P2QRH users will opt for NIST V security, at which point, it's only worth implementing the strongest available signature algorithm variant.
 
 == Specification ==
 
