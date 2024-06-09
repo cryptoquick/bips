@@ -52,6 +52,8 @@ Should quantum advantage manifest, a convention is proposed in spending the full
 
 As an interesting aside, coinbase outputs to P2PK keys go as far as block 200,000, so it's possible there are between 1-2 million coins that are vulnerable from the first epoch. These coins can be considered "Satoshi's Shield." Any addresses with a balance of less than the original block subsidy of 50 coins can be considered incentive incompatible to capture until all of these are mined.
 
+In comparison, [https://ethresear.ch/t/how-to-hard-fork-to-save-most-users-funds-in-a-quantum-emergency/18901 Vitalik Buterin's proposed solution] for quantum emergency in Ethereum is to hard fork the chain, revert all blocks after a sufficient amount of theft, and use STARKs based on BIP-32 seeds to act as the authoritative secret when signing. This approach is deemed far too heavy-handed for Bitcoin.
+
 == Description ==
 
 We first build up a definition of the signature scheme by going through the design choices. Afterwards, we specify the exact encodings and operations.
