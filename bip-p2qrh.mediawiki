@@ -68,9 +68,11 @@ The proposal above also leaves a gap in case it makes sense to use version 2, or
 
 The name P2QRH means Pay to Quantum Resistant Hash. This is similar to how P2PKH, as defined in [https://github.com/bitcoin/bips/blob/master/bip-0016.mediawiki#specification BIP-16].
 
-P2QR addresses will be needed to maintain TapScript compatibility, and will encode the SQIsign public key. P2QRH addresses will use SHA-256 / MD160, similar to BIP-16, to reduce the size of new outputs.
+P2QR addresses will be needed to maintain TapScript compatibility, which will be defined in a separate BIP, and will encode the SQIsign public key. P2QRH addresses will use SHA-256 / MD160, similar to BIP-16, to reduce the size of new outputs.
 
-For descriptors, <code>qrh()</code> should be used.
+Once P2QRH and P2QR are finalized in the QuBit soft fork, a signature algorithm for quantum-secure addresses, or P2QS, will need to be researched. This will be a separate soft fork, because P2QS will require specialized quantum hardware in order to sign, however, such an algorithm must be verifiable via classical computation. Quantum resistant addresses are an intermediary solution until quantum cryptography hardware is widespread.
+
+For P2QRH descriptors, <code>qrh()</code> should be used.
 
 > Further specific details to be defined after step 1 in the process outlined BIP-2
 
