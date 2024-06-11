@@ -85,6 +85,7 @@ Quantum resistant signature algorithms ordered by shortest proposed signature si
 * [https://sphincs.org SPHINCS+] - 17KB
 * [https://eprint.iacr.org/2014/457.pdf pqNTRUsign] - 702 bytes
 * [https://falcon-sign.info FALCON] - 666 bytes
+* [https://eprint.iacr.org/2022/1155.pdf HAWK] - 652 bytes
 * [https://sqisign.org SQIsign] - 177-335 bytes
 * [https://eprint.iacr.org/2024/760.pdf SQIsign2D-West] - 148-294 bytes
 * [https://link.springer.com/content/pdf/10.1007/978-3-031-58716-0_1.pdf SQIsignHD] - 109 bytes
