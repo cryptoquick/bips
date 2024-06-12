@@ -54,11 +54,7 @@ As an interesting aside, coinbase outputs to P2PK keys go as far as block 200,00
 
 Lastly, it is worth noting by way of comparison that [https://ethresear.ch/t/how-to-hard-fork-to-save-most-users-funds-in-a-quantum-emergency/18901 Vitalik Buterin's proposed solution] in an Ethereum quantum emergency is quite different from the approach in this BIP. His plan involves a hard fork of the chain, reverting all blocks after a sufficient amount of theft, and using STARKs based on BIP-32 seeds to act as the authoritative secret when signing. These measures are deemed far too heavy-handed for Bitcoin.
 
-== Description ==
-
-We first build up a definition of the signature scheme by going through the design choices. Afterwards, we specify the exact encodings and operations.
-
-=== Design ===
+=== Rationale ===
 
 This is the first in a series of BIPs under a QuBit soft fork. A qubit is a fundamental unit of quantum computing, and the capital B represents its connection to Bitcoin. The name QuBit also rhymes to some extent with SegWit.
 
@@ -68,9 +64,15 @@ The proposal above also leaves a gap in case it makes sense to use version 2, or
 
 The name P2QRH means Pay to Quantum Resistant Hash. This is similar to how P2PKH, as defined in [https://github.com/bitcoin/bips/blob/master/bip-0016.mediawiki#specification BIP-16].
 
-P2QR addresses will be needed to maintain TapScript compatibility, which will be defined in a separate BIP, and will encode the SQIsign public key. P2QRH addresses will use SHA-256 / MD160, similar to BIP-16, to reduce the size of new outputs.
+The proposed P2QRH address format is not intended to be compatible with TapScript, due to its use of a 20-byte HASH160 (SHA-256 / MD160, similar to BIP-16) of the SQIsign public key to reduce the size of new outputs. This is because SQIsign public keys are 64 bytes in length, and it's uncertain whether they can be compressed similar to 32-byte P2TR x-only public keys. Instead, it is proposed to have a separate address format called P2QR to be defined in a follow-on BIP, which is meant to provide similar functionality to current P2TR addresses, and will likely require considerable more effort. Regardless, P2QRH should be available to users who do not wish to have their public key exposed on-chain upon receiving payment.
 
-Once P2QRH and P2QR are finalized in the QuBit soft fork, a signature algorithm for quantum-secure addresses, or P2QS, will need to be researched. This will be a separate soft fork, because P2QS will require specialized quantum hardware in order to sign, however, such an algorithm must be verifiable via classical computation. Quantum resistant addresses are an intermediary solution until quantum cryptography hardware is widespread.
+In the distant future, following the implementation of P2QR and P2QRH address formats in a soft fork, there will likely be a need for Pay to Quantum Secure (P2QS) addresses. These will require specialized quantum hardware for signing while still being verifiable by classical means. Additional follow-on BIPs will be needed to implement P2QS. However, until specialized quantum cryptography hardware is widespread, quantum resistant addresses should be an adequate intermediate solution.
+
+== Description ==
+
+We first build up a definition of the signature scheme by going through the design choices. Afterwards, we specify the exact encodings and operations.
+
+=== Design ===
 
 For P2QRH descriptors, <code>qrh()</code> should be used.
 
