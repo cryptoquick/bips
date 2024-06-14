@@ -86,20 +86,34 @@ For P2QRH descriptors, <code>qrh()</code> should be used.
 
 Quaternion isogeny signature algorithms represent the state of the art in post-quantum cryptography, beyond lattice cryptography, especially when key and signature length are major constraints.
 
-Quantum resistant signature algorithms ordered by shortest proposed signature size:
+{|
+|+ Quantum resistant signature algorithms ordered by shortest proposed signature size
+|-
+! Signature algorithm !! Signature size !! Year first introduced
+|-
+| [https://en.wikipedia.org/wiki/Lamport_signature Lamport signature] || 8KB || 1977
+|-
+| [https://sphincs.org SPHINCS+ Rd. 3] || 982 bytes || 2015-2020
+|-
+| [https://eprint.iacr.org/2014/457.pdf pqNTRUsign] || 702 bytes || 2016
+|-
+| [https://falcon-sign.info FALCON] || 666 bytes || 2017
+|-
+| [https://eprint.iacr.org/2022/1155.pdf HAWK] || 652 bytes || 2022
+|-
+| [https://sqisign.org SQIsign] || 177-335 bytes || 2023
+|-
+| [https://eprint.iacr.org/2024/760.pdf SQIsign2D-West] || 148-294 bytes || 2024
+|-
+| [https://link.springer.com/content/pdf/10.1007/978-3-031-58716-0_1.pdf SQIsignHD] || 109 bytes || 2024
+|}
 
-* [https://sphincs.org SPHINCS+] - 17KB
-* [https://eprint.iacr.org/2014/457.pdf pqNTRUsign] - 702 bytes
-* [https://falcon-sign.info FALCON] - 666 bytes
-* [https://eprint.iacr.org/2022/1155.pdf HAWK] - 652 bytes
-* [https://sqisign.org SQIsign] - 177-335 bytes
-* [https://eprint.iacr.org/2024/760.pdf SQIsign2D-West] - 148-294 bytes
-* [https://link.springer.com/content/pdf/10.1007/978-3-031-58716-0_1.pdf SQIsignHD] - 109 bytes
-
-In comparison:
+In comparison to signature size:
 
 * ECDSA - 70-72 bytes
 * Schnorr - 64 bytes
+
+In comparison to year, secp256k1 was originally specified in 2000.
 
 Ideally SQIsignHD proves to be flexible enough to support [https://www.pierrickdartois.fr/homepage/wp-content/uploads/2022/04/Report_OSIDH_DARTOIS.pdf Isogeny Diffie-Hellman] and the key tweaking necessary to support TapScript.
 
