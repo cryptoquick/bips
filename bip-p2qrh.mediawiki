@@ -87,7 +87,7 @@ For P2QRH descriptors, <code>qrh()</code> should be used.
 Quaternion isogeny signature algorithms represent the state of the art in post-quantum cryptography, beyond lattice cryptography, especially when key and signature length are major constraints.
 
 {|
-|+ Quantum resistant signature algorithms ordered by shortest proposed signature size
+|+ Proposed quantum resistant signature algorithms ordered by largest to smallest signature size
 |-
 ! Signature algorithm !! Signature size !! Year first introduced
 |-
@@ -108,7 +108,7 @@ Quaternion isogeny signature algorithms represent the state of the art in post-q
 | [https://link.springer.com/content/pdf/10.1007/978-3-031-58716-0_1.pdf SQIsignHD] || 109 bytes || 2024
 |}
 
-In comparison to signature size:
+In comparison, the size of currently used signature algorithms are:
 
 * ECDSA - 70-72 bytes
 * Schnorr - 64 bytes
