@@ -84,16 +84,14 @@ For P2QRH descriptors, <code>qrh()</code> should be used.
 
 == Security ==
 
-Quaternion isogeny signature algorithms represent the state of the art in post-quantum cryptography, beyond lattice cryptography, especially when key and signature length are major constraints.
-
 {|
 |+ Proposed quantum resistant signature algorithms ordered by largest to smallest signature size
 |-
 ! Signature algorithm !! Signature size !! Year first introduced
 |-
-| [https://en.wikipedia.org/wiki/Lamport_signature Lamport signature] || 8KB || 1977
+| [https://en.wikipedia.org/wiki/Lamport_signature Lamport signature] || 8192 bytes || 1977
 |-
-| [https://sphincs.org SPHINCS+ Rd. 3] || 982 bytes || 2015-2020
+| [https://sphincs.org/data/sphincs+-r3.1-specification.pdf SPHINCS+ Rd. 3.1] || 7856 bytes || 2015
 |-
 | [https://eprint.iacr.org/2014/457.pdf pqNTRUsign] || 702 bytes || 2016
 |-
@@ -108,18 +106,20 @@ Quaternion isogeny signature algorithms represent the state of the art in post-q
 | [https://link.springer.com/content/pdf/10.1007/978-3-031-58716-0_1.pdf SQIsignHD] || 109 bytes || 2024
 |}
 
+As shown, quaternion isogeny signature algorithms represent the state of the art in post-quantum cryptography, beyond lattice cryptography alone, especially when key and signature length are major constraints.
+
 In comparison, the size of currently used signature algorithms are:
 
 * ECDSA - 70-72 bytes
 * Schnorr - 64 bytes
 
-In comparison to year, secp256k1 [was originally specified in 2000](https://www.secg.org/SEC1-Ver-1.0.pdf).
+In comparison to year, secp256k1 [https://www.secg.org/SEC1-Ver-1.0.pdf was originally specified in 2000].
 
-One consideration for choosing an algorithm is its maturity. secp256k1 was already 8 years old by the time it was chosen as Bitcoin's curve. Isogeny cryptography when it was first introduced was broken over a weekend. It's unknown when quantum advantage will manifest, but the "Canary address" and "Satoshi's shield" as defined above should provide some time for a soft fork activation. That means there isn't a rush, but hopefully this BIP will shine a spotlight on the latest developments in the field. Bitcoin currently secures more than a trillion dollars worth of value, so there is sufficient incentive to fund cryptography research and the implementation of this research in a viable soft fork.
+One consideration for choosing an algorithm is its maturity. secp256k1 was already 8 years old by the time it was chosen as Bitcoin's curve. Isogeny cryptography when it was first introduced was broken over a weekend.
 
 In the meantime, it's recommended that no more than 50 bitcoin are kept under a single distinct, unused Native SegWit (P2WPKH, "bc1q") address at a time.
 
-Practically, ideally SQIsignHD also proves to be flexible enough to support [https://www.pierrickdartois.fr/homepage/wp-content/uploads/2022/04/Report_OSIDH_DARTOIS.pdf Isogeny Diffie-Hellman] to replace ECDH applications, and also provide methods for the key tweaking necessary to support TapScript.
+Ideally SQIsignHD also proves to be flexible enough to support [https://www.pierrickdartois.fr/homepage/wp-content/uploads/2022/04/Report_OSIDH_DARTOIS.pdf Isogeny Diffie-Hellman] to replace ECDH applications, and also provide methods for the key tweaking necessary to support TapScript.
 
 Signature verification speed as it compares to Schnorr or ECDSA isn't seen as high a consideration as signature size due to block space being the primary constraint in this proposal. As a P2QRH implementation materializes, a benchmark will be added for comparison. Fortunately, SQIsign signatures are substantially faster to verify than it is to generate keys or to sign, which is a major consideration when a transaction need only be signed once, or a handful of times with PSBT, compared to being verified simultaneously on tens of thousands of nodes. Key generation may need to cached in [https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki BIP-32 HD wallets].
 
