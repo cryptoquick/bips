@@ -97,7 +97,7 @@ For P2QRH descriptors, <code>qrh()</code> should be used.
 |-
 | [https://eprint.iacr.org/2014/457.pdf pqNTRUsign] || 702 bytes || 1814 bytes || 2016
 |-
-| [https://falcon-sign.info FALCON] || 666 bytes ||  || 2017
+| [https://falcon-sign.info FALCON] || 666 bytes || 1280 bytes || 2017
 |-
 | [https://eprint.iacr.org/2022/1155.pdf HAWK] || 652 bytes || 1261 bytes || 2022
 |-
