@@ -67,6 +67,8 @@ The proposal above also leaves a gap in case it makes sense to use version 2, or
 
 The proposed P2QRH address format is not intended to be compatible with TapScript, due to its use of a 20-byte HASH160 (SHA-256 / MD160, similar to [https://github.com/bitcoin/bips/blob/master/bip-0016.mediawiki#specification BIP-16]) of the SQIsign public key to reduce the size of new outputs. This is because SQIsign public keys are 64 bytes in length, and it's uncertain whether they can be compressed in a similar way to 32-byte P2TR x-only public keys. Instead, it is proposed to have a separate address format called P2QR to be defined in a follow-on BIP. This is meant to provide similar functionality to current P2TR addresses, but will likely require considerably more effort. Regardless, P2QRH should be available to users who do not wish to have their public key exposed on-chain upon receiving payment.
 
+A HASH160 is a 20 byte MD160 hash of a SHA-256 hash. This serves as a minimal cryptographic commitment to a public key. This goes into the output spend script, which does not receive the witness discount. Signatures, however, do receive a 4x witness discount.
+
 In the distant future, following the implementation of P2QR and P2QRH address formats in a soft fork, there will likely be a need for Pay to Quantum Secure (P2QS) addresses. These will require specialized quantum hardware for signing while still being verifiable by classical means. Additional follow-on BIPs will be needed to implement P2QS. However, until specialized quantum cryptography hardware is widespread, quantum resistant addresses should be an adequate intermediate solution.
 
 
@@ -87,23 +89,23 @@ For P2QRH descriptors, <code>qrh()</code> should be used.
 {|
 |+ Proposed quantum resistant signature algorithms ordered by largest to smallest signature size
 |-
-! Signature algorithm !! Signature size !! Year first introduced
+! Signature algorithm !! Signature size, NIST I !! Signature size, NIST V !! Year first introduced
 |-
-| [https://en.wikipedia.org/wiki/Lamport_signature Lamport signature] || 8192 bytes || 1977
+| [https://en.wikipedia.org/wiki/Lamport_signature Lamport signature] || n/a || 8192 bytes || 1977
 |-
-| [https://sphincs.org/data/sphincs+-r3.1-specification.pdf SPHINCS+ Rd. 3.1] || 7856 bytes || 2015
+| [https://sphincs.org/data/sphincs+-r3.1-specification.pdf SPHINCS+ Rd. 3.1] || 7856 bytes || 29792 bytes || 2015
 |-
-| [https://eprint.iacr.org/2014/457.pdf pqNTRUsign] || 702 bytes || 2016
+| [https://eprint.iacr.org/2014/457.pdf pqNTRUsign] || 702 bytes || 1814 bytes || 2016
 |-
-| [https://falcon-sign.info FALCON] || 666 bytes || 2017
+| [https://falcon-sign.info FALCON] || 666 bytes || 1280 bytes || 2017
 |-
-| [https://eprint.iacr.org/2022/1155.pdf HAWK] || 652 bytes || 2022
+| [https://eprint.iacr.org/2022/1155.pdf HAWK] || 652 bytes || 1261 bytes || 2022
 |-
-| [https://sqisign.org SQIsign] || 177-335 bytes || 2023
+| [https://sqisign.org SQIsign] || 177 bytes || 335 bytes || 2023
 |-
-| [https://eprint.iacr.org/2024/760.pdf SQIsign2D-West] || 148-294 bytes || 2024
+| [https://eprint.iacr.org/2024/760.pdf SQIsign2D-West] || 148 bytes || 294 bytes || 2024
 |-
-| [https://link.springer.com/content/pdf/10.1007/978-3-031-58716-0_1.pdf SQIsignHD] || 109 bytes || 2024
+| [https://link.springer.com/content/pdf/10.1007/978-3-031-58716-0_1.pdf SQIsignHD] || 109 bytes || not provided || 2024
 |}
 
 As shown, quaternion isogeny signature algorithms represent the state of the art in post-quantum cryptography, beyond lattice cryptography alone, especially when key and signature length are major constraints.
@@ -125,7 +127,7 @@ Signature verification speed as it compares to Schnorr or ECDSA isn't seen as hi
 
 An additional consideration are security levels. Longer signature sizes provide more security. NIST has standardized five security levels for post-quantum cryptography. NIST security level I provides security equivalent to 128-bit keys, and security level V provides 256-bit security.
 
-P2QRH addresses don't reveal their public key until they're spent. P2QR addresses have their public key encoded in the output, which goes on-chain. More security is needed when the public key is visible on-chain, and so NIST V should be used for P2QR addresses. P2QRH addresses won't need this level of security, provided wallets implement anti-address reuse mechanisms.
+P2QRH addresses don't reveal their public key until they're spent. P2QR addresses have their public key encoded in the output, which goes on-chain. More security is needed when the public key is visible on-chain, and so NIST V should be used for P2QR addresses. It is assumed P2QRH addresses won't need this level of security, provided wallets implement anti-address reuse mechanisms.
 
 
 == Specification ==
