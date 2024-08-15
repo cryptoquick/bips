@@ -93,11 +93,13 @@ For P2QRH descriptors, <code>qrh()</code> should be used.
 |-
 | [https://en.wikipedia.org/wiki/Lamport_signature Lamport signature] || n/a || 8192 bytes || 1977
 |-
-| [https://sphincs.org/data/sphincs+-r3.1-specification.pdf SPHINCS+ Rd. 3.1] || 7856 bytes || 29792 bytes || 2015
+| [https://sphincs.org/data/sphincs+-r3.1-specification.pdf SPHINCS+ Rd. 3.1 (FIPS 205 - SLH-DSA)] || 7856 bytes || 29792 bytes || 2015
+|-
+| [https://pq-crystals.org/dilithium/ CRYSTALS-Dilithium (FIPS 204 - ML-DSA)] || 2420 bytes || 4595 bytes || 2017
 |-
 | [https://eprint.iacr.org/2014/457.pdf pqNTRUsign] || 702 bytes || 1814 bytes || 2016
 |-
-| [https://falcon-sign.info FALCON] || 666 bytes || 1280 bytes || 2017
+| [https://falcon-sign.info FALCON (FIPS 206 - FN-DSA)] || 666 bytes || 1280 bytes || 2017
 |-
 | [https://eprint.iacr.org/2022/1155.pdf HAWK] || 652 bytes || 1261 bytes || 2022
 |-
