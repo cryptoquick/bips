@@ -14,7 +14,7 @@
 
 === Abstract ===
 
-This document proposes a new SegWit output type, with spending rules based on SQIsign signatures. (For more on why SQIsign is chosen, see the Security section.) A constraint is that no hard fork or modifications leading to an increase in block size are necessary. This document is inspired by [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP-341], which introduced the design of the P2TR address type using Schnorr signatures.
+This document proposes a new SegWit output type, with spending rules based on SQIsign and FALCON signatures. (For more on why both are chosen, see the Rationale and Security sections.) A constraint is that no hard fork or increase in block size are necessary. This document is inspired by [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP-341], which introduced the design of the P2TR address type using Schnorr signatures.
 
 
 === Copyright ===
@@ -67,9 +67,21 @@ The proposal above also leaves a gap in case it makes sense to use version 2, or
 
 The proposed P2QRH address format is not intended to be compatible with TapScript. Instead, it is proposed to have a separate address format called P2QR to be defined in a follow-on BIP. This is meant to provide similar functionality to current P2TR addresses, but will likely require considerably more effort. P2QRH should be available to users who do not wish to have their public key exposed on-chain upon receiving payment.
 
-P2QRH uses a 32-byte HASH256 (specifically SHA-256 x2, which is similar to that used in [https://github.com/bitcoin/bips/blob/master/bip-0016.mediawiki#specification BIP-16]) of the SQIsign public key to reduce the size of new outputs and also to increase security by not having the public key available on-chain. This serves as a minimal cryptographic commitment to a public key. This goes into the output spend script, which does not receive the witness discount. Signatures, however, do receive a 4x witness discount. SQIsign public keys are between 64 and 128 bytes in length, depending on the security level. To promote user adoption and general user-friendliness, the most secure variant of SQIsign (NIST V, 256 bit) is proposed, despite the moderate increase in key length.
+P2QRH uses a 32-byte HASH256 (specifically SHA-256 x2, which is similar to that used in [https://github.com/bitcoin/bips/blob/master/bip-0016.mediawiki#specification BIP-16]) of the public key to reduce the size of new outputs and also to increase security by not having the public key available on-chain. This serves as a minimal cryptographic commitment to a public key. This goes into the output spend script, which does not receive the witness discount. Signatures, however, do receive a 4x witness discount. SQIsign public keys are between 64 and 128 bytes in length, depending on the security level. To promote user adoption and general user-friendliness, the most secure variant of SQIsign (NIST V, 256 bit) is proposed, despite the moderate increase in key length.
 
-In the distant future, following the implementation of P2QR and P2QRH address formats in a soft fork, there will likely be a need for Pay to Quantum Secure (P2QS) addresses. These will require specialized quantum hardware for signing while still being verifiable by classical means. Additional follow-on BIPs will be needed to implement P2QS. However, until specialized quantum cryptography hardware is widespread, quantum resistant addresses should be an adequate intermediate solution.
+Not having public keys exposed on-chain is a major constraint for quantum security, otherwise funds would need to be spent to new addresses on a regular basis in order to prevent the possibility of a "long-range CRQC attack" recovering the key behind high value addresses. A long-range quantum attack can be considered one performed with chain data, such as that from a used address or one encoded in a spend script. A short-range quantum attack would be one done on keys in the mempool, which is seen as impractical given transaction throughput and the block time. The more value being sent, the higher the fee should be set, in order to commit the transaction to the chain as soon as possible, thus making useless the public key revealed by spending a UTXO.
+
+Support for FALCON will also be introduced. While its signatures are roughly 4x larger than SQIsign signatures and 20x larger than Schnorr signatures, it will be necessary to have a fallback algorithm should a flaw be found in SQIsign, which is much newer and experimental. FALCON is a more conservative approach to applied lattice cryptography than SQIsign, and its use is approved by NIST. However, even SQIsign signatures are roughly 5x larger than Schnorr signatures. This means, to maintain present transaction throughput, an increase in the witness discount will likely be desired in a QuBit soft fork. That will be specified in a future QuBit BIP.
+
+An increase in the witness discount must not be taken lightly, and must be resistant to applications that might take advantage of this discount such as storage of arbitrary data (commonly known as "inscriptions"), inflating chain state on nodes without a corresponding increase in economic activity. This would not only impact node runners, but those with inscriptions would also have the scarcity of their non-monetary assets affected.
+
+To address this, very specific rules will be applied to spending from the witness stack in SegWit v3 outputs. A fixed signature size will be necessary for spending the output, and the output must be spendable to be considered valid within node consensus. A fixed signature size will also be helpful in disambiguating between signature types without an additional version byte, as SQIsign signatures are substantially smaller than FALCON signatures, and vice versa, and so the correct signature algorithm can be inferred. The public key and signature will be pushed separately to the witness stack. Multiple signatures can be included in order to support multisig applications.
+
+Since only valid signatures can be committed to in a SegWit v3 witness, arbitrary data cannot be added by miners, as that would affect the consensus of their block. Technically if a CRQC were capable of computing a spendable public key that matched arbitrary signature data, this is economically disincentivized due to the cost of that computation, which could prove quite substantial, rather than simply putting the arbitrary data within a Taproot witness, rather than doing the work to meet the requirement for it to be consensus-valid data.
+
+Additionally, it should be noted, whether an output with a P2QRH spend script corresponds to a FALCON or SQIsign signature is not known until the output is spent.
+
+In the distant future, following the implementation of P2QR and P2QRH address formats in a soft fork, there will likely be a need for Pay to Quantum Secure (P2QS) addresses. These will require specialized quantum hardware for signing, perhaps requiring Shor's algorithm to compute a valid signature, while still being verifiable by classical means. Additional follow-on BIPs will be needed to implement P2QS. However, until specialized quantum cryptography hardware is widespread, quantum resistant addresses should be an adequate intermediate solution.
 
 
 == Description ==
@@ -107,7 +119,7 @@ For P2QRH descriptors, <code>qrh()</code> should be used.
 |-
 | [https://eprint.iacr.org/2024/760.pdf SQIsign2D-West] || 148 bytes || 294 bytes || 2024
 |-
-| [https://link.springer.com/content/pdf/10.1007/978-3-031-58716-0_1.pdf SQIsignHD] || 109 bytes || not provided || 2024
+| [https://link.springer.com/content/pdf/10.1007/978-3-031-58716-0_1.pdf SQIsignHD || 109 bytes || not provided || 2024
 |}
 
 As shown, supersingular elliptic curve quaternion isogeny signature algorithms represent the state of the art in post-quantum cryptography, beyond lattice cryptography alone, especially when key and signature length are major constraints.
@@ -123,13 +135,11 @@ One consideration for choosing an algorithm is its maturity. secp256k1 was alrea
 
 In the meantime, it's recommended that no more than 50 bitcoin are kept under a single distinct, unused Native SegWit (P2WPKH, "bc1q") address at a time.
 
-Ideally SQIsignHD also proves to be flexible enough to support [https://www.pierrickdartois.fr/homepage/wp-content/uploads/2022/04/Report_OSIDH_DARTOIS.pdf Isogeny Diffie-Hellman] to replace ECDH applications, and also provide methods for the key tweaking necessary to support TapScript.
+Ideally SQIsign also proves to be flexible enough to support [https://www.pierrickdartois.fr/homepage/wp-content/uploads/2022/04/Report_OSIDH_DARTOIS.pdf Isogeny Diffie-Hellman] to replace ECDH applications, and also provide methods for the key tweaking necessary to support TapScript for P2QR addresses.
 
-Signature verification speed as it compares to Schnorr or ECDSA isn't seen as high a consideration as signature size due to block space being the primary constraint in this proposal. As a P2QRH implementation materializes, a benchmark will be added for comparison. Fortunately, SQIsign signatures are substantially faster to verify than it is to generate keys or to sign, which is a major consideration when a transaction need only be signed once, or a handful of times with PSBT, compared to being verified simultaneously on tens of thousands of nodes. Key generation may need to cached in [https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki BIP-32 HD wallets].
+Signature verification speed as it compares to Schnorr or ECDSA isn't seen as high a consideration as signature size due to block space being the primary fee constraint. As a P2QRH implementation materializes, a benchmark will be added for performance comparison. Fortunately, SQIsign signatures are substantially faster to verify than it is to generate keys or to sign, which is a major consideration when a transaction need only be signed once, or a handful of times with PSBT, compared to being verified simultaneously on tens of thousands of nodes. Key generation may need to cached in [https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki BIP-32 HD wallets].
 
 An additional consideration are security levels. Longer signature sizes provide more security. NIST has standardized five security levels for post-quantum cryptography. NIST security level I provides security equivalent to 128-bit keys, and security level V provides 256-bit security.
-
-P2QRH addresses don't reveal their public key until they're spent. P2QR addresses have their public key encoded in the output, which goes on-chain. More security is needed when the public key is visible on-chain, and so NIST V should be used for P2QR addresses. It is assumed P2QRH addresses won't need this level of security, provided wallets implement anti-address reuse mechanisms.
 
 
 == Specification ==
