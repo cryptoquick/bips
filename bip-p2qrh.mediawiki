@@ -101,27 +101,49 @@ For P2QRH descriptors, <code>qrh()</code> should be used.
 == Security ==
 
 {|
-|+ Proposed quantum resistant signature algorithms ordered by largest to smallest signature size
+|+ Proposed quantum resistant signature algorithms ordered by largest to smallest signature size, NIST I
 |-
-! Signature algorithm !! Signature size, NIST I !! Signature size, NIST V !! Year first introduced
+! Signature algorithm !! Year first introduced !! Signature size, NIST I !! Public key size, NIST I
 |-
-| [https://en.wikipedia.org/wiki/Lamport_signature Lamport signature] || n/a || 8192 bytes || 1977
+| [https://sphincs.org/data/sphincs+-r3.1-specification.pdf SPHINCS+ Rd. 3.1 (FIPS 205 - SLH-DSA)] || 2015 || 7856 bytes || 32 bytes
 |-
-| [https://sphincs.org/data/sphincs+-r3.1-specification.pdf SPHINCS+ Rd. 3.1 (FIPS 205 - SLH-DSA)] || 7856 bytes || 29792 bytes || 2015
+| [https://pq-crystals.org/dilithium/ CRYSTALS-Dilithium (FIPS 204 - ML-DSA)] || 2017 || 2420 bytes || 1312 bytes
 |-
-| [https://pq-crystals.org/dilithium/ CRYSTALS-Dilithium (FIPS 204 - ML-DSA)] || 2420 bytes || 4595 bytes || 2017
+| [https://eprint.iacr.org/2014/457.pdf pqNTRUsign] || 2016 || 702 bytes || 752 bytes
 |-
-| [https://eprint.iacr.org/2014/457.pdf pqNTRUsign] || 702 bytes || 1814 bytes || 2016
+| [https://falcon-sign.info FALCON (FIPS 206 - FN-DSA)] || 2017 || 666 bytes || 897 bytes
 |-
-| [https://falcon-sign.info FALCON (FIPS 206 - FN-DSA)] || 666 bytes || 1280 bytes || 2017
+| [https://eprint.iacr.org/2022/1155.pdf HAWK] || 2022 || 652 bytes || 1006 bytes
 |-
-| [https://eprint.iacr.org/2022/1155.pdf HAWK] || 652 bytes || 1261 bytes || 2022
+| [https://sqisign.org SQIsign] || 2023 || 177 bytes || 64 bytes
 |-
-| [https://sqisign.org SQIsign] || 177 bytes || 335 bytes || 2023
+| [https://eprint.iacr.org/2024/760.pdf SQIsign2D-West] || 2024 || 148 bytes || 66 bytes
 |-
-| [https://eprint.iacr.org/2024/760.pdf SQIsign2D-West] || 148 bytes || 294 bytes || 2024
+| [https://link.springer.com/content/pdf/10.1007/978-3-031-58716-0_1.pdf SQIsignHD] || 2024 || 109 bytes || not provided
+|}
+
+{|
+|+ Proposed quantum resistant signature algorithms ordered by largest to smallest signature size, NIST V
 |-
-| [https://link.springer.com/content/pdf/10.1007/978-3-031-58716-0_1.pdf SQIsignHD] || 109 bytes || not provided || 2024
+! Signature algorithm !! Year first introduced !! Signature size, NIST V !! Public key size, NIST V
+|-
+| Lamport signature || 1977 || 8192 bytes || 16384 bytes
+|-
+| SPHINCS+ Rd. 3.1 (FIPS 205 - SLH-DSA) || 2015 || 29792 bytes || 64 bytes
+|-
+| CRYSTALS-Dilithium (FIPS 204 - ML-DSA) || 2017 || 4595 bytes || 2592 bytes
+|-
+| pqNTRUsign || 2016 || 1814 bytes || 1927 bytes
+|-
+| FALCON (FIPS 206 - FN-DSA) || 2017 || 1280 bytes || 1793 bytes
+|-
+| HAWK || 2022 || 1261 bytes || 2329 bytes
+|-
+| SQIsign || 2023 || 335 bytes || 128 bytes
+|-
+| SQIsign2D-West || 2024 || 294 bytes || 130 bytes
+|-
+| SQIsignHD || 2023 || not provided || not provided
 |}
 
 As shown, supersingular elliptic curve quaternion isogeny signature algorithms represent the state of the art in post-quantum cryptography, beyond lattice cryptography alone, especially when key and signature length are major constraints.
@@ -186,6 +208,8 @@ TBD
 To help implementors understand updates to this BIP, we keep a list of substantial changes.
 
 * 2024-06: High level rough draft
+* 2024-07: Additional algorithms in PQC table
+* 2024-08: Add FALCON signatures, update to use NIST standard terminology, add public key sizes
 
 
 == Footnotes ==
