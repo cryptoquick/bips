@@ -83,7 +83,7 @@ Additionally, it should be noted, whether an output with a P2QRH spend script co
 
 While it might be seen as a maintenance burden for bitcoin ecosystem devs to go from a single cryptosystem implementation to three distinct cryptosystems-- and it most certainly is-- the burden of a chain broken through extrinsic factors can be considered to override this constraint. Some things are just worth the extra effort, and having two PQC algorithms to fall back on rather than just one will be crucial given the experimental nature of SQIsign and the size burden of FALCON signatures. An increase in software maintenance everywhere signatures are used should be seen as an acceptable compromise for maintained integrity of bitcoin transfers within a regime of quantum advantage.
 
-In the distant future, following the implementation of P2QR and P2QRH address formats in a soft fork, there will likely be a need for Pay to Quantum Secure (P2QS) addresses. These will require specialized quantum hardware for signing, perhaps requiring Shor's algorithm to compute a valid signature, while still being verifiable by classical means. Additional follow-on BIPs will be needed to implement P2QS. However, until specialized quantum cryptography hardware is widespread, quantum resistant addresses should be an adequate intermediate solution.
+In the distant future, following the implementation of P2QR and P2QRH address formats in a QuBit soft fork, there will likely be a need for Pay to Quantum Secure (P2QS) addresses. These will require specialized quantum hardware for signing, while still [https://quantum-journal.org/papers/q-2023-01-19-901/ using public keys that are verifiable via classical means]. Additional follow-on BIPs will be needed to implement P2QS. However, until specialized quantum cryptography hardware is widespread, quantum resistant addresses should be an adequate intermediate solution.
 
 
 == Description ==
@@ -210,6 +210,7 @@ To help implementors understand updates to this BIP, we keep a list of substanti
 * 2024-06: High level rough draft
 * 2024-07: Additional algorithms in PQC table
 * 2024-08: Add FALCON signatures, update to use NIST standard terminology, add public key sizes
+* 2024-09: Additional detail on P2QS
 
 
 == Footnotes ==
