@@ -207,6 +207,16 @@ TBD
 TBD
 
 
+== References ==
+
+* [https://groups.google.com/g/bitcoindev/c/Aee8xKuIC2s/m/cu6xej1mBQAJ Mailing list discussion]
+* [https://delvingbitcoin.org/t/proposing-a-p2qrh-bip-towards-a-quantum-resistant-soft-fork/956?u=cryptoquick Delving Bitcoin discussion]
+* [https://bitcoinops.org/en/newsletters/2024/06/14/ Bitcoin OpTech newsletter]
+* [https://bitcoinops.org/en/podcast/2024/06/18/#draft-bip-for-quantum-safe-address-format Bitcoin OpTech discussion transcript]
+
+<references />
+
+
 == Changelog ==
 
 To help implementors understand updates to this BIP, we keep a list of substantial changes.
@@ -215,16 +225,6 @@ To help implementors understand updates to this BIP, we keep a list of substanti
 * 2024-07: Additional algorithms in PQC table
 * 2024-08: Add FALCON signatures, update to use NIST standard terminology, add public key sizes.
 * 2024-09: Additional detail on P2QS. Deprecate P2QR. Postpone SQIsign.
-
-
-== Footnotes ==
-
-* [https://groups.google.com/g/bitcoindev/c/Aee8xKuIC2s/m/cu6xej1mBQAJ Mailing list discussion]
-* [https://delvingbitcoin.org/t/proposing-a-p2qrh-bip-towards-a-quantum-resistant-soft-fork/956?u=cryptoquick Delving Bitcoin discussion]
-* [https://bitcoinops.org/en/newsletters/2024/06/14/ Bitcoin OpTech newsletter]
-* [https://bitcoinops.org/en/podcast/2024/06/18/#draft-bip-for-quantum-safe-address-format Bitcoin OpTech discussion transcript]
-
-<references />
 
 
 == Acknowledgements ==
