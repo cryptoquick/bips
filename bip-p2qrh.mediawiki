@@ -229,4 +229,4 @@ To help implementors understand updates to this BIP, we keep a list of substanti
 
 == Acknowledgements ==
 
-Much gratitude to my co-founder, Kyle Crews for proofreading and editing, and to David C. who suggested the name "QuBit." Thank you as well to those who took the time to review and contribute, including AB (and hopefully many more).
+Much gratitude to my co-founder, Kyle Crews for proofreading and editing, and to David Croisant. who suggested the name "QuBit." Thank you as well to those who took the time to review and contribute, including Adam Borcany, Antoine Riard, and Pierre-Luc Dallaire-Demers.
