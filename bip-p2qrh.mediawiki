@@ -24,11 +24,11 @@ This document is licensed under the 3-clause BSD license.
 
 === Motivation ===
 
-This proposal aims to improve the quantum resistance of bitcoin's signature security should the Discrete Logarithm Problem (DLP) which secures Elliptic Curve Cryptography (ECC) no longer prove to be computationally hard, likely through quantum advantage by cryptographically-relevant quantum computers (CRQCs). [https://arxiv.org/pdf/quant-ph/0301141 A variant of Shor's algorithm] is believed to be capable of deriving the private key from a public key exponentially faster than classical means. The application of this variant of Shor's algorithm is herein referred to as quantum key decryption. Note that doubling the public key length, such as with a hypothetical secp512k1 curve, would only make deriving the private key twice as hard. The computational complexity of this is investigated further in the paper, [https://pubs.aip.org/avs/aqs/article/4/1/013801/2835275/The-impact-of-hardware-specifications-on-reaching ''The impact of hardware specifications on reaching quantum advantage in the fault tolerant regime''].
+This proposal aims to improve the quantum resistance of bitcoin's signature security should the Discrete Logarithm Problem (DLP) which secures Elliptic Curve Cryptography (ECC) no longer prove to be computationally hard, likely through quantum advantage by Cryptographically-Relevant Quantum Computers (CRQCs). [https://arxiv.org/pdf/quant-ph/0301141 A variant of Shor's algorithm] is believed to be capable of deriving the private key from a public key exponentially faster than classical means. The application of this variant of Shor's algorithm is herein referred to as quantum key decryption. Note that doubling the public key length, such as with a hypothetical secp512k1 curve, would only make deriving the private key twice as hard. The computational complexity of this is investigated further in the paper, [https://pubs.aip.org/avs/aqs/article/4/1/013801/2835275/The-impact-of-hardware-specifications-on-reaching ''The impact of hardware specifications on reaching quantum advantage in the fault tolerant regime''].
 
 Mining may one day be vulnerable to disruption by very advanced quantum computers making use of Grover's algorithm. However, Grover's [https://arxiv.org/pdf/1902.02332 scales very poorly] compared to Shor's, requiring 10^40 quantum operations in comparison to 10^8 for running Shor's over ECC. It's for this reason that the primary threat to Bitcoin by quantum computers is to its signature algorithm and not Proof of Work, hence the focus on a new address format.
 
-The vulnerability of existing bitcoin addresses is investigated in [https://www2.deloitte.com/nl/nl/pages/innovatie/artikelen/quantum-computers-and-the-bitcoin-blockchain.html this Deloitte report]. The report estimates that in 2020 approximately 25% of the bitcoin supply is held within addresses vulnerable to quantum attack.
+The vulnerability of existing bitcoin addresses is investigated in [https://web.archive.org/web/20240715101040/https://www2.deloitte.com/nl/nl/pages/innovatie/artikelen/quantum-computers-and-the-bitcoin-blockchain.html this Deloitte report]. The report estimates that in 2020 approximately 25% of the bitcoin supply is held within addresses vulnerable to quantum attack.
 
 Ordinarily, when a transaction is signed, the public key can be recovered from the signature. This makes a transaction submitted to the mempool vulnerable to quantum attack until it's mined. One way to mitigate this is to submit the transaction directly to a mining pool, which bypasses the mempool. This process is known as an out-of-band transaction. The mining pool must be trusted not to reveal the key to attackers.
 
@@ -56,7 +56,9 @@ Should quantum advantage manifest, a convention is proposed in spending the full
 
 As an interesting aside, coinbase outputs to P2PK keys go as far as block 200,000, so it's possible there are between 1-2 million coins that are vulnerable from the first epoch. These coins can be considered "Satoshi's Shield." Any addresses with a balance of less than the original block subsidy of 50 coins can be considered incentive incompatible to capture until all of these are mined.
 
-It's for this reason that, for those who wish to be prepared for quantum emergency, it is recommended that no more than 50 bitcoin are kept under a single distinct, unused Native SegWit (P2WPKH, "bc1q") address at a time.
+It's for this reason that, for those who wish to be prepared for quantum emergency, it is recommended that no more than 50 bitcoin are kept under a single distinct, unused Native SegWit (P2WPKH, "bc1q") address at a time. This is assuming that the attacker is financially-motivated instead of, for example, a nation state looking to break confidence in Bitcoin. Additionally, this assumes that other vulnerable targets such as central banks have upgraded their cryptography already.
+
+The Commercial National Security Algorithm Suite (CNSA) 2.0 has a timeline for software and networking equipment to be upgraded by 2030, with browsers and operating systems fully upgraded by 2033.
 
 Lastly, it is worth noting by way of comparison that [https://ethresear.ch/t/how-to-hard-fork-to-save-most-users-funds-in-a-quantum-emergency/18901 Vitalik Buterin's proposed solution] in an Ethereum quantum emergency is quite different from the approach in this BIP. His plan involves a hard fork of the chain, reverting all blocks after a sufficient amount of theft, and using STARKs based on BIP-32 seeds to act as the authoritative secret when signing. These measures are deemed far too heavy-handed for bitcoin.
 
@@ -77,7 +79,7 @@ Not having public keys exposed on-chain is an important step for quantum securit
 
 Post-quantum public keys are generally larger than those used by ECC, depending on the security level. To promote user adoption and general user-friendliness, the most secure variant (NIST V, 256 bit) is proposed, despite the increase in key length and verification time.
 
-Support for FALCON signatures will be introduced first, with the intention of adding SQIsign and other post-quantum algorithms as they are approved. By way of comparison, FALCON signatures are roughly 4x larger than SQIsign signatures and 20x larger than Schnorr signatures. FALCON is a more conservative approach to applied lattice cryptography than SQIsign, and its use has recently been approved by NIST. However, even SQIsign signatures are roughly 5x larger than Schnorr signatures. This means, to maintain present transaction throughput, an increase in the witness discount will likely be desired in a QuBit soft fork. That will be specified in a future QuBit BIP.
+Support for FALCON signatures will be introduced first, with the intention of adding SQIsign and other post-quantum algorithms as they are approved. By way of comparison, FALCON signatures are roughly 4x larger than SQIsign signatures and 20x larger than Schnorr signatures. FALCON is a more conservative approach to applied lattice cryptography than SQIsign, and its use has recently been approved by NIST. NIST approval streamlines implementations through establishing consensus in the scientific and developer community. However, even SQIsign signatures are roughly 5x larger than Schnorr signatures. This means, to maintain present transaction throughput, an increase in the witness discount will likely be desired in a QuBit soft fork. That will be specified in a future QuBit BIP.
 
 An increase in the witness discount must not be taken lightly.  It must be resistant to applications that might take advantage of this discount (e.g. storage of arbitrary data as seen with "inscriptions") without a corresponding increase in economic activity. Such an increase would not only impact node runners but those with inscriptions would also have the scarcity of their non-monetary assets affected. The only way to prevent this while also increasing the discount is to have a completely separate witness, a quantum witness, or "quitness," that is solely responsible for providing post-quantum signatures.
 
@@ -167,16 +169,22 @@ Ideally SQIsign also proves to be flexible enough to support [https://www.pierri
 
 Signature verification speed as it compares to Schnorr or ECDSA isn't seen as high a consideration as signature size due to block space being the primary fee constraint. As a P2QRH implementation materializes, a benchmark will be added for performance comparison. Fortunately, SQIsign signatures are substantially faster to verify than it is to generate keys or to sign, which is a major consideration when a transaction need only be signed once, or a handful of times with PSBT, compared to being verified simultaneously on tens of thousands of nodes. Key generation may need to cached in [https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki BIP-32 HD wallets].
 
-An additional consideration are security levels. Longer signature sizes provide more security. NIST has standardized five security levels for post-quantum cryptography. NIST security level I provides security equivalent to 128-bit keys, and security level V provides 256-bit security.
+An additional consideration is security levels. Longer signature sizes provide more security. NIST has standardized five security levels for post-quantum cryptography. NIST security level I provides security equivalent to 128-bit keys, and security level V provides 256-bit security.
 
 
 == Specification ==
 
-TBD
+How the quitness is differentiated from the witness can be accomplished similar to how [https://github.com/bitcoin/bips/blob/master/bip-0141.mediawiki#user-content-Transaction_ID BIP-141] introduced the marker and flag, with the QuBit flag being set to 0x02. This means all QuBit transactions are also SegWit transactions. The additional data would be included as a second array of byte arrays following the witness stack.
+
+The new transaction serialization format would be as follows:
+
+  [nVersion][marker][flag][txins][txouts][witness][quitness][nLockTime]
+
+WIP
 
 === Public Key Generation ===
 
-TBD
+TBD, pending test vectors
 
 === Public Key Conversion ===
 
@@ -207,6 +215,16 @@ TBD
 TBD
 
 
+== References ==
+
+* [https://groups.google.com/g/bitcoindev/c/Aee8xKuIC2s/m/cu6xej1mBQAJ Mailing list discussion]
+* [https://delvingbitcoin.org/t/proposing-a-p2qrh-bip-towards-a-quantum-resistant-soft-fork/956?u=cryptoquick Delving Bitcoin discussion]
+* [https://bitcoinops.org/en/newsletters/2024/06/14/ Bitcoin OpTech newsletter]
+* [https://bitcoinops.org/en/podcast/2024/06/18/#draft-bip-for-quantum-safe-address-format Bitcoin OpTech discussion transcript]
+
+<references />
+
+
 == Changelog ==
 
 To help implementors understand updates to this BIP, we keep a list of substantial changes.
@@ -214,14 +232,9 @@ To help implementors understand updates to this BIP, we keep a list of substanti
 * 2024-06: High level rough draft
 * 2024-07: Additional algorithms in PQC table
 * 2024-08: Add FALCON signatures, update to use NIST standard terminology, add public key sizes.
-* 2024-09: Additional detail on P2QS. Deprecate P2QR. Postpone SQIsign.
-
-
-== Footnotes ==
-
-<references />
+* 2024-09: Additional detail on P2QS. Deprecate P2QR. Postpone SQIsign. Add details on quitness.
 
 
 == Acknowledgements ==
 
-Much gratitude to my co-founder, Kyle Crews for proofreading and editing, and to David C. who suggested the name "QuBit." Thank you as well to those who took the time to review and contribute, including AB (and hopefully many more).
+Much gratitude to my co-founder, Kyle Crews for proofreading and editing, and to David Croisant. who suggested the name "QuBit." Thank you as well to those who took the time to review and contribute, including Adam Borcany, Antoine Riard, and Pierre-Luc Dallaire-Demers.
