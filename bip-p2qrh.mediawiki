@@ -26,7 +26,7 @@ This document is licensed under the 3-clause BSD license.
 
 This proposal aims to improve the quantum resistance of bitcoin's signature security should the Discrete Logarithm Problem (DLP) which secures Elliptic Curve Cryptography (ECC) no longer prove to be computationally hard, likely through quantum advantage by Cryptoanalytically-Relevant Quantum Computers (CRQCs). [https://arxiv.org/pdf/quant-ph/0301141 A variant of Shor's algorithm] is believed to be capable of deriving the private key from a public key exponentially faster than classical means. The application of this variant of Shor's algorithm is herein referred to as quantum key decryption. Note that doubling the public key length, such as with a hypothetical secp512k1 curve, would only make deriving the private key twice as hard. The computational complexity of this is investigated further in the paper, [https://pubs.aip.org/avs/aqs/article/4/1/013801/2835275/The-impact-of-hardware-specifications-on-reaching ''The impact of hardware specifications on reaching quantum advantage in the fault tolerant regime''].
 
-The primary threat to Bitcoin by CRQCs is [https://en.bitcoi.it/wiki/Quantum_computing_and_Bitcoin#QC_attacks generally considered to be their potential to break ECC, which is used in signatures and Taproot commitments], hence the focus on a new address format. This is because Shor's algorithm enables a CRQC to break the cryptographic assumptions of ECC in roughly 10^8 quantum operations.
+The primary threat to Bitcoin by CRQCs is [https://en.bitcoi.it/wiki/Quantum_computing_and_Bitcoin#QC_attacks generally considered to be their potential to break ECC, which is used in signatures and Taproot commitments], hence the focus on a new address format. Shor's algorithm enables a CRQC to break the cryptographic assumptions of ECC in roughly 10^8 quantum operations.
 
 The vulnerability of existing bitcoin addresses is investigated in [https://web.archive.org/web/20240715101040/https://www2.deloitte.com/nl/nl/pages/innovatie/artikelen/quantum-computers-and-the-bitcoin-blockchain.html this Deloitte report]. The report estimates that in 2020 approximately 25% of the bitcoin supply is held within addresses vulnerable to quantum attack. As of the time of writing, that number is now closer to 20%. Additionally, cryptographer Pieter Wuille [https://x.com/pwuille/status/1108085284862713856 reasons] even more might be vulnerable.
 
@@ -139,7 +139,7 @@ This allows wallets to manage P2QRH addresses and outputs while accommodating mu
 
 ==== Address Format ====
 
-P2QRH uses SegWit version 3 outputs, resulting in addresses that start with bc1r, following [https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki#bech32 BIP-173]. This is because the Bech32 encoding maps version 3 to the prefix r.
+P2QRH uses SegWit version 3 outputs, resulting in addresses that start with bc1r, following [https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki#bech32 BIP-173]. Bech32 encoding maps version 3 to the prefix r.
 
 Example P2QRH address:
 
@@ -374,7 +374,7 @@ For example, for CRYSTALS-Dilithium Level V, a single signature is 4595 bytes, w
 
 ==== Performance Impact ====
 
-Verification of quantum-resistant signatures will be computationally more intensive, and any attestation discount will also increase storage requirements. Node operators should consider the potential impact on resource usage in the long term, and developers may need to optimize signature verification implementations, especially implementing caching for key generation.
+Verification of quantum-resistant signatures will be computationally more intensive, and any attestation discount will also increase storage requirements. Node operators should consider the potential impact on resource usage in the long term. Developers may need to optimize signature verification implementations, especially by implementing caching for key generation.
 
 
 ==== Algorithm Selection ====
