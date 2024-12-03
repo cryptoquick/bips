@@ -26,7 +26,7 @@ This document is licensed under the 3-clause BSD license.
 
 This proposal aims to improve the quantum resistance of bitcoin's signature security should the Discrete Logarithm Problem (DLP) which secures Elliptic Curve Cryptography (ECC) no longer prove to be computationally hard, likely through quantum advantage by Cryptoanalytically-Relevant Quantum Computers (CRQCs). [https://arxiv.org/pdf/quant-ph/0301141 A variant of Shor's algorithm] is believed to be capable of deriving the private key from a public key exponentially faster than classical means. The application of this variant of Shor's algorithm is herein referred to as quantum key decryption. Note that doubling the public key length, such as with a hypothetical secp512k1 curve, would only make deriving the private key twice as hard. The computational complexity of this is investigated further in the paper, [https://pubs.aip.org/avs/aqs/article/4/1/013801/2835275/The-impact-of-hardware-specifications-on-reaching ''The impact of hardware specifications on reaching quantum advantage in the fault tolerant regime''].
 
-The primary threat to Bitcoin by CRQCs is [https://en.bitcoi.it/wiki/Quantum_computing_and_Bitcoin#QC_attacks generally considered to be their potential to break ECC, which is used in signatures and Taproot commitments], hence the focus on a new address format. This is because Shor's algorithm enables a CRQC to break the cryptographic assumptions of ECC in roughly 10^8 quantum operations. 
+The primary threat to Bitcoin by CRQCs is [https://en.bitcoi.it/wiki/Quantum_computing_and_Bitcoin#QC_attacks generally considered to be their potential to break ECC, which is used in signatures and Taproot commitments], hence the focus on a new address format. This is because Shor's algorithm enables a CRQC to break the cryptographic assumptions of ECC in roughly 10^8 quantum operations.
 
 The vulnerability of existing bitcoin addresses is investigated in [https://web.archive.org/web/20240715101040/https://www2.deloitte.com/nl/nl/pages/innovatie/artikelen/quantum-computers-and-the-bitcoin-blockchain.html this Deloitte report]. The report estimates that in 2020 approximately 25% of the bitcoin supply is held within addresses vulnerable to quantum attack. As of the time of writing, that number is now closer to 20%. Additionally, cryptographer Pieter Wuille [https://x.com/pwuille/status/1108085284862713856 reasons] even more might be vulnerable.
 
@@ -256,8 +256,7 @@ By adhering to the SegWit transaction structure and versioning, P2QRH outputs ar
 |}
 
 
-
-As shown, supersingular elliptic curve quaternion isogeny signature algorithms represent the state of the art in post-quantum cryptography, beyond lattice cryptography alone, especially when key and signature length are major constraints. This makes inclusion of SQIsign attractive, and support is planned, but it will be some time until it is approved for production use. Meanwhile, FALCON signatures are already approved and have achieved broader community consensus.
+As shown, supersingular elliptic curve quaternion isogeny signature algorithms represent the state of the art in post-quantum cryptography, beyond lattice cryptography alone, especially when key and signature length are major constraints. This makes inclusion of SQIsign attractive, and support is planned, but it will be some time until it is approved for production use. Meanwhile, SPHINCS+ and CRYSTALS-Dilithium signatures are already approved and have achieved broader community consensus, and FALCON signatures are also NIST approved.
 
 In comparison, the size of currently used signature algorithms are:
 
@@ -281,7 +280,7 @@ How the attestation is differentiated from the witness can be accomplished simil
 
 32-byte attestation fields are assumed to be Schnorr public keys for Taproot fields because they are ordinarily included in the spend script, but they cannot be included in P2QRH for security reasons. Public key / signature pairs for Taproot fields come before QuBit public key / signature pairs.
 
-The exact key type is inferred by its size, as provided by the attestation variant pair, which determines whether it's processed as secp256k1 Schnorr, SPHINCS, XMSS, FALCON, or SQIsign.
+The exact key type is inferred by its size, as provided by the attestation variant pair, which determines whether it's processed as secp256k1 Schnorr, SPHINCS, CRYSTALS-Dilithium, FALCON, or SQIsign.
 
 If the transaction fails to include the public keys needed to match the spend script hash, it is an invalid transaction because the cryptographic commitment for the keys has not been met. Consequently, only valid public keys and signatures can be included within the attestation and no other data.
 
