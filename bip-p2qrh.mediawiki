@@ -183,14 +183,14 @@ Following BIP-141, the transaction serialization is modified to include a new at
 
 The attestation field consists of:
 
-* <code>[num_pubkeys]</code>: The number of public keys (VarInt encoded).
+* <code>num_pubkeys</code>: The number of public keys (VarInt encoded).
 * For each public key:
-** <code>[pubkey_length]</code>: VarInt encoded length of the public key.
-** <code>[pubkey]</code>: The public key bytes.
-* <code>[num_signatures]</code>: The number of signatures (VarInt encoded).
+** <code>pubkey_length</code>: VarInt encoded length of the public key.
+** <code>pubkey</code>: The public key bytes.
+* <code>num_signatures</code>: The number of signatures (VarInt encoded).
 * For each signature:
-** <code>[signature_length]</code>: VarInt encoded length of the signature.
-** <code>[signature]</code>: The signature bytes.
+** <code>signature_length</code>: VarInt encoded length of the signature.
+** <code>signature</code>: The signature bytes.
 
 This structure repeats for each input, in order, for flexibility in supporting multisig schemes and various quantum-resistant algorithms.
 
@@ -204,13 +204,16 @@ The specific quantum-resistant signature algorithm used is inferred from the len
 
 Supported algorithms and their NIST Level V parameters:
 
-* '''FALCON-1024''':
-** Public Key Length: 1793 bytes
-** Signature Length: 1280 bytes
+* '''SPHINCS+-256f:'''
+** Public Key Length: 64 bytes
+** Signature Length: 49,856 bytes
 * '''CRYSTALS-Dilithium Level 5''':
 ** Public Key Length: 2592 bytes
 ** Signature Length: 4595 bytes
-* '''SQIsign (NIST Level V equivalent)''':
+* '''FALCON-1024''':
+** Public Key Length: 1793 bytes
+** Signature Length: 1280 bytes
+* '''SQIsign NIST-V''':
 ** Public Key Length: 128 bytes
 ** Signature Length: 335 bytes
 
@@ -364,24 +367,24 @@ Note: This contrasts with multisig inputs, where the attestation structure repea
 
 ==== Transaction Size and Fees ====
 
-Quantum-resistant signatures are significantly larger than traditional signatures, increasing transaction sizes and potentially the fees required for timely confirmation. Users and wallet developers should be aware of this and plan accordingly.
+Quantum-resistant signatures are significantly larger than traditional signatures, increasing transaction size and the fees required. Users and wallet developers should be aware of this and plan accordingly.
 
-For example, using CRYSTALS-Dilithium Level V, a single signature is 4595 bytes, which is substantially larger than current ECDSA or Schnorr signatures.
+For example, for CRYSTALS-Dilithium Level V, a single signature is 4595 bytes, which is substantially larger than current ECDSA or Schnorr signatures.
 
 
 ==== Performance Impact ====
 
-Verification of quantum-resistant signatures will be computationally more intensive, and any attestation discount will also increase storage requirements. Node operators should consider the potential impact on resource usage, and developers may need to optimize signature verification implementations.
+Verification of quantum-resistant signatures will be computationally more intensive, and any attestation discount will also increase storage requirements. Node operators should consider the potential impact on resource usage in the long term, and developers may need to optimize signature verification implementations, especially implementing caching for key generation.
 
 
 ==== Algorithm Selection ====
 
-Different quantum-resistant algorithms offer trade-offs between security levels, signature sizes, and performance. Users should select algorithms that provide NIST Level V security to align with the default for P2QRH.
+Introducing four quantum-resistant algorithms to the bitcoin ecosystem provides users with the option to select an appropriate algorithm for their use case, generally based on the amount of value they wish to secure. Developers can choose to implement support for multiple algorithms in wallets and on nodes to offer quantum-resistant options.
 
 
 ==== Backward Compatibility ====
 
-Older wallets and nodes that have not been updated to understand SegWit version 3 and P2QRH will not recognize these outputs. Users should ensure they are using updated wallets and nodes to use P2QRH addresses.
+Older wallets and nodes that have not been updated to understand SegWit version 3 and P2QRH will not recognize these outputs. Users should ensure they are using updated wallets and nodes to use P2QRH addresses and validate transactions using P2QRH outputs.
 
 
 == Test Vectors and Reference Code ==
