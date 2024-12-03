@@ -427,4 +427,4 @@ To help implementors understand updates to this BIP, we keep a list of substanti
 
 This document is inspired by [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP-341], which introduced the design of the P2TR (Taproot) address type using Schnorr signatures.
 
-Much gratitude to my co-founder, Kyle Crews for proofreading and editing, to David Croisant, who suggested the name "QuBit", and Guy Swann for pointing out the earlier name for the attestation, "quitness", was imperfect. Thank you as well to those who took the time to review and contribute, including Adam Borcany, Antoine Riard, Pierre-Luc Dallaire-Demers, Ethan Heilman, Jon Atack, Jameson Lopp, and Murchandamus.
+Much gratitude to my co-founder, Kyle Crews for proofreading and editing, to David Croisant, who suggested the name "QuBit", and Guy Swann for pointing out the earlier name for the attestation, "quitness", was imperfect. Thank you as well to those who took the time to review and contribute, including Jeff Bride, Adam Borcany, Antoine Riard, Pierre-Luc Dallaire-Demers, Ethan Heilman, Jon Atack, Jameson Lopp, and Murchandamus.
