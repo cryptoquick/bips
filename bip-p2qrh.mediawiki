@@ -126,7 +126,7 @@ We first build up a definition of the signature scheme by going through the desi
 
 ==== Descriptor Format ====
 
-To integrate P2QRH into existing wallet software and scripts, we introduce a new output descriptor function <code>qrh()</code>. This function represents a P2QRH output, similar to how <code>wpkh()</code> and <code>tr()</code> are used for P2WPKH and P2TR outputs respectively.
+To integrate P2QRH into existing wallet software and scripts, we introduce a new output descriptor function <code>qrh()</code>. This function represents a P2QRH output, similar to how <code>wpkh()</code> and <code>tr()</code> are used for P2WPKH and P2TR outputs, respectively.
 
 The <code>qrh()</code> function takes the HASH256 of the concatenated HASH256 of the quantum-resistant public keys as its argument. For example:
 
@@ -134,7 +134,7 @@ The <code>qrh()</code> function takes the HASH256 of the concatenated HASH256 of
 qrh(HASH256(HASH256(pubkey1) || HASH256(pubkey2) || ...))
 </code>
 
-This allows wallets to manage P2QRH addresses and outputs while accommodating multiple public keys of varying lengths, such as in multisig schemes, while keeping the public keys hidden until the time of spending.
+The above function allows wallets to manage P2QRH addresses and outputs while accommodating multiple public keys of varying lengths, such as in multisig schemes, while keeping the public keys hidden until the time of spending.
 
 
 ==== Address Format ====
@@ -209,11 +209,11 @@ Supported algorithms and their NIST Level V parameters:
 ** Public Key Length: 64 bytes
 ** Signature Length: 49,856 bytes
 * '''CRYSTALS-Dilithium Level 5''':
-** Public Key Length: 2592 bytes
-** Signature Length: 4595 bytes
+** Public Key Length: 2,592 bytes
+** Signature Length: 4,595 bytes
 * '''FALCON-1024''':
-** Public Key Length: 1793 bytes
-** Signature Length: 1280 bytes
+** Public Key Length: 1,793 bytes
+** Signature Length: 1,280 bytes
 * '''SQIsign NIST-V''':
 ** Public Key Length: 128 bytes
 ** Signature Length: 335 bytes
@@ -256,7 +256,7 @@ By adhering to the SegWit transaction structure and versioning, P2QRH outputs ar
 |}
 
 
-As shown, supersingular elliptic curve quaternion isogeny signature algorithms represent the state of the art in post-quantum cryptography, beyond lattice cryptography alone, especially when key and signature length are major constraints. This makes inclusion of SQIsign attractive, and support is planned, but it will be some time until it is approved for production use. Meanwhile, SPHINCS+ and CRYSTALS-Dilithium signatures are already approved and have achieved broader community consensus, and FALCON signatures are also NIST approved.
+As shown, supersingular elliptic curve quaternion isogeny signature algorithms represent the state of the art in post-quantum cryptography, beyond lattice cryptography alone, especially when key and signature length are major constraints. This makes inclusion of SQIsign attractive, and support is planned, but it will be some time until it is approved for production use. Meanwhile, SPHINCS+ and CRYSTALS-Dilithium signatures are already approved and have achieved broader community consensus.  FALCON signatures are also NIST approved.
 
 In comparison, the size of currently used signature algorithms are:
 
@@ -369,7 +369,7 @@ Note: This contrasts with multisig inputs, where the attestation structure repea
 
 Quantum-resistant signatures are significantly larger than traditional signatures, increasing transaction size and the fees required. Users and wallet developers should be aware of this and plan accordingly.
 
-For example, for CRYSTALS-Dilithium Level V, a single signature is 4595 bytes, which is substantially larger than current ECDSA or Schnorr signatures.
+For example, for CRYSTALS-Dilithium Level V, a single signature is 4595 bytes, a substantial increase over current ECDSA or Schnorr signatures.
 
 
 ==== Performance Impact ====
@@ -384,7 +384,7 @@ Introducing four quantum-resistant algorithms to the bitcoin ecosystem provides 
 
 ==== Backward Compatibility ====
 
-Older wallets and nodes that have not been updated to understand SegWit version 3 and P2QRH will not recognize these outputs. Users should ensure they are using updated wallets and nodes to use P2QRH addresses and validate transactions using P2QRH outputs.
+Older wallets and nodes that have not been made compatible with SegWit version 3 and P2QRH will not recognize these outputs. Users should ensure they are using updated wallets and nodes to use P2QRH addresses and validate transactions using P2QRH outputs.
 
 
 == Test Vectors and Reference Code ==
