@@ -173,14 +173,14 @@ Following BIP-141, the transaction serialization is modified to include a new at
 
 The attestation field consists of:
 
-- <code>num_pubkeys</code>: The number of public keys (VarInt encoded).
-- For each public key:
-  - <code>pubkey_length</code>: VarInt encoded length of the public key.
-  - <code>pubkey</code>: The public key bytes.
-- <code>num_signatures</code>: The number of signatures (VarInt encoded).
-- For each signature:
-  - <code>signature_length</code>: VarInt encoded length of the signature.
-  - <code>signature</code>: The signature bytes.
+* <code>num_pubkeys</code>: The number of public keys (VarInt encoded).
+* For each public key:
+  * <code>pubkey_length</code>: VarInt encoded length of the public key.
+  * <code>pubkey</code>: The public key bytes.
+* <code>num_signatures</code>: The number of signatures (VarInt encoded).
+* For each signature:
+  * <code>signature_length</code>: VarInt encoded length of the signature.
+  * <code>signature</code>: The signature bytes.
 
 This structure repeats for each input, in order, for flexibility in supporting multisig schemes and various quantum-resistant algorithms.
 
@@ -192,18 +192,18 @@ The specific quantum-resistant signature algorithm used is inferred from the len
 
 Supported algorithms and their NIST Level V parameters:
 
-- '''SPHINCS+-256f:'''
-  - Public Key Length: 64 bytes
-  - Signature Length: 49,856 bytes
-- '''CRYSTALS-Dilithium Level 5:'''
-  - Public Key Length: 2,592 bytes
-  - Signature Length: 4,595 bytes
-- '''FALCON-1024:'''
-  - Public Key Length: 1,793 bytes
-  - Signature Length: 1,280 bytes
-- '''SQIsign NIST-V:'''
-  - Public Key Length: 128 bytes
-  - Signature Length: 335 bytes
+* '''SPHINCS+-256f:'''
+  * Public Key Length: 64 bytes
+  * Signature Length: 49,856 bytes
+* '''CRYSTALS-Dilithium Level 5:'''
+  * Public Key Length: 2,592 bytes
+  * Signature Length: 4,595 bytes
+* '''FALCON-1024:'''
+  * Public Key Length: 1,793 bytes
+  * Signature Length: 1,280 bytes
+* '''SQIsign NIST-V:'''
+  * Public Key Length: 128 bytes
+  * Signature Length: 335 bytes
 
 Implementations must reject public keys and signatures that do not match expected lengths for supported algorithms.
 
@@ -214,12 +214,12 @@ To spend a P2QRH output, the following conditions must be met:
 1. The <code>scriptPubKey</code> must be of the form:
 
 <pre>
-OP_PUSHNUM_3 &lt;32-byte hash&gt;
+OP_PUSHNUM_3 <32-byte hash>
 </pre>
 
 2. The attestation must include:
 
-- The quantum-resistant public key(s) whose HASH256 concatenated and hashed again matches the <code>&lt;hash&gt;</code> in the <code>scriptPubKey</code>.
+- The quantum-resistant public key(s) whose HASH256 concatenated and hashed again matches the <code><hash></code> in the <code>scriptPubKey</code>.
 - Valid signatures corresponding to the public key(s) and the transaction data.
 
 3. For multi-signature schemes, all required public keys and signatures must be provided for that input within the attestation. This includes classical Schnorr signatures.
@@ -252,19 +252,19 @@ Signature verification is as follows:
 
 2. For each input:
 
-   - Compute <code>hashed_pubkeys</code> by concatenating the <code>HASH256</code> of each provided public key:
+   * Compute <code>hashed_pubkeys</code> by concatenating the <code>HASH256</code> of each provided public key:
 
      <pre>
 hashed_pubkeys = HASH256(pubkey1) || HASH256(pubkey2) || ... || HASH256(pubkeyN)
      </pre>
 
-   - Compute <code>computed_hash</code>:
+   * Compute <code>computed_hash</code>:
 
      <pre>
 computed_hash = HASH256(hashed_pubkeys)
      </pre>
 
-   - Compare the resulting hash to <code>&lt;hash&gt;</code>. If they do not match, the script fails.
+   * Compare the resulting hash to <code>&lt;hash&gt;</code>. If they do not match, the script fails.
 
 3. Verify each signature against the corresponding public key and the sighash.
 
