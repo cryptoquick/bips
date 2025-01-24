@@ -14,7 +14,7 @@
 == Abstract ==
 
 This BIP proposes a new Segregated Witness output type called '''Pay to Taproot Hash''' (P2TRH). It is structurally
-similar to Pay to Taproot (BIP-341) but replaces the "X-only" public key commitment in the output script with a
+similar to Pay to Taproot ([[bip-0341.mediawiki|BIP-341]]) but replaces the "X-only" public key commitment in the output script with a
 <code>HASH256</code> commitment of that public key. The actual public key is only revealed in the witness at spending
 time, reducing its long-term on-chain exposure to potential quantum-based attacks.
 
@@ -30,14 +30,14 @@ could, in theory, become more vulnerable to quantum attacks over a long horizon.
 2. '''Intermediate Hardening''': Next-generation PQC schemes are still maturing. '''P2TRH''' improves security by
 storing only the hash of an ECC public key on-chain, delaying public key disclosure until spending.
 
-3. '''Avoids Premature Complexity''': By reusing Schnorr signature logic (BIP-340) rather than introducing novel
-PQC systems, P2TRH remains simpler and less controversial than a full quantum-safe signature soft fork.
+3. '''Avoids Premature Complexity''': By reusing Schnorr signature logic ([[bip-0340.mediawiki|BIP-340]]) rather than
+introducing novel PQC systems, P2TRH remains simpler and less controversial than a full quantum-safe signature soft fork.
 
 == Rationale ==
 
-Current Schnorr-based outputs (BIP-340) publish an X-only key in the scriptPubKey. It being X-only provides no
-additional quantum security benefits. P2TRH replaces that with a hash, limiting indefinite on-chain exposure of
-ECC keys to quantum threats, also known as long-term exposure.
+Current Schnorr-based outputs (BIP-340) publish an X-only key in the scriptPubKey. It being X-only provides no additional
+quantum security benefits. P2TRH replaces that with a hash, limiting indefinite on-chain exposure of ECC keys to quantum
+threats, also known as long exposure attacks.
 
 P2TRH stores a 32-byte <code>HASH256</code> instead of a public key. It reuses BIP-340 signature logic, so it defers
 public key disclosure until the spend. While not fully quantum-safe, it reduces exposure compared to Taproot.
@@ -64,7 +64,7 @@ of signature aggregation that come with Schnorr signatures and other Taproot-rel
 Shor's algorithm remains the primary concern because it solves the discrete log problem in polynomial time—effectively
 nullifying ECC security if the public key is exposed indefinitely. In contrast, Grover's algorithm offers only a
 square-root speedup for brute-force (from <math>2^n</math> to <math>2^{n/2}</math>), which is far less threatening than
-a true polynomial-time break. See [[bip-0360.mediawiki|BIP-360]] for further context.
+a true polynomial-time break. See BIP-360 for further context.
 
 The P2TRH hash-based concealment scheme is simpler to adopt while PQC standards evolve. Ultimately, a new signature
 algorithm will be needed for robust quantum security. In the interim, P2TRH provides a simpler, less contentious path
@@ -101,10 +101,10 @@ Let <code>pubKeyHash = HASH256(pubkeyXonly)</code> be the 32-byte value in the S
 must provide:
 
 * The full X-only public key (<code>pubkeyXonly</code>).
-* A valid Schnorr signature (per [[bip-0340.mediawiki|BIP-340]]) over the transaction, as described in
+* A valid Schnorr signature (per BIP-340) over the transaction, as described in
 [[#Transaction_validation|Transaction validation]].
 * (Optionally) If scripts or additional logic are integrated (akin to Tapscript), they follow the same approach as
-BIP-341/342. For a pure key-path design, only the pubkey preimage and signature are required.
+BIP-341/([[bip-0342.mediawiki|BIP-342]]). For a pure key-path design, only the pubkey preimage and signature are required.
 
 === Transaction Validation ===
 
@@ -131,7 +131,7 @@ committed to the X-only public key before hashing. The difference is that the sc
 
 === Address Encoding ===
 
-Addresses use Bech32m (BIP-350) with:
+Addresses use Bech32m ([[bip-0350.mediawiki|BIP-350]]) with:
 * '''HRP''': <code>bc</code> (mainnet) or <code>tb</code> (testnet)
 * '''Witness Version''': <code>2</code> (encoded in Bech32m)
 * '''Witness Program''': 32-byte <code>pubKeyHash</code> in base32
