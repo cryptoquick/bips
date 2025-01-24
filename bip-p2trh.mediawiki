@@ -16,31 +16,72 @@
 This BIP proposes a new Segregated Witness output type called '''Pay to Taproot Hash''' (P2TRH). It is structurally
 similar to Pay to Taproot (BIP-341) but replaces the "X-only" public key commitment in the output script with a
 <code>HASH256</code> commitment of that public key. The actual public key is only revealed in the witness at spending
-time, reducing the exposure of public keys to potential quantum-based attacks over the long term.
+time, reducing its long-term on-chain exposure to potential quantum-based attacks.
 
-This approach is '''not''' a fully quantum-safe solution using Post-Quantum Cryptography (PQC). For that, see BIP-360.
-Rather, it is a conservative ''intermediary'' measure: it defers full public key disclosure until spend time, which may
-reduce attack vectors that rely on indefinite on-chain exposure of elliptic curve public keys.
+This approach is '''not''' a fully quantum-safe solution using Post-Quantum Cryptography (PQC). For that, see
+[[bip-0360.mediawiki|BIP-360]]. Rather, it is a conservative ''intermediary'' measure: it defers key disclosure until
+spend time, potentially reducing attack vectors reliant on indefinite on-chain exposure of elliptic curve public keys.
 
 == Motivation ==
 
-1. '''Long-Term Exposure''': Current Taproot outputs reveal an X-only public key directly in the ScriptPubKey. As
-quantum computing advances, it is conceivable (though still speculative) that long-exposed public keys could be more
-vulnerable to quantum attacks.
+1. '''Long-Term Exposure''': Current Taproot outputs reveal an X-only public key directly in the ScriptPubKey, which
+could, in theory, become more vulnerable to quantum attacks over a long horizon.
 
-2. '''Intermediate Hardening''': While next-generation post-quantum signatures (e.g., latticed-based or hash-based
-schemes) are still maturing, '''P2TRH''' offers an incremental improvement by committing to only the hash of an
-Elliptic Curve Cryptography (ECC) public key on-chain. The real public key remains private until the actual spend occurs.
+2. '''Intermediate Hardening''': Next-generation PQC schemes are still maturing. '''P2TRH''' improves security by
+storing only the hash of an ECC public key on-chain, delaying public key disclosure until spending.
 
-3. '''Avoiding Premature Complexity''': By reusing the Schnorr signature verification logic (BIP-340), P2TRH avoids
-introducing novel cryptosystems for PQC. This keeps it simpler than a full-fledged quantum-safe signature soft fork.
+3. '''Avoids Premature Complexity''': By reusing Schnorr signature logic (BIP-340) rather than introducing novel
+PQC systems, P2TRH remains simpler and less controversial than a full quantum-safe signature soft fork.
+
+== Rationale ==
+
+Current Schnorr-based outputs (BIP-340) publish an X-only key in the scriptPubKey. It being X-only provides no
+additional quantum security benefits. P2TRH replaces that with a hash, limiting indefinite on-chain exposure of
+ECC keys to quantum threats, also known as long-term exposure.
+
+P2TRH stores a 32-byte <code>HASH256</code> instead of a public key. It reuses BIP-340 signature logic, so it defers
+public key disclosure until the spend. While not fully quantum-safe, it reduces exposure compared to Taproot.
+
+Full PQC proposals (e.g., BIP-360) require introducing new signature schemes, transaction structures, and cryptographic
+commitment mechanisms, which can be contentious before PQC standards mature. By relying on reviewed BIP-340 logic,
+P2TRH lowers consensus risk while providing extra quantum-resistance compared to plain Taproot outputs.
+
+Once a P2TRH spend is broadcast, the public key and signature are visible. Private mempool approaches can limit
+who sees them before confirmation. A quantum attacker would otherwise have to break the key within a short window.
+Private mempools provide a partial mitigation until PQC solutions are standard.
+
+Transactions can be cryptographically timestamped and inclusion proofs can be provided to prove when or to whom they
+were revealed. In case of suspected quantum compromise, such evidence can help defend against malicious leaking public
+keys, though it does not fully resolve the underlying quantum threat.
+
+Prior to Taproot, typical P2PKH/P2WPKH hashed the public key on-chain. Taproot exposed the X-only key directly.
+P2TRH restores the classical "key hidden until spend" property while retaining Schnorr benefits, offering a modest
+but immediate quantum hardening compared to plain Taproot, at the expense of a slightly larger witness size.
+
+While P2WSH is safe against quantum attackers employing Shor's algorithm, it does not provide the benefits
+of signature aggregation that come with Schnorr signatures and other Taproot-related fee-saving mechanisms.
+
+Shor's algorithm remains the primary concern because it solves the discrete log problem in polynomial time—effectively
+nullifying ECC security if the public key is exposed indefinitely. In contrast, Grover's algorithm offers only a
+square-root speedup for brute-force (from <math>2^n</math> to <math>2^{n/2}</math>), which is far less threatening than
+a true polynomial-time break. See [[bip-0360.mediawiki|BIP-360]] for further context.
+
+The P2TRH hash-based concealment scheme is simpler to adopt while PQC standards evolve. Ultimately, a new signature
+algorithm will be needed for robust quantum security. In the interim, P2TRH provides a simpler, less contentious path
+to improve the quantum resistance of Bitcoin.
+
+=== Summary ===
+
+P2TRH replaces Taproot's on-chain X-only key with a 32-byte hash, mitigating indefinite exposure for dormant funds.
+It is not a full PQC solution; short-term exposure in the mempool remains. Techniques like private mempools,
+timestamping, and social consensus can bolster security until PQC methods become practical.
 
 == Specification ==
 
 === Segregated Witness Version Number ===
 
 * '''SegWit version''': <code>v2</code>
-* '''Addresses''': This scheme uses Bech32m encoding with a (to-be-standardized) human-readable prefix (e.g., <code>bc1z</code> for mainnet) and a version byte of <code>2</code>
+* '''Addresses''': Bech32m encoding with version byte <code>2</code> (e.g., <code>bc1z...</code> for mainnet)
 
 === ScriptPubKey ===
 
@@ -49,158 +90,118 @@ A P2TRH output script has the form:
 <code>OP_2 <pubKeyHash></code>
 
 Where:
+* <code>OP_2</code> indicates a SegWit v2 context.
+* <code><pubKeyHash></code> is the 32-byte double SHA256 hash of the X-only public key:
 
-* <code>OP_2</code> is the witness version (commonly shown as <code>OP_2</code> for version 2), indicating a SegWit v2 context
-* <code><pubKeyHash></code> is the 32-byte double SHA256 hash of the intended X-only public key:
-
-<math>H = \text{SHA256}(\text{SHA256}(\text{pubkey}_{x-only}))</math>
+<math>H = SHA256(SHA256(pubkey_{x-only}))</math>
 
 === Witness Program ===
 
-Let:
+Let <code>pubKeyHash = HASH256(pubkeyXonly)</code> be the 32-byte value in the ScriptPubKey. Upon spending, the witness
+must provide:
 
-* <code>pubKeyHash = HASH256(pubkeyXonly)</code> be the 32-byte value in the ScriptPubKey.
-
-Upon spending, the witness must provide:
-
-# The full X-only public key (<code>pubkeyXonly</code>)
-# A valid Schnorr signature (per [[bip-0340.mediawiki|BIP340]]) over the transaction as described in [[#Transaction_validation|Transaction validation]]
-# ''(Optionally) Script path'': If scripts or additional logic is integrated (akin to Tapscript), those details would follow similarly to [[bip-0341.mediawiki|BIP341]]/[[bip-0342.mediawiki|BIP342]]. For a pure "key path" design, only the pubkey preimage and the signature are required.
+* The full X-only public key (<code>pubkeyXonly</code>).
+* A valid Schnorr signature (per [[bip-0340.mediawiki|BIP-340]]) over the transaction, as described in
+[[#Transaction_validation|Transaction validation]].
+* (Optionally) If scripts or additional logic are integrated (akin to Tapscript), they follow the same approach as
+BIP-341/342. For a pure key-path design, only the pubkey preimage and signature are required.
 
 === Transaction Validation ===
 
-When a transaction attempts to spend a P2TRH output:
+When a transaction spends a P2TRH output:
 
-# Hash Check
-#* Extract the provided <code>pubkeyXonly</code> from the witness.
+# '''Hash Check'''
+#* Extract <code>pubkeyXonly</code> from the witness.
 #* Compute <code>temp = HASH256(pubkeyXonly)</code>.
-#* Check <code>temp == pubKeyHash</code> (the 32 bytes in the output script).
-#* If mismatch, '''fail'''.
+#* Compare <code>temp</code> to the <code>pubKeyHash</code> in the output script. If mismatch, '''fail'''.
 
-# Signature Check
-#* Construct the BIP-340 sighash message (same as Taproot's key-path).
-#* Verify that the witness-provided Schnorr signature is valid for <code>pubkeyXonly</code>.
-#* If invalid, '''fail'''.
+# '''Signature Check'''
+#* Construct the BIP-340 sighash message (same as Taproot key-path).
+#* Verify the Schnorr signature using <code>pubkeyXonly</code>. If invalid, '''fail'''.
 
-If both checks succeed, the spend is valid.
+Spending is valid only if both checks pass.
 
 === Scripts and Spending Conditions ===
 
-'''Optional / Future Extension'''
-
-Like Taproot, one could embed a Tapscript "tree" committed within the 32-byte X-only public key. For a minimal P2TRH
-proposal, new script-path semantics are not redefined (that would be more akin to a BIP-341/342 extension). The sole
-difference is that the script-path is committed to the hash of the X-only public key, not the public key itself.
+'''Optional / Future Extension:''' If a Merkelized Alternative Script Tree (MAST) is used (like Taproot), it can be
+committed to the X-only public key before hashing. The difference is that the script path is ultimately committed to
+<code>HASH256(tweakedPubKey)</code> in the ScriptPubKey, not the public key itself.
 
 == Implementation Notes ==
 
 === Address Encoding ===
 
-Addresses for P2TRH use Bech32m (per [[bip-0350.mediawiki|BIP350]]) with:
+Addresses use Bech32m (BIP-350) with:
+* '''HRP''': <code>bc</code> (mainnet) or <code>tb</code> (testnet)
+* '''Witness Version''': <code>2</code> (encoded in Bech32m)
+* '''Witness Program''': 32-byte <code>pubKeyHash</code> in base32
 
-* '''Human-Readable Part (HRP)''': <code>bc</code> (for mainnet) or <code>tb</code> (for testnet).
-* '''Witness Version''': <code>2</code> (encoded as a single 5-bit value in Bech32m).
-* '''Witness Program''': the 32-byte <code>pubKeyHash</code> converted to base32.
-
-In mainnet, an address might look like:
-<pre>
-bc1z<...>  // 'z' is typically the next available character for version=2
-</pre>
-
-''(Note: The actual prefix "bc1z" depends on how Bech32m encodes the version + data.)''
+An example mainnet address could look like <code>bc1z...</code>, depending on how Bech32m encodes
+<code>version=2</code> plus data.
 
 === Example Payment and Spending ===
 
-Below is a '''step-by-step''' example showing how to create and spend a P2TRH output.
-
 ==== Funding a P2TRH Output ====
 
-# '''Obtain a private key''' (single key or internal key + tweak in a MAST setup) via standard HD wallet processes:
-#* '''BIP-39''' + '''BIP-32''':
-#** Use a mnemonic (BIP-39) to generate a master seed.
-#** Derive a child private key from the master seed (BIP-32).
-#* '''BIP-86''' (Taproot key derivation):
-#** Applies BIP-32 to generate a base key.
-#** Standardizes a derivation path for Taproot single-key wallets, <br>e.g. <code>m/86'/0'/0'/0/<index></code>.
-#* '''BIP-341''' (Taproot with MAST / Tapscript):
-#** Generates an "internal key" (like above) and computes a Merkle root of the script tree (MAST).
-#** Normally, this yields a Tweaked Taproot Public Key via the Taproot tweak formula (<code>Q = P + H(P||merkle_root)*G</code>).
-#** '''For P2TRH,''' do the same: generate your internal key, compute the MAST Merkle root if using scripts, then combine (tweak) ''before'' doing the final hash commitment. The resulting tweaked key is used in subsequent steps.
-# '''Derive the X-only public key''' per '''BIP-340''':
-#* After you have the final (tweaked) secp256k1 key, convert it to "X-only" format by discarding the Y-coordinate sign bit.
-# '''Compute the 32-byte hash''':<br><pre>pubKeyHash = HASH256(pubkeyXonly)</pre>This is the commitment that goes on-chain.
-# '''Create the P2TRH output (scriptPubKey)''':<br><pre>OP_2 <pubKeyHash></pre>Where <code>OP_2</code> indicates a SegWit v2 witness program (exact opcode/version usage depends on the final standard).
-# '''Encode the address''':<br><pre>bc1z<...></pre>Where <code>bc1z</code> is the Bech32m prefix for mainnet, and <code><...></code> is the base32-encoded <code>pubKeyHash</code>.
-# '''Broadcast a transaction''' sending funds to this P2TRH address/output.
-#* This yields an address starting with something like <code>bc1z...</code> on mainnet.
-# '''Broadcast a transaction''' sending funds to this P2TRH address/output.
+1. '''Obtain a private key''':
+* Via BIP-39 + BIP-32 mnemonic/seed derivation, or BIP-86 (Taproot derivation), or BIP-341 (Taproot with MAST).
+* If using MAST, compute the Merkle root and apply the Taproot tweak formula. For P2TRH, perform this tweak before
+the final hash commitment.
 
-''Note'': If using '''MAST / Tapscript (BIP-341/342)''' to define additional script paths,
-incorporate those as part of a Merkle tree tweak in step 1. The final "tweaked X-only key" is then
-hashed for P2TRH. Spending from such an output in "script path mode" requires revealing the internal
-key, script, and Merkle path at spend time (similar to Taproot)—along with verifying that
-<code>HASH256(tweakedPubKey)</code> matches the on-chain commitment.
+2. '''Derive the X-only public key (BIP-340)''' from the final (tweaked) secp256k1 key by discarding the Y-coordinate
+sign bit.
+
+3. '''Compute the 32-byte hash''':
+<code>pubKeyHash = HASH256(pubkeyXonly)</code>
+
+4. '''Create the P2TRH output (scriptPubKey)''':
+<code>OP_2 &lt;pubKeyHash&gt;</code>
+
+5. '''Encode the address''' using Bech32m:
+<code>bc1z&lt;...&gt;</code>
+
+6. '''Broadcast a transaction''' sending funds to this P2TRH address/output.
+
+''Note'': For MAST/Tapscript, the final tweaked key (internal key + script tree) is hashed into
+<code>pubKeyHash</code>. Spending via script-path requires revealing the internal key, script, and
+Merkle path, just like Taproot.
 
 ==== Spending a P2TRH Output ====
 
-# '''Reveal the real pubkey''':
-#* In your signing software/wallet, fetch <code>privkey</code> → <code>pubkeyXonly</code>.
-#* If using MAST/script paths (akin to Taproot), you would also reveal the internal key, script, and Merkle proof (per BIP-341/342).
-# '''Construct the transaction''':
-#* Reference the outpoint of the P2TRH UTXO.
-#* Create your new outputs as desired.
-# '''Compute the BIP-340 sighash''' (same process as Taproot key-path):
-#* Collect all relevant transaction data and hash it according to BIP-340 rules.
-# '''Sign''' with your secp256k1 private key (Schnorr signature per BIP-340).
-# '''Construct the witness''':
-#* <code>witness[0] = signature</code>
-#* <code>witness[1] = pubkeyXonly</code>
-#* If spending via a script path, include the script and Merkle path elements here as well, similar to Taproot's Tapscript witness structure.
-# '''Validation''':
-#* The node takes <code>pubkeyXonly</code> (or the revealed tweaked pubkey in a script-path spend) and re-hashes it to confirm it matches the <code>pubKeyHash</code> stored on-chain (<code>OP_2 <pubKeyHash></code>).
-#* If the hashed pubkey matches, the signature is then verified (using BIP-340 rules for a key-path spend or BIP-342 rules for a script-path spend).
-#* If valid, the spend is confirmed.
+1. '''Reveal the real pubkey''': The wallet fetches <code>privkey</code> → <code>pubkeyXonly</code>. With MAST, also
+reveal the internal key, script, and Merkle proof (per BIP-341/342).
 
-== Rationale ==
+2. '''Construct the transaction''': Reference the P2TRH UTXO, create outputs, etc.
 
-# '''Minimal Changes''': This proposal reuses BIP-340 Schnorr signatures and the standard ways of computing sighashes. It modifies only the ''commitment'' that appears on-chain, swapping an explicit public key for a hash.
-# '''Incremental Quantum Hardening''': Although still ECC-based, the short time window between the ''appearance'' of the real pubkey at spend time and the confirmation of the transaction can (in principle) reduce quantum risk relative to indefinite on-chain public key exposure.
+3. '''Compute the BIP-340 sighash''': Same as Taproot key-path.
 
-== Backward Compatibility ==
+4. '''Sign''': Use the secp256k1 private key to produce a Schnorr signature.
 
-# There is '''no''' conflict with existing outputs: older nodes interpret <code>OP_2 <hash></code> as either an unknown witness program or a non-standard script, but cannot enforce the P2TRH logic. The usual route is a version-based soft fork akin to how Taproot was deployed.
-# Existing wallet software that does not recognize SegWit version 2 outputs will treat P2TRH as non-standard and may refuse to send or receive funds to such addresses. In the event of activation, updated wallet software can incorporate P2TRH address generation and spending logic without interfering with legacy outputs.
-# '''Compatibility with MuSig2, FROST, and Other Threshold Schemes:'''
-#* BIP-340-based threshold signature protocols (e.g., MuSig2, FROST) produce a single aggregated X-only public key, indistinguishable from a standard BIP-340 key during on-chain validation. P2TRH merely stores <code>HASH256(pubkeyXonly)</code> on-chain instead of the full key.
-#* As these protocols conclude with a valid BIP-340 signature, there is no need for protocol-level modifications. At spend time, the aggregated pubkey is revealed and verified against the on-chain hash in the same manner as a single-signer key. All threshold participant coordination (e.g., partial signature aggregation) remains an off-chain process.
-# '''Lightning Network Considerations:'''
-#* Most channel funding and commitment transactions rely on threshold signatures (e.g., MuSig2) to aggregate participant keys. Under P2TRH, the aggregated X-only pubkey is still produced by the LN nodes, and only its <code>HASH256</code> is stored in the scriptPubKey.
-#* Other LN off-chain protocols (HTLCs, revocation secrets, etc.) remain unaffected at the base layer. Once the final aggregated signature is constructed, it is placed in the witness, and the on-chain public key remains obscured until spend time.
+5. '''Construct the witness''':
+* <code>witness[0] = signature</code>
+* <code>witness[1] = pubkeyXonly</code>
+* Include script/Merkle proofs if using script-path.
+
+6. '''Validation''':
+* The node hashes <code>pubkeyXonly</code> to check against <code>pubKeyHash</code>.
+* If they match, the Schnorr signature is validated per BIP-340 (key-path) or BIP-342 (script-path).
+* If valid, the spend succeeds.
 
 == Cost Comparison ==
 
-This section provides approximate sizes and fees for a standard transaction with one input and two outputs:
+Approximate sizes and fees for a standard transaction (1 input, 2 outputs):
 
-# '''P2WPKH''' (single-sig Pay-to-Witness-Pubkey-Hash)
-#* Typical 1-input, 2-output: 140.5 vbytes
-# '''P2WSH''' (example 2-of-2 multisig)
-#* Typical 1-input, 2-output: 201 vbytes
-#* Larger witness data from multiple public keys and signatures often increases size.
-# '''P2TR''' (Taproot key-path spend, BIP-341)
-#* Typical 1-input, 2-output: 154 vbytes
-#* The scriptPubKey stores a 32-byte X-only key (plus ~2 bytes for the version/push), and the witness typically contains only the Schnorr signature (64 bytes) plus OP_PUSHBYTES64.
-# '''P2TRH''' (Pay-to-Taproot-Hash, key-path spend)
-#* Typical 1-input, 2-output: 162.25 vbytes
-#* The scriptPubKey is similar in size to P2TR (one byte for <code>OP_2</code>, 1 byte for OP_PUSHBYTES32, and 32-byte hash). However, because the actual X-only public key must be revealed when being spent, the witness requires both the 64-byte signature and the 32-byte pubkey, slightly increasing total witness size compared to P2TR by an additional 34 bytes (including <code>OP_PUSHBYTES32</code>, or with the witness discount, 8.5 vbytes (including the witness length byte).
+* '''P2WPKH''' (single-sig): 140.5 vbytes
+* '''P2WSH''' (2-of-2 multisig example): 201 vbytes
+* '''P2TR''' (Taproot key-path): 154 vbytes
+* '''P2TRH''' (key-path): 162.25 vbytes (scriptPubKey is similar to P2TR, but the witness also includes the 32-byte pubkey, adding ~8.5 vbytes with witness discount)
 
-See the Bitcoin Optech transaction size calculator for more details:
-
-* [https://bitcoinops.org/en/tools/calc-size/ Transaction size calculator]
+See the [https://bitcoinops.org/en/tools/calc-size/ Bitcoin Optech calculator] for details.
 
 == References ==
 
-* [https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki BIP-340: Schnorr Signatures for secp256k1]
-* [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP-341: Taproot]
-* [https://github.com/bitcoin/bips/blob/master/bip-0342.mediawiki BIP-342: Tapscript]
-* [https://github.com/bitcoin/bips/blob/master/bip-0350.mediawiki BIP-350: Bech32m]
-* [https://github.com/cryptoquick/bips/blob/p2qrh/bip-0360.mediawiki BIP-360 (Draft): Pay to Quantum Resistant Hash (P2QRH)]
+* [[bip-0340.mediawiki|BIP-340: Schnorr Signatures for secp256k1]]
+* [[bip-0341.mediawiki|BIP-341: Taproot]]
+* [[bip-0342.mediawiki|BIP-342: Tapscript]]
+* [[bip-0350.mediawiki|BIP-350: Bech32m]]
+* [[bip-0360.mediawiki|BIP-360 (Draft): Pay to Quantum Resistant Hash (P2QRH)]]
