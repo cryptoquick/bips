@@ -309,10 +309,10 @@ Taproot witness.
 
 The key type bitmask is a 1-byte value that indicates the type of key used in the commitment. It is encoded as follows:
 
-* 0x01 - secp256k1
-* 0x02 - FN-DSA-512
-* 0x04 - ML-DSA-44
-* 0x08 - SLH-DSA-SHAKE-128s
+* 0x01 - Key type 0 - secp256k1
+* 0x02 - Key type 1 - FALCON-512
+* 0x04 - Key type 2 - CRYSTALS-Dilithium Level I
+* 0x08 - Key type 3 - SPHINCS+-128s
 * 0x10 - Unused
 * 0x20 - Unused
 * 0x40 - Unused
