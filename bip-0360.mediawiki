@@ -341,11 +341,11 @@ If there is only a single public key, the hash is computed as the HASH256 of the
 In order to support multiple keys, as in the context of multisig or singlesig hybrid cryptography, the hash is
 computed as a commitment to a vector of public key hashes:
 
-1. Sort the public keys first by key type, then by public key value
-2. For each sorted public key, compute its HASH256
-3. Concatenate all the public key hashes in sorted order
-4. Prepend key type bitmask and threshold to the concatenated hashes
-5. Compute the HASH256 of the result
+# Sort the public keys first by key type, then by public key value
+# For each sorted public key, compute its HASH256
+# Concatenate all the public key hashes in sorted order
+# Prepend key type bitmask and threshold to the concatenated hashes
+# Compute the HASH256 of the result
 
 For example with 4 public keys:
 
