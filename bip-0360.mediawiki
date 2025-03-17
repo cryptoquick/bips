@@ -382,10 +382,10 @@ cryptographic commitment in the hash computation and revealed in the attestation
 
 Only a single 32-byte X-only secp256k1 public key can be provided as key type 0. There are a few reasons for this:
 
-1. It maintains Taproot compatibility by removing ambiguity which key is representative of the Taptree.
-2. It prevents abuse of public keys to store arbitrary data once quantum computing is ubiquitous.
-3. When a secp256k1 key is specified in the key type bitmask, how many keys it commits to is unambiguous.
-4. If multiple keys need to be committed to, they must be aggregated, which saves on transaction size.
+# It maintains Taproot compatibility by removing ambiguity which key is representative of the Taptree.
+# It prevents abuse of public keys to store arbitrary data once quantum computing is ubiquitous.
+# When a secp256k1 key is specified in the key type bitmask, how many keys it commits to is unambiguous.
+# If multiple keys need to be committed to, they must be aggregated, which saves on transaction size.
 
 This design maintains compatibility for [https://github.com/bitcoin/bips/blob/master/bip-0114.mediawiki BIP-114]
 Taproot Merkelized Alternative Script Tree (MAST) merkle root in the commitment, which makes P2QRH a
