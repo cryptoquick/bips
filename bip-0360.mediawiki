@@ -17,8 +17,9 @@
 
 === Abstract ===
 
-This document proposes the introduction of a new output type Pay to Quantum Resistant Hash (P2QRH) allowing the use of Post-Quantum Cryptography (PQC) in Bitcoin.
-This approach for adding a post-quantum secure output type does not require a hard fork or block size increase.
+This document proposes the introduction of a new output type Pay to Quantum Resistant Hash (P2QRH) and two PQ (Post-Quantum) signature algorithms.
+This changes would enable the use of Bitcoin transactions and tapscripts that are secure against Cryptoanalytically-Relevant Quantum Computers (CRQCs).
+This approach for adding a post-quantum secure output type and signatures does not require a hard fork or block size increase.
 
 === Copyright ===
 
@@ -186,46 +187,46 @@ existing software behavior, workflows, user expectations and compatibility whene
 carried out gradually and iteratively rather than all at once. This is critical as the earlier the ecosystem
 begins upgrading to quantum resistance, the lower the number of coins at risk when quantum attacks become practical.
 
-'''Use standardized post-quantum signature algorithms.'''  Standardized algorithms have gotten the most scrutiny and 
+'''Prudence Use standardized post-quantum signature algorithms.'''  Standardized algorithms have gotten the most scrutiny and 
 are likely to be most well supported and well studied going forward. The entire Bitcoin ecosystem will benefit
 from using the most popular post-quantum signature algorithms including leveraging hardware acceleration 
 instructions, commodity trusted hardware, software libraries and cryptography research.
 
 '''Provide security against unexpected cryptanalytic breakthroughs.''' Consider the risk
-if Bitcoin only supported one PQ signature algorithm, and following the widespread deployment of CRQCs, a critical
-weakness is unexpectedly discovered. There would be no safe algorithm available. For these 
-reasons Bitcoin we believe always have at least two secure signature algorithms built on orthogonal cryptographic assumptions
-This ensures in the event one algorithm is broken an alternative will be available. This allows parties seeking to securely 
-store bitcoins over decades to lock coins under multiple algorithms, 
+if Bitcoin only supported one PQ signature algorithm, and following the widespread rollout of CRQCs, a critical
+weakness is unexpectedly discovered in this signature algorithm. There would be no safe algorithm available. We believe that 
+prudence dictates we take such risks seriously and ensure that Bitcoin always has at least two secure signature algorithms built 
+on orthogonal cryptographic assumptions. In the event one algorithm is broken an alternative will be available. An added benefit 
+is that parties seeking to securely store bitcoins over decades can secure their coins under multiple algorithms, 
 ensuring their coins will not be stolen even in the face of a catastrophic break in one of those signature algorithms.
 
-Based on these principles, we propose two independent changes that together provide Bitcoin with 
-full quantum resistance. First, a new output type P2QRH (Pay to Quantum Resistant Hash) which enables tapscript 
-to be used in a quantum resistant manner. Second, we add opcodes to tapscript for two Post-Quantum (PQ) signature
-algorithms, ML-DSA (CRYSTALS-Dilithium) and SLH-DSA (SPHINCS+) to Bitcoin tapscript. Increasing the number of 
-tapscript signature algorithms to three: Schnorr, ML-DSA, and SLH-DSA.
+Based on these principles, we propose two independent changes that together provide Bitcoin with
+full quantum resistance. First, a new output type P2QRH (Pay to Quantum Resistant Hash) so that tapscript
+can be used in a quantum resistant manner. Second, we add opcodes to tapscript for verifying two Post-Quantum (PQ) signature
+algorithms, ML-DSA (CRYSTALS-Dilithium) and SLH-DSA (SPHINCS+).
 
-P2QRH is simply P2TR with the quantum vulnerable key-spend path removed.
-Thus P2QRH commits to the root of a tapleaf merkle tree in the output.
-This allows P2QRH to reuse the mature and battle tested P2TR, tapleaf and tapscript code already in Bitcoin.
-In doing so it also reduces the implementation burden on wallets, exchanges, and libraries since
-they can reuse code they already have.
+P2QRH is simply P2TR with the quantum vulnerable key-spend path removed so that it commits to the root of 
+the tapleaf merkle tree in the output and to remove the witness element size limit of 520 bytes, as PQ 
+signatures are larger than 520 bytes. This allows P2QRH to reuse the mature and battle tested P2TR, tapleaf 
+and tapscript code already in Bitcoin. This reduces the implementation burden on wallets, exchanges, and 
+libraries since they can reuse code they already have.
 
-This design provides a gradual upgrade path as relying parties can move from P2TR to P2QRH without simultaneously having to 
-change from Schnorr signatures to PQC signatures. Simply moving coins from P2TR to P2QRH protects those coins from 
-long-range quantum attacks. Then to gain full quantum resistance, verification of PQC signatures can be added as an 
-additional tapleaf alongside Schnorr signatures<ref name="mattleaf">Inspired by Matt Corallo's discussion of this idea on the Bitcoin-dev mailing list [https://groups.google.com/g/bitcoindev/c/oQKezDOc4us/m/T1vSMkZNAAAJ Re: P2QRH / BIP-360 Update]</ref>. 
-In the event of that quantum attacks become practical, users would then be fully protected as the P2QRH output 
-as they could switch to sending their coins using the PQ signature algorithms.
+By separating P2QRH from the introduction of PQ signatures relying parties can move from P2TR to P2QRH 
+without simultaneously having to change from Schnorr signatures to PQ signatures. Simply moving coins from 
+P2TR to P2QRH protects those coins from long-range quantum attacks. Then to gain full quantum resistance, 
+verification of PQC signatures can be added as an additional tapleaf alongside Schnorr signatures<ref name="mattleaf">Inspired by Matt Corallo's discussion of this idea on the Bitcoin-dev mailing list [https://groups.google.com/g/bitcoindev/c/oQKezDOc4us/m/T1vSMkZNAAAJ Re: P2QRH / BIP-360 Update]</ref>. 
+When quantum attacks become practical, users would then be fully protected as the P2QRH output would allow
+them to switch to sending their coins using the PQ signature algorithms. This allows the upgrade to quantum 
+resistance to be largely invisible to users.
 
-We considered the NIST approved SLH-DSA (SPHINCS+), ML-DSA (CRYSTALS-Dilithium), and FN-DSA (FALCON). Of these three algorithms, 
-SLH-DSA has the largest signature size, but is the most conservative choice from a security perspective. This is because SLH-DSA
-is based on well studied and time-tested hash-based cryptography. Both FN-DSA and ML-DSA signatures are significantly 
-smaller than SLH-DSA signatures but are based on newer lattice-based cryptography. As ML-DSA and FN-DSA are both similar 
-lattice-based designs we choose to only support one of them as the additional value in diversity of cryptographic assumptions 
-would be small. 
+For PQ signatures we considered the NIST approved SLH-DSA (SPHINCS+), ML-DSA (CRYSTALS-Dilithium), 
+and FN-DSA (FALCON). Of these three algorithms, SLH-DSA has the largest signature size, but is the most conservative 
+choice from a security perspective because SLH-DSA is based on well studied and time-tested hash-based cryptography. 
+Both FN-DSA and ML-DSA signatures are significantly smaller than SLH-DSA signatures but are based on newer lattice-based 
+cryptography. As ML-DSA and FN-DSA are both similar lattice-based designs we choose to only support one of them as the 
+additional value in diversity of cryptographic assumptions would be small. 
 
-ML-DSA is intended as the default PQ signature algorithm in Bitcoin. It provides a good balance of security, performance 
+ML-DSA is intended as the main PQ signature algorithm in Bitcoin. It provides a good balance of security, performance 
 and signature size and is likely to the most widely supported PQ signature algorithm on the internet. SLH-DSA has a radically 
 different design than ML-DSA and does not use have cryptographic assumption on lattice. As such SLH-DSA provides an effective
 hedge against unexpected cryptanalytic breakthroughs on ML-DSA.
@@ -259,77 +260,52 @@ inscriptions would have the scarcity of their non-monetary assets affected.
 
 There was some hope of designing P2QRH such that discounted public keys and signatures could not be repurposed for the storage of 
 arbitrary data by requiring that they successfully be verified before being written to Bitcoin's blockchain, a.k.a. "JPEG resistance".
-Later research <ref>
-Bas Westerbaan (2025), [https://groups.google.com/g/bitcoindev/c/5Ff0jdQPofo jpeg resistance of various post-quantum signature schemes]</ref> 
+Later research <ref>Bas Westerbaan (2025), [https://groups.google.com/g/bitcoindev/c/5Ff0jdQPofo jpeg resistance of various post-quantum signature schemes]</ref> 
 provided strong evidence that this was not a feasible approach for the NIST approved Post-Quantum signature algorithms.
 It is an open question if Post-Quantum signature algorithms can be designed with to provide JPEG resistance property.
 
 ==== Future Considerations ====
 
-In the distant future, following the implementation of the P2QRH output type in a QuBit soft fork, there will likely
-be a need for Pay to Quantum Secure (P2QS) addresses. A distinction is made between cryptography that's merely resistant
-to quantum attack, and cryptography that's secured by specialized quantum hardware. P2QRH is resistant to quantum
-attack, while P2QS is quantum secure. These will require specialized quantum hardware for signing, while still
-[https://quantum-journal.org/papers/q-2023-01-19-901/ using public keys that are verifiable via classical means].
-
-While P2QRH lacks features like signature aggregation for smaller transactions, it offers a pragmatic first step
-toward quantum resistance. Future BIPs can add enhancements like P2QS, signature aggregation, and possibly full
+While P2QRH lacks features like signature aggregation, it offers a pragmatic first step
+toward quantum resistance. Future BIPs can add enhancements like signature aggregation, and possibly full
 BIP-32 compatibility once tested and viable. Until quantum cryptography hardware and advanced schemes are widespread,
-P2QRH provides meaningful protection against quantum threats without delaying deployment for a perfect solution.
+P2QRH provides meaningful protection against quantum threats as early as possible.
 
-Additional follow-on BIPs will be needed to implement P2QS, signature aggregation, and full BIP-32 compatibility
+Additional follow-on BIPs will be needed to implement signature aggregation, and full BIP-32 compatibility
 (if possible) <ref name="bip-32">BIP-32 relies on elliptic curve operations to derive keys from xpubs to support
 watch-only wallets, which PQC schemes may not support.</ref>. However, until specialized quantum cryptography hardware
-is widespread and signature aggregation schemes are thoroughly vetted, P2QRH addresses should be an adequate
-intermediate solution that provides meaningful protection against quantum threats.
+is widespread and signature aggregation schemes are thoroughly vetted, P2QRH addresses are an intermediate solution 
+to quantum threats.
 
 == Specification ==
 
 We define the signature scheme and transaction structure as follows.
 
-=== Descriptor Format ===
+=== Pay to Quantum Resistant Hash (P2QRH) ===
 
-To integrate P2QRH into existing wallet software and scripts, we introduce a new output descriptor function
-<code>qrh()</code>. This function represents a P2QRH output, similar to how <code>wpkh()</code> and <code>tr()</code>
-are used for P2WPKH and P2TR outputs, respectively.
+An P2QRH output is simply the root of the tapscript merkle tree defined as in [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP-341] 
+and used as an internal value in P2TR. 
 
-The <code>qrh()</code> function takes a threshold value and multiple key specifications grouped by key type. The format is:
+To construct a P2QRH output we follow the same process as [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP-341]
+to compute the tapscript merkle root. However, instead of the root of the Merkle tree being hash together with the internal
+key in P2QRH the root is hashed by itself under the tag name "QuantumRoot".
 
-  qrh(threshold, keytype(0x01, [hash1, hash2, ...]), keytype(0x02, [hash1, hash2, ...]), ...)
+<source>
+D = tagged_hash("TapLeaf", bytes([leaf_version]) + ser_script(script))
+CD = tagged_hash("TapBranch", C + D)
+CDE = tagged_hash("TapBranch", E + CD)
+ABCDE = tagged_hash("TapBranch", AB + CDE)
+Root = tagged_hash("QuantumRoot", p + ABCDE)
+</source>
 
-Where:
+TODO: Add image of P2QRH output merkle tree structure.
 
-* <code>threshold</code> is an integer specifying the minimum number of signatures required
-* <code>keytype</code> is the hex value representing the key type (0x01 for secp256k1, 0x02 for FALCON-512, 0x04 for CRYSTALS-Dilithium Level I, 0x08 for SPHINCS+-128s)
-* <code>[hash1, hash2, ...]</code> is an array of HASH256 hashes of public keys for the corresponding algorithm type
+The main difference in verification is that we PQ signatures and public keys can be significantly 
+larger than 520 stack element size.
 
-For example:
 
-  qrh(3, keytype(0x01, hash256(secp256k1_pubkey1), hash256(secp256k1_pubkey2), hash256(secp256k1_pubkey3), secp256k1_pubkey4_hash, secp256k1_pubkey5_hash),
-      keytype(0x02, hash256(falcon_pubkey1), hash256(falcon_pubkey2), hash256(falcon_pubkey3), falcon_pubkey4_hash, falcon_pubkey5_hash),
-      keytype(0x04, hash256(dilithium_pubkey1), hash256(dilithium_pubkey2), hash256(dilithium_pubkey3), dilithium_pubkey4_hash, dilithium_pubkey5_hash),
-      keytype(0x08, hash256(sphincs_pubkey1), hash256(sphincs_pubkey2), hash256(sphincs_pubkey3), sphincs_pubkey4_hash, sphincs_pubkey5_hash))
 
-This represents a 3-of-5 multisig for each key type, with a total of 20 keys: 5 keys per type (3 full public keys and 2
-hashes) across 4 different key types.
 
-Internally, the descriptor computes the HASH256 of the concatenated HASH256 of all the quantum-resistant public keys,
-with the threshold and key type bitmask prepended. For each key in the descriptor:
-
-- If it is already a hash (indicated in the descriptor), it is used directly
-- If it is a public key, HASH256 is applied to it first
-
-This approach ensures that all items in the vector are HASH256 values, whether they originated from raw public keys or
-were provided as hashes. During spending, this allows for selective disclosure of public keys, where some keys can
-remain hidden (represented only by their hashes) while others are fully revealed with their corresponding public keys.
-This flexibility is particularly valuable in multisig schemes where not all keys need to be revealed to satisfy the
-threshold requirement. At a minimum, there should be two different key types in a P2QRH output: one key that makes use
-of classical cryptography, and one that makes use of a PQC algorithm chosen within the wallet.
-
-Also, it's important to note that order of keys and hashes in the descriptor matters and is based on the original
-public key values, in addition to the key type. Additionally, qrh() does not compile to script, but instead, describes
-what's needed to compute the scriptPubKey hash commitment and also to reveal the attestation needed to spend the
-output.
 
 === Address Format ===
 
