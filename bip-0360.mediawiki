@@ -219,6 +219,19 @@ When quantum attacks become practical, users would then be fully protected as th
 them to switch to sending their coins using the PQ signature algorithms. This allows the upgrade to quantum 
 resistance to be largely invisible to users.
 
+Consider the P2QRH output with three tapscripts:
+
+* Spend requires a Schnorr signature
+* Spend requires a ML-DSA signature
+* Spend requires a SLH-DSA signature
+
+In the event that Schnorr signatures are broken, users can spend their coins using ML-DSA. 
+If Schnorr and ML-DSA, the user has SLH-DSA signature as the ultimate back up.
+
+One intent in supporting Schnorr, ML-DSA, and SLH-DSA in tapscript, is to allow parties to construct outputs such that funds 
+are still secure even if two of the three the signature algorithms are completely broken. This is motivated by the use case
+of securely storing Bitcoins in a cold wallet for very long periods of time (50 to 100 years).
+
 For PQ signatures we considered the NIST approved SLH-DSA (SPHINCS+), ML-DSA (CRYSTALS-Dilithium), 
 and FN-DSA (FALCON). Of these three algorithms, SLH-DSA has the largest signature size, but is the most conservative 
 choice from a security perspective because SLH-DSA is based on well studied and time-tested hash-based cryptography. 
@@ -234,10 +247,6 @@ hedge against unexpected cryptanalytic breakthroughs on ML-DSA.
 P2QRH, ML-DSA, and SLH-DSA could be activated simultaneously in a single soft fork or P2QRH could be activated first and then
 ML-DSA and SLH-DSA could be independently activated by redefining OP_SUCCESSx opcodes. If as some future point another signature
 algorithm was desired it could follow this pattern.
-
-One intent in supporting Schnorr, ML-DSA, and SLH-DSA in tapscript, is to allow parties to construct outputs such that funds 
-are still secure even if two of the three the signature algorithms are completely broken. This is motivated by the use case
-of securely storing Bitcoins in a cold wallet for very long periods of time (50 to 100 years).
 
 To improve the viability of the activation client and adoption by wallets and libraries, a library akin to 
 libsecp256k1 will be developed. This library, libbitcoinpqc, will support the new PQC signature algorithms 
