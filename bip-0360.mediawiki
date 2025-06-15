@@ -406,7 +406,7 @@ The sighash for P2QRH outputs follows the same procedure as defined in [https://
 * '''Key Data:''' In addition to transaction data, the sighash includes the spent output's scriptPubKey.
 * '''Extension Fields:''' Specific data is included or excluded from the sighash based on the sighash flag.
 
-TODO: Do we want to change the tag name to "QuantumSighash" for PQ signatures?
+TODO: Currently BIP-360 proposes using the tag "TapSighash" in the tagged hash of the sighash for PQ signatures. I can see an argument that the sighash should be specific to the signature algorithm used to prevent signatures from one algorithm being used for an algorithm, e.g. "TapSighashML" for ML-DSA
 
 This signature hash construction ensures transaction malleability is prevented while providing flexibility through
 different sighash types (DEFAULT, ALL, NONE, SINGLE, and ANYONECANPAY variants). The exact computation follows the
