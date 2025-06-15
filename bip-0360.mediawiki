@@ -40,7 +40,7 @@ offering insufficient protection. The computational complexity of this attack is
 [https://pubs.aip.org/avs/aqs/article/4/1/013801/2835275/The-impact-of-hardware-specifications-on-reaching ''The impact of hardware specifications on reaching quantum advantage in the fault-tolerant regime''].
 
 This proposal aims to mitigate these risks by introducing a Pay to Quantum Resistant Hash (P2QRH) output type that
-makes tapscript quantum resistant and enables the use of PQC signature algorithms. By adopting PQC, Bitcoin can enhance its quantum
+makes tapscript quantum resistant and enables the use of PQ signature algorithms. By adopting PQC, Bitcoin can enhance its quantum
 resistance without requiring a hard fork or block size increase.
 
 The vulnerability of existing Bitcoin addresses<ref name="address-vulnerability">A vulnerable Bitcoin address is any
@@ -80,7 +80,7 @@ As the value being sent increases, so too should the fee in order to commit the 
 possible. Once the transaction is mined, it makes useless the public key revealed by spending a UTXO, so long as it is
 never reused.
 
-It is proposed to implement a Pay to Quantum Resistant Hash (P2QRH) output type that relies on a PQC signature
+It is proposed to implement a Pay to Quantum Resistant Hash (P2QRH) output type that relies on a PQ signature
 algorithm. This new output type protects transactions submitted to the mempool and helps preserve the fee market by
 preventing the need for private, out-of-band mempool transactions.
 
@@ -186,7 +186,7 @@ existing software behavior, workflows, user expectations and compatibility whene
 carried out gradually and iteratively rather than all at once. This is critical as the earlier the ecosystem
 begins upgrading to quantum resistance, the lower the number of coins at risk when quantum attacks become practical.
 
-'''Prudence Use standardized post-quantum signature algorithms.'''  Standardized algorithms have gotten the most scrutiny and 
+'''Use standardized post-quantum signature algorithms.'''  Standardized algorithms have gotten the most scrutiny and 
 are likely to be most well supported and well studied going forward. The entire Bitcoin ecosystem will benefit
 from using the most popular post-quantum signature algorithms including leveraging hardware acceleration 
 instructions, commodity trusted hardware, software libraries and cryptography research.
@@ -213,7 +213,7 @@ libraries since they can reuse code they already have.
 By separating P2QRH from the introduction of PQ signatures relying parties can move from P2TR to P2QRH 
 without simultaneously having to change from Schnorr signatures to PQ signatures. Simply moving coins from 
 P2TR to P2QRH protects those coins from long-range quantum attacks. Then to gain full quantum resistance, 
-verification of PQC signatures can be added as an additional tapleaf alongside Schnorr signatures<ref name="mattleaf">Inspired by Matt Corallo's discussion of this idea on the Bitcoin-dev mailing list [https://groups.google.com/g/bitcoindev/c/oQKezDOc4us/m/T1vSMkZNAAAJ Re: P2QRH / BIP-360 Update]</ref>. 
+verification of PQ signatures can be added as an additional tapleaf alongside Schnorr signatures<ref name="mattleaf">Inspired by Matt Corallo's discussion of this idea on the Bitcoin-dev mailing list [https://groups.google.com/g/bitcoindev/c/oQKezDOc4us/m/T1vSMkZNAAAJ Re: P2QRH / BIP-360 Update]</ref>. 
 When quantum attacks become practical, users would then be fully protected as the P2QRH output would allow
 them to switch to sending their coins using the PQ signature algorithms. This allows the upgrade to quantum 
 resistance to be largely invisible to users.
@@ -225,7 +225,7 @@ Consider the P2QRH output with three tapscripts:
 * Spend requires a SLH-DSA signature
 
 In the event that Schnorr signatures are broken, users can spend their coins using ML-DSA. 
-If Schnorr and ML-DSA, the user has SLH-DSA signature as the ultimate back up.
+If both Schnorr and ML-DSA are broken, the user can still rely on SLH-DSA.
 
 One intent in supporting Schnorr, ML-DSA, and SLH-DSA in tapscript, is to allow parties to construct outputs such that funds 
 are still secure even if two of the three the signature algorithms are completely broken. This is motivated by the use case
@@ -235,20 +235,20 @@ For PQ signatures we considered the NIST approved SLH-DSA (SPHINCS+), ML-DSA (CR
 and FN-DSA (FALCON). Of these three algorithms, SLH-DSA has the largest signature size, but is the most conservative 
 choice from a security perspective because SLH-DSA is based on well studied and time-tested hash-based cryptography. 
 Both FN-DSA and ML-DSA signatures are significantly smaller than SLH-DSA signatures but are based on newer lattice-based 
-cryptography. As ML-DSA and FN-DSA are both similar lattice-based designs we choose to only support one of them as the 
-additional value in diversity of cryptographic assumptions would be small. 
+cryptography. Since ML-DSA and FN-DSA are both similar lattice-based designs, we choose to only support one of them as the 
+additional value in diversity of cryptographic assumptions would be marginal.
 
 ML-DSA is intended as the main PQ signature algorithm in Bitcoin. It provides a good balance of security, performance 
 and signature size and is likely to the most widely supported PQ signature algorithm on the internet. SLH-DSA has a radically 
-different design than ML-DSA and does not use have cryptographic assumption on lattice. As such SLH-DSA provides an effective
-hedge against unexpected cryptanalytic breakthroughs on ML-DSA.
+different design and set of cryptographic assumptions than ML-DSA. As such SLH-DSA provides an effective
+hedge against an unexpected cryptanalytic breakthrough.
 
 P2QRH, ML-DSA, and SLH-DSA could be activated simultaneously in a single soft fork or P2QRH could be activated first and then
-ML-DSA and SLH-DSA could be independently activated by redefining OP_SUCCESSx opcodes. If as some future point another signature
+ML-DSA and SLH-DSA could be independently activated by redefining OP_SUCCESSx opcodes. If at some future point another signature
 algorithm was desired it could follow this pattern.
 
 To improve the viability of the activation client and adoption by wallets and libraries, a library akin to 
-libsecp256k1 will be developed. This library, libbitcoinpqc, will support the new PQC signature algorithms 
+libsecp256k1 will be developed. This library, libbitcoinpqc, will support the new PQ signature algorithms 
 and can be used as a reference for other language-native implementations.
 
 ==== PQ Signature Size ====
@@ -261,16 +261,15 @@ We recognize that the size of ML-DSA (CRYSTALS-Dilithium) and SLH-DSA (SPHINCS+)
 By way of comparison with Schnorr public key + signature pairs, SLH-DSA is roughly 80x larger and ML-DSA is roughly 40x larger. This means to 
 maintain present transaction throughput, an increase in the witness discount may be desired.
 
-An increase in the witness discount must not be taken lightly. Parties make take advantage of this discount for purposes other than 
-authorizing transactions (e.g., storage of arbitrary data as seen with "inscriptions") and just without a corresponding
-increase in economic activity. An increase in the witness discount would not only impact node runners but those with
-inscriptions would have the scarcity of their non-monetary assets affected.
+An increase in the witness discount must not be taken lightly. Parties may take advantage of this discount for purposes other than 
+authorizing transactions (e.g., storage of arbitrary data as seen with "inscriptions"). An increase in the witness discount would
+not only impact node runners but those with inscriptions would have the scarcity of their non-monetary assets affected.
 
 There was some hope of designing P2QRH such that discounted public keys and signatures could not be repurposed for the storage of 
 arbitrary data by requiring that they successfully be verified before being written to Bitcoin's blockchain, a.k.a. "JPEG resistance".
 Later research <ref>Bas Westerbaan (2025), [https://groups.google.com/g/bitcoindev/c/5Ff0jdQPofo jpeg resistance of various post-quantum signature schemes]</ref> 
 provided strong evidence that this was not a feasible approach for the NIST approved Post-Quantum signature algorithms.
-It is an open question if Post-Quantum signature algorithms can be designed with to provide JPEG resistance property.
+It is an open question if Post-Quantum signature algorithms can be designed to provide JPEG resistance.
 
 ==== Future Considerations ====
 
@@ -291,19 +290,19 @@ We define the signature scheme and transaction structure as follows.
 
 === Pay to Quantum Resistant Hash (P2QRH) ===
 
-An P2QRH output is simply the root of the tapscript merkle tree defined as in [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP-341] 
-and used as an internal value in P2TR. 
+A P2QRH output is simply the root of the tapleaf merkle tree defined as in [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP-341] 
+and used as an internal value in P2TR.
 
 To construct a P2QRH output we follow the same process as [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP-341]
-to compute the tapscript merkle root. However, instead of the root of the Merkle tree being hash together with the internal
-key in P2QRH the root is hashed by itself under the tag name "QuantumRoot".
+to compute the tapscript merkle root. However, instead of the root of the Merkle tree being hashed together with the internal
+key in P2QRH the root is hashed by itself using the tag "QuantumRoot".
 
 <source>
 D = tagged_hash("TapLeaf", bytes([leaf_version]) + ser_script(script))
 CD = tagged_hash("TapBranch", C + D)
 CDE = tagged_hash("TapBranch", E + CD)
 ABCDE = tagged_hash("TapBranch", AB + CDE)
-Root = tagged_hash("QuantumRoot", p + ABCDE)
+Root = tagged_hash("QuantumRoot", ABCDE)
 </source>
 
 TODO: Add image of P2QRH output merkle tree structure.
@@ -314,7 +313,7 @@ A P2QRH input provides the following:
 <source>
 script witness stack,
 tapleaf script,
-control block = [version byte, m*32 byte merkle path]
+control block = [version byte, m*32 byte merkle path] # m is the depth of the merkle tree
 </source>
 
 The script witness stack provides the same functionality as it does in P2TR. It places input values on the stack to 
@@ -327,18 +326,20 @@ of the witness stack elements to 520 bytes. This is needed because PQ signatures
 The tapleaf script is a tapscript that is executed to validate the input. The tapscript in P2QRH is unchanged from BIP-342.
 
 The control block is a 1 + 32+m byte array, where the first byte is the version byte and the next 32+m bytes are the
-Merkle path to the tapleaf script. The intent of the version byte is to similar to the header byte in a P2TR control 
+Merkle path to the tapleaf script. The intent of the version byte is similar to the header byte in a P2TR control 
 block, but all 8 bits are used for versioning. We omit the public key from the control block as it is not needed in P2QRH.
 
-A consequence of the above design, tapscript can not pass a PQ public key to be verified with a PQ signature if the 
+TODO: Do we want a version byte in the control block?
+
+A consequence of the above design, tapscript cannot pass a PQ public key to be verified with a PQ signature if the 
 PQ public key is larger than 520 bytes. This is because while the script stack can contain stack elements larger 
-than 520 bytes, the OP_PUSH opcode in tapscript can not push stack elements larger than 520 bytes. To get arounds issue the
+than 520 bytes, the OP_PUSH opcode in tapscript cannot push stack elements larger than 520 bytes. To solve this issue the
 tapscript can push the HASH256 of the PQ public key and then verify that the PQ public key from the script witness stack
-hashes to value committed in the tapscript.
+hashes to the value committed in the tapscript.
 
 <source>
-script_witness_stack = [pubkey, signature]
-tapscript = [OP_DUP, OP_HASH256, OP_PUSH HASH256(expected_pubkey), OP_EQUALVERIFY, OP_PQCHECKSIGVERIFY]
+script witness stack = [pubkey, signature] # len(pubkey) > 520 bytes and len(signature) > 520 bytes
+tapscript = [OP_DUP, OP_HASH256, OP_PUSHDATA HASH256(expected_pubkey), OP_EQUALVERIFY, OP_CHECKSIG_SHL, OP_VERIFY]
 </source>
 
 TODO: We should think very carefully about any issues allowing larger witness stack elements may cause because tapscript
