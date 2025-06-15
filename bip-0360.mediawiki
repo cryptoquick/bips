@@ -12,7 +12,6 @@
   License: BSD-3-Clause
 </pre>
 
-
 == Introduction ==
 
 === Abstract ===
@@ -309,14 +308,54 @@ Root = tagged_hash("QuantumRoot", p + ABCDE)
 
 TODO: Add image of P2QRH output merkle tree structure.
 
-The main difference in verification is that we PQ signatures and public keys can be significantly 
-larger than 520 stack element size.
+Validation follows the pattern of a P2TR script spend but without the P2TR public key or internal key.
+A P2QRH input provides the following:
+
+<source>
+script witness stack,
+tapleaf script,
+control block = [version byte, m*32 byte merkle path]
+</source>
+
+The script witness stack provides the same functionality as it does in P2TR. It places input values on the stack to 
+be evaluated by the tapscript. 
+
+A P2QRH script witness stack differs in only one way from a P2TR script witness stack. P2QRH does not limit the size 
+of the witness stack elements to 520 bytes. This is needed because PQ signatures and public keys can be larger than 
+520 bytes.
+
+The tapleaf script is a tapscript that is executed to validate the input. The tapscript in P2QRH is unchanged from BIP-342.
+
+The control block is a 1 + 32+m byte array, where the first byte is the version byte and the next 32+m bytes are the
+Merkle path to the tapleaf script. The intent of the version byte is to similar to the header byte in a P2TR control 
+block, but all 8 bits are used for versioning. We omit the public key from the control block as it is not needed in P2QRH.
+
+A consequence of the above design, tapscript can not pass a PQ public key to be verified with a PQ signature if the 
+PQ public key is larger than 520 bytes. This is because while the script stack can contain stack elements larger 
+than 520 bytes, the OP_PUSH opcode in tapscript can not push stack elements larger than 520 bytes. To get arounds issue the
+tapscript can push the HASH256 of the PQ public key and then verify that the PQ public key from the script witness stack
+hashes to value committed in the tapscript.
+
+<source>
+script_witness_stack = [pubkey, signature]
+tapscript = [OP_DUP, OP_HASH256, OP_PUSH HASH256(expected_pubkey), OP_EQUALVERIFY, OP_PQCHECKSIGVERIFY]
+</source>
+
+TODO: We should think very carefully about any issues allowing larger witness stack elements may cause because tapscript
+assumes no stack element sizes greater than 520 bytes.
+
+==== Script Validation ====
+
+To spend a P2QRH output, the following conditions must be met:
+
+1. The <code>scriptPubKey</code> must be of the form:
+
+OP_PUSHNUM_3 <32-byte hash>
+
+TODO: Very specific specification of P2QRH validation
 
 
-
-
-
-=== Address Format ===
+==== Address Format ====
 
 P2QRH uses SegWit version 3 outputs, resulting in addresses that start with <code>bc1r</code>, following
 [https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki#bech32 BIP-173]. Bech32 encoding maps version 3 to the
@@ -324,9 +363,9 @@ prefix <code>r</code>.
 
 Example P2QRH address:
 
-<code>bc1r...</code> (32-byte Bech32m-encoded HASH256 of the HASH256 of the public keys)
+<code>bc1r...</code> (32-byte Bech32m-encoded tagged hash tapleaf merkle root)
 
-=== ScriptPubKey ===
+==== ScriptPubKey ====
 
 The <code>scriptPubKey</code> for a P2QRH output is:
 
@@ -337,239 +376,26 @@ Where:
 * <code>OP_PUSHNUM_3</code> (<code>0x03</code>) indicates SegWit version 3.
 * <nowiki><hash></nowiki> is the 32-byte HASH256 of the commitment, as defined in the Hash Commitment section below.
 
-==== Key Type Bitmask ====
+=== Post-Quantum Signature Algorithms ===
 
-The key type bitmask is a 1-byte value that indicates the type of key used in the commitment. It is encoded as follows:
+We propose adding the opcodes OP_CHECKSIG_ML (ML-DSA) and OP_CHECKSIG_SHL (SLH-DSA) to tapscript by redefining OP_SUCCESSx
+opcodes. As ML-DSA and SLH-DSA are post-quantum signature algorithms this would allow the user of post-quantum signatures 
+in tapscript.
 
-* 0x01 - Key type 0 - secp256k1
-* 0x02 - Key type 1 - FALCON-512
-* 0x04 - Key type 2 - CRYSTALS-Dilithium Level I
-* 0x08 - Key type 3 - SPHINCS+-128s
-* 0x10 - Unused
-* 0x20 - Unused
-* 0x40 - Unused
-* 0x80 - Reserved for if additional key types are added in the future
+These opcodes function similarly to the existing OP_CHECKSIG opcode. They pop the public key and signature from the stack
+and then perform signature verification using the specified post-quantum signature algorithm.
 
-Example key type bitmask using all supported key types:
+TODO: Open questions:
+TODO: 1. Should we have OP_CHECKSIG_VERIFY and OP_CHECKSIGADD variants as well?
+TODO: 2. These these opcodes been in a seperate BIP?
 
-  0x01 | 0x02 | 0x04 | 0x08 = 0x0F
+==== OP_CHECKSIG_ML ====
 
-==== Hash Commitment ====
+TODO: Add full specification here
 
-If there is only a single public key, the hash is computed as the HASH256 of the public key.
+==== OP_CHECKSIG_SHL ====
 
-In order to support multiple keys, as in the context of multisig or singlesig hybrid cryptography, the hash is
-computed as a commitment to a vector of public key hashes:
-
-1. Sort the public keys first by key type, then by public key value
-2. For each sorted public key, compute its HASH256
-3. Concatenate all the public key hashes in sorted order
-4. Prepend key type bitmask and threshold to the concatenated hashes
-5. Compute the HASH256 of the result
-
-For example with 4 public keys:
-
-  // First sort the public keys
-  sorted_pubkeys = sort_by_key_type_and_value([pubkey1, pubkey2, pubkey3, pubkey4])
-
-  // Then compute hashes of sorted keys
-  h1 = HASH256(sorted_pubkeys[0])
-  h2 = HASH256(sorted_pubkeys[1])
-  h3 = HASH256(sorted_pubkeys[2])
-  h4 = HASH256(sorted_pubkeys[3])
-
-  // Concatenate all hashes
-  concatenated = h1 <nowiki>||</nowiki> h2 <nowiki>||</nowiki> h3 <nowiki>||</nowiki> h4
-
-  commitment = key_type_bitmask <nowiki>||</nowiki> threshold <nowiki>||</nowiki> concatenated
-
-  hash = HASH256(commitment)
-
-With sort_by_key_type_and_value defined as:
-
-  def sort_by_key_type_and_value(pubkeys):
-      return sorted(pubkeys, key=lambda x: (x.key_type, x.public_key))
-
-When spending, if a public key hash is provided in the attestation with an empty signature, that hash will be used
-directly in the vector computation rather than hashing the full public key. This allows unused public keys to be
-excluded from the transaction while still proving they were part of the original commitment.
-
-The vector construction creates an efficient cryptographic commitment to multiple public keys while enabling
-selective disclosure.
-
-A threshold is provided to indicate the number of signatures required to spend the output. This is used in the
-cryptographic commitment in the hash computation and revealed in the attestation when spent.
-
-Only a single 32-byte X-only secp256k1 public key can be provided as key type 0. There are a few reasons for this:
-
-1. It maintains Taproot compatibility by removing ambiguity which key is representative of the Taptree.
-2. It prevents abuse of public keys to store arbitrary data once quantum computing is ubiquitous.
-3. When a secp256k1 key is specified in the key type bitmask, how many keys it commits to is unambiguous.
-4. If multiple keys need to be committed to, they must be aggregated, which saves on transaction size.
-
-This design maintains compatibility for [https://github.com/bitcoin/bips/blob/master/bip-0114.mediawiki BIP-114]
-Taproot Merkelized Alternative Script Tree (MAST) merkle root in the commitment, which makes P2QRH a
-quantum-resistant version of Taproot transactions. The TapScript itself must however be provided in the witness,
-as no script execution is allowed in the attestation.
-
-In a multisig context, aside from secp256k1 keys, the number of keys provided in the attestation is variable and
-must meet the threshold as committed to in the hash computation and revealed in the attestation.
-
-When the address is generated, all public keys must be known in advance, and they must be sorted, first by key
-type, then by public key value, so as to be deterministic.
-
-The key count does not need to be provided for PQC keys because the key type bitmask and threshold are sufficient
-to validate a multisig transaction.
-
-In a singlesig context, multiple PQC keys can be provided, but the key type bitmask and threshold must still also
-be provided to be consistent with the multisig semantics. The threshold will be set as 0x01, and the key type
-bitmask will indicate how many keys of each type are present.
-
-=== Transaction Serialization ===
-
-Following BIP-141, a new transaction serialization format is introduced to include an attestation field after the witness field:
-
-  [nVersion][marker][flag][txins][txouts][witness][attestation][nLockTime]
-
-* <code>marker</code>: <code>0x00</code> (same as SegWit)
-* <code>flag</code>:
-** <code>0x02</code> (indicates the presence of attestation data only)
-** <code>0x03</code> (indicates the presence of both witness and attestation data)
-* <code>attestation</code>: Contains the quantum-resistant public keys and signatures.
-
-=== Quantum Transaction ID (qtxid) ===
-
-The transaction ID is computed as the HASH256 of the serialized transaction, including the attestation and witness
-(if a witness is present). When decoded, this is called the qtxid, which will differ from the txid and wtxid if an
-attestation is present.
-
-=== Attestation Structure ===
-
-The attestation field consists of:
-
-* <code>key_type_bitmask</code>: A [https://learnmeabitcoin.com/technical/general/compact-size/ compact size] value indicating which key types are present.
-* <code>threshold</code>: A compact size value indicating the number of signatures required to spend the output.
-* <code>num_pubkeys</code>: The number of public keys (compact size).
-
-For each public key:
-
-* <code>key_type</code>: The key type (compact size). Only one bit is used to indicate the key type.
-* <code>pubkey_length</code>: compact size length of the public key (compact size).
-* <code>pubkey</code>: The public key bytes.
-
-Then:
-
-* <code>num_signatures</code>: The number of signatures (compact size).
-
-For each signature:
-
-* <code>signature_length</code>: compact size length of the signature.
-* <code>signature</code>: The signature bytes.
-
-This structure repeats for each input, in order, for flexibility in supporting multisig schemes and various
-quantum-resistant algorithms.
-
-For each input, a separate attestation field is used. To know how many attestation fields are present, implementations
-must count the number of inputs present in the transaction.
-
-==== Attestation Parsing Example ====
-
-Signing for a single input using both secp256k1 Schnorr and FALCON-512:
-
-Number of public keys:
-
-  [key_type_bitmask]: 0x03
-  [threshold]: 0x01
-  [num_pubkeys]: 0x02
-
-Pubkey 1:
-  [key_type]: 0x01
-  [pubkey_length]: 0x20 (32 bytes)
-  [pubkey]: public_key_secp256k1
-
-Pubkey 2:
-  [key_type]: 0x02
-  [pubkey_length]: 0x0701 (1793 bytes)
-  [pubkey]: public_key_falcon_512
-
-Number of signatures:
-
-  [num_signatures]: 0x02
-
-Signature 1:
-  [signature_length]: 0x40 (64 bytes)
-  [signature]: signature_secp256k1
-
-Signature 2:
-  [signature_length]: 0x0500 (1280 bytes)
-  [signature]: signature_falcon_512
-
-Note: This contrasts with multisig inputs, where the attestation structure repeats for each public key and signature.
-
-=== Signature Algorithms ===
-
-The specific quantum-resistant signature algorithm used cannot be inferred from the length of the public key due to
-collisions in length between algorithms. Instead, when each key is revealed in the attestation, the key type bitmask
-indicates which algorithm was used.
-
-Supported PQC algorithms and their NIST Level I parameters:
-
-* '''secp256k1 - BIP-340 - Schnorr + X-Only'''
-** Key Type 0
-** Public Key Length: 32 bytes
-** Signature Length: 64 bytes
-** Total Size: 96 bytes
-** Cycles to sign: 42,000 (EdDSA)
-** Cycles to verify: 130,000 (EdDSA)
-* '''FN-DSA-512 - FIPS 206 - FALCON-512:'''
-** Key Type 1
-** Public Key Length: 897 bytes
-** Signature Length: 667 bytes
-** Total Size: 1,564 bytes
-** Cycles to sign: 1,009,764
-** Cycles to verify: 81,036
-* '''ML-DSA-44 - FIPS 204 - CRYSTALS-Dilithium Level I:'''
-** Key Type 2
-** Public Key Length: 1,312 bytes
-** Signature Length: 2,420 bytes
-** Total Size: 3,732 bytes
-** Cycles to sign: 333,013
-** Cycles to verify: 118,412
-* '''SLH-DSA-SHAKE-128s - FIPS 205 - SPHINCS+-128s:'''
-** Key Type 3
-** Public Key Length: 32 bytes
-** Signature Length: 7,856 bytes
-** Total Size: 7,888 bytes
-** Cycles to sign: 4,682,570,992
-** Cycles to verify: 4,764,084
-
-Implementations must recognize the supported algorithms and validate accordingly.
-
-A bitmask is used to indicate the algorithm used for each public key and signature pair. The bitmask enumerates based on
-the key type as indicated above. This is used in the cryptographic commitment in the hash computation and
-revealed in the attestation for each public key when spent.
-
-=== Script Validation ===
-
-To spend a P2QRH output, the following conditions must be met:
-
-1. The <code>scriptPubKey</code> must be of the form:
-
-OP_PUSHNUM_3 <32-byte hash>
-
-2. The attestation must include:
-
-* The quantum-resistant public key(s) whose HASH256 concatenated and hashed again matches the <nowiki><hash></nowiki> in
-the <code>scriptPubKey</code>.
-
-* Valid signatures corresponding to the public key(s) and the transaction data.
-
-* The key type bitmask and threshold must match the commitment in the <code>scriptPubKey</code>.
-
-3. For multi-signature schemes, all required public keys and signatures must be provided for that input within the
-attestation. Public keys that are not needed or available can be selectively disclosed by including their hash in the
-attestation accompanied with an empty signature by providing a 0x00 signature length byte. This works so long as
-enough keys to meet the threshold are provided.
+TODO: Add full specification here
 
 ==== Sighash Calculation ====
 
@@ -580,29 +406,14 @@ The sighash for P2QRH outputs follows the same procedure as defined in [https://
 * '''Key Data:''' In addition to transaction data, the sighash includes the spent output's scriptPubKey.
 * '''Extension Fields:''' Specific data is included or excluded from the sighash based on the sighash flag.
 
+TODO: Do we want to change the tag name to "QuantumSighash" for PQ signatures?
+
 This signature hash construction ensures transaction malleability is prevented while providing flexibility through
 different sighash types (DEFAULT, ALL, NONE, SINGLE, and ANYONECANPAY variants). The exact computation follows the
 procedure specified in BIP-341 to maintain compatibility with Taproot signatures.
 
 If a sighash flag other than DEFAULT is needed, it can be placed in the transaction witness. In this case, it will be
 the only field in the witness.
-
-==== Signature Verification ====
-
-Signature verification is as follows:
-
-1. Extract the <nowiki><hash></nowiki> from the <code>scriptPubKey</code>.
-
-2. For each input:
-
-* Compute <code>hashed_pubkeys</code> as specified in the Hash Computation section.
-
-* Compare the resulting hash to <nowiki><hash></nowiki>. If they do not match, the script fails.
-
-3. Verify each signature against the corresponding public key and the sighash.
-
-4. Ensure that the signature algorithm used matches the expected lengths for NIST Level I security, and is supported by
-the implementation.
 
 === Compatibility with BIP-141 ===
 
@@ -629,7 +440,7 @@ key generation.
 
 ==== Algorithm Selection ====
 
-Introducing three quantum-resistant algorithms to the Bitcoin ecosystem provides users with the option to select an
+Introducing two quantum-resistant algorithms to the Bitcoin ecosystem provides users with the option to select an
 appropriate algorithm for their use case, generally based on the amount of value they wish to secure. Developers can
 choose to implement support for multiple algorithms in wallets and on nodes to offer quantum-resistant options.
 
