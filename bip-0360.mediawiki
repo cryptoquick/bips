@@ -339,7 +339,7 @@ hashes to the value committed in the tapscript.
 
 <source>
 script witness stack = [pubkey, signature] # len(pubkey) > 520 bytes and len(signature) > 520 bytes
-tapscript = [OP_DUP, OP_HASH256, OP_PUSHDATA HASH256(expected_pubkey), OP_EQUALVERIFY, OP_CHECKSIG_SHL, OP_VERIFY]
+tapscript = [OP_DUP, OP_HASH256, OP_PUSHDATA HASH256(expected_pubkey), OP_EQUALVERIFY, OP_CHECKSIG_SLH, OP_VERIFY]
 </source>
 
 TODO: We should think very carefully about any issues allowing larger witness stack elements may cause because tapscript
@@ -379,7 +379,7 @@ Where:
 
 === Post-Quantum Signature Algorithms ===
 
-We propose adding the opcodes OP_CHECKSIG_ML (ML-DSA) and OP_CHECKSIG_SHL (SLH-DSA) to tapscript by redefining OP_SUCCESSx
+We propose adding the opcodes OP_CHECKSIG_ML (ML-DSA) and OP_CHECKSIG_SLH (SLH-DSA) to tapscript by redefining OP_SUCCESSx
 opcodes. As ML-DSA and SLH-DSA are post-quantum signature algorithms this would allow the user of post-quantum signatures 
 in tapscript.
 
@@ -394,7 +394,7 @@ TODO: 2. These these opcodes been in a seperate BIP?
 
 TODO: Add full specification here
 
-==== OP_CHECKSIG_SHL ====
+==== OP_CHECKSIG_SLH ====
 
 TODO: Add full specification here
 
