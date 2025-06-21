@@ -3,7 +3,7 @@
   Title: Pay to Quantum Resistant Hash
   Layer: Consensus (soft fork)
   Author: Hunter Beast <hunter@surmount.systems>
-  Ethan Heilman <ethan.r.heilman@gmail.com>
+          Ethan Heilman <ethan.r.heilman@gmail.com>
   Comments-Summary: No comments yet.
   Comments-URI: https://github.com/bitcoin/bips/wiki/Comments:BIP-0360
   Status: Draft
@@ -18,7 +18,7 @@
 
 This document proposes the introduction of a new output type Pay to Quantum Resistant Hash (P2QRH) and two PQ (Post-Quantum) signature algorithms.
 This changes would enable the use of Bitcoin transactions and tapscripts that are secure against Cryptoanalytically-Relevant Quantum Computers (CRQCs).
-This approach for adding a post-quantum secure output type and signatures does not require a hard fork or block size increase.
+This approach for adding a post-quantum secure output type (and signatures) does not require a hard fork or block size increase.
 
 === Copyright ===
 
@@ -200,7 +200,7 @@ is that parties seeking to securely store bitcoins over decades can secure their
 ensuring their coins will not be stolen even in the face of a catastrophic break in one of those signature algorithms.
 
 Based on these principles, we propose two independent changes that together provide Bitcoin with
-full quantum resistance. First, a new output type P2QRH (Pay to Quantum Resistant Hash) so that tapscript
+full quantum resistance. First, we introduce a new output type called P2QRH (Pay to Quantum Resistant Hash) so that tapscript
 can be used in a quantum resistant manner. Second, we add opcodes to tapscript for verifying two Post-Quantum (PQ) signature
 algorithms, ML-DSA (CRYSTALS-Dilithium) and SLH-DSA (SPHINCS+).
 
@@ -212,7 +212,7 @@ libraries since they can reuse code they already have.
 
 By separating P2QRH from the introduction of PQ signatures relying parties can move from P2TR to P2QRH 
 without simultaneously having to change from Schnorr signatures to PQ signatures. Simply moving coins from 
-P2TR to P2QRH protects those coins from long-range quantum attacks. Then to gain full quantum resistance, 
+P2TR to P2QRH protects those coins from long-exposure quantum attacks. Then to gain full quantum resistance, 
 verification of PQ signatures can be added as an additional tapleaf alongside Schnorr signatures<ref name="mattleaf">Inspired by Matt Corallo's discussion of this idea on the Bitcoin-dev mailing list [https://groups.google.com/g/bitcoindev/c/oQKezDOc4us/m/T1vSMkZNAAAJ Re: P2QRH / BIP-360 Update]</ref>. 
 When quantum attacks become practical, users would then be fully protected as the P2QRH output would allow
 them to switch to sending their coins using the PQ signature algorithms. This allows the upgrade to quantum 
@@ -248,7 +248,7 @@ ML-DSA and SLH-DSA could be independently activated by redefining OP_SUCCESSx op
 algorithm was desired it could follow this pattern.
 
 To improve the viability of the activation client and adoption by wallets and libraries, a library akin to 
-libsecp256k1 will be developed. This library, libbitcoinpqc, will support the new PQ signature algorithms 
+libsecp256k1 will be developed. This library, [libbitcoinpqc](https://github.com/cryptoquick/libbitcoinpqc), will support the new PQ signature algorithms 
 and can be used as a reference for other language-native implementations.
 
 ==== PQ Signature Size ====
@@ -307,7 +307,7 @@ Root = tagged_hash("QuantumRoot", ABCDE)
 
 TODO: Add image of P2QRH output merkle tree structure.
 
-Validation follows the pattern of a P2TR script spend but without the P2TR public key or internal key.
+Validation follows the pattern of a P2TR script spend but without the P2TR public key, internal key, or key tweak.
 A P2QRH input provides the following:
 
 <source>
@@ -388,7 +388,7 @@ and then perform signature verification using the specified post-quantum signatu
 
 TODO: Open questions:
 TODO: 1. Should we have OP_CHECKSIG_VERIFY and OP_CHECKSIGADD variants as well?
-TODO: 2. These these opcodes been in a seperate BIP?
+TODO: 2. Should we provide these opcodes been in a separate BIP?
 
 ==== OP_CHECKSIG_ML ====
 
