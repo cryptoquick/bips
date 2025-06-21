@@ -16,7 +16,8 @@
 
 === Abstract ===
 
-This document proposes the introduction of a new output type Pay to Quantum Resistant Hash (P2QRH) and two PQ (Post-Quantum) signature algorithms.
+This document proposes the introduction of a new output type Pay to Quantum Resistant Hash (P2QRH).
+This output type is designed to be compatible with the future addition of PQ signature algorithms to Bitcoin.
 This changes would enable the use of Bitcoin transactions and tapscripts that are secure against Cryptoanalytically-Relevant Quantum Computers (CRQCs).
 This approach for adding a post-quantum secure output type (and signatures) does not require a hard fork or block size increase.
 
@@ -171,7 +172,9 @@ using Grover's algorithm would require at least 10^24 quantum operations. As for
 === Rationale ===
 
 This is the first in a series of BIPs under a QuBit soft fork. A qubit is a fundamental unit of quantum computing, and
-the capital B refers to Bitcoin. The name QuBit also rhymes to some extent with SegWit.
+the capital B refers to Bitcoin. The name QuBit also rhymes to some extent with SegWit. This BIP proposes a new output type
+called P2QRH (Pay to Quantum Resistant Hash). This output type is designed to support post-quantum signature algorithms
+but those algorithms will be specified in future BIPs.
 
 It is proposed to use SegWit version 3. This results in addresses that start with bc1r, which could be a useful way to
 remember that these are quantum (r)esistant addresses. This is referencing the lookup table under
@@ -232,11 +235,15 @@ are still secure even if two of the three the signature algorithms are completel
 of securely storing Bitcoins in a cold wallet for very long periods of time (50 to 100 years).
 
 For PQ signatures we considered the NIST approved SLH-DSA (SPHINCS+), ML-DSA (CRYSTALS-Dilithium), 
-and FN-DSA (FALCON). Of these three algorithms, SLH-DSA has the largest signature size, but is the most conservative 
+FN-DSA (FALCON). Of these three algorithms, SLH-DSA has the largest signature size, but is the most conservative 
 choice from a security perspective because SLH-DSA is based on well studied and time-tested hash-based cryptography. 
 Both FN-DSA and ML-DSA signatures are significantly smaller than SLH-DSA signatures but are based on newer lattice-based 
 cryptography. Since ML-DSA and FN-DSA are both similar lattice-based designs, we choose to only support one of them as the 
 additional value in diversity of cryptographic assumptions would be marginal.
+
+We also considered SQIsign. While it out performs the three other PQ signature algorithms by having smallest signatures
+it has the worst verification performance and requires a much more complex implementation. We may revisit SQIsign in the
+future note as recent research shows massive performance improvements to SQIsign<ref name="sqisign2"> "[SQIsign] signing is now nearly 20× faster, at 103.0 Mcycles, and verification is more than 6× faster, at 5.1 Mcycles" [https://csrc.nist.gov/csrc/media/Projects/pqc-dig-sig/documents/round-2/spec-files/sqisign-spec-round2-web.pdf SQIsign: Algorithm specifications and supporting documentation Version 2.0 (February 5 2025)]</ref>.
 
 ML-DSA is intended as the main PQ signature algorithm in Bitcoin. It provides a good balance of security, performance 
 and signature size and is likely to the most widely supported PQ signature algorithm on the internet. SLH-DSA has a radically 
@@ -354,7 +361,6 @@ To spend a P2QRH output, the following conditions must be met:
 OP_PUSHNUM_3 <32-byte hash>
 
 TODO: Very specific specification of P2QRH validation
-
 
 ==== Address Format ====
 
