@@ -255,7 +255,7 @@ ML-DSA and SLH-DSA could be independently activated by redefining OP_SUCCESSx op
 algorithm was desired it could follow this pattern.
 
 To improve the viability of the activation client and adoption by wallets and libraries, a library akin to 
-libsecp256k1 will be developed. This library, [libbitcoinpqc](https://github.com/cryptoquick/libbitcoinpqc), will support the new PQ signature algorithms 
+libsecp256k1 will be developed. This library, [https://github.com/cryptoquick/libbitcoinpqc libbitcoinpqc], will support the new PQ signature algorithms 
 and can be used as a reference for other language-native implementations.
 
 ==== PQ Signature Size ====
