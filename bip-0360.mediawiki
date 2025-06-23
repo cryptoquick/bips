@@ -241,9 +241,9 @@ Both FN-DSA and ML-DSA signatures are significantly smaller than SLH-DSA signatu
 cryptography. Since ML-DSA and FN-DSA are both similar lattice-based designs, we choose to only support one of them as the 
 additional value in diversity of cryptographic assumptions would be marginal.
 
-We also considered SQIsign. While it out performs the three other PQ signature algorithms by having smallest signatures
-it has the worst verification performance and requires a much more complex implementation. We may revisit SQIsign in the
-future note as recent research shows massive performance improvements to SQIsign<ref name="sqisign2"> "[SQIsign] signing is now nearly 20× faster, at 103.0 Mcycles, and verification is more than 6× faster, at 5.1 Mcycles" [https://csrc.nist.gov/csrc/media/Projects/pqc-dig-sig/documents/round-2/spec-files/sqisign-spec-round2-web.pdf SQIsign: Algorithm specifications and supporting documentation Version 2.0 (February 5 2025)]</ref>.
+We also considered SQIsign. While it outperforms the three other PQ signature algorithms by having the smallest signatures,
+it has the worst verification performance and requires a much more complex implementation. We may revisit SQIsign separately in the
+future as recent research shows massive performance improvements to SQIsign in version 2.0.<ref name="sqisign2"> "[SQIsign] signing is now nearly 20× faster, at 103.0 Mcycles, and verification is more than 6× faster, at 5.1 Mcycles" [https://csrc.nist.gov/csrc/media/Projects/pqc-dig-sig/documents/round-2/spec-files/sqisign-spec-round2-web.pdf SQIsign: Algorithm specifications and supporting documentation Version 2.0 (February 5 2025)]</ref>.
 
 ML-DSA is intended as the main PQ signature algorithm in Bitcoin. It provides a good balance of security, performance 
 and signature size and is likely to the most widely supported PQ signature algorithm on the internet. SLH-DSA has a radically 
