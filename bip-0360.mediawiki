@@ -204,12 +204,12 @@ ensuring their coins will not be stolen even in the face of a catastrophic break
 
 Based on these principles, we propose two independent changes that together provide Bitcoin with
 full quantum resistance. First, we introduce a new output type called P2QRH (Pay to Quantum Resistant Hash) so that tapscript
-can be used in a quantum resistant manner. Second, we add opcodes to tapscript for verifying two Post-Quantum (PQ) signature
-algorithms, ML-DSA (CRYSTALS-Dilithium) and SLH-DSA (SPHINCS+).
+can be used in a quantum resistant manner. Second, in a future BIP we add opcodes to tapscript for verifying two Post-Quantum (PQ) signature
+algorithms, ML-DSA (CRYSTALS-Dilithium) and SLH-DSA (SPHINCS+). It is important to consider these two changes together as P2QRH must
+be designed to support the addition of these PQ signature algorithms. The full description of these signatures will be provided in a future BIP.
 
 P2QRH is simply P2TR with the quantum vulnerable key-spend path removed so that it commits to the root of 
-the tapleaf merkle tree in the output and to remove the witness element size limit of 520 bytes, as PQ 
-signatures are larger than 520 bytes. This allows P2QRH to reuse the mature and battle tested P2TR, tapleaf 
+the tapleaf merkle tree in the output. This allows P2QRH to reuse the mature and battle tested P2TR, tapleaf 
 and tapscript code already in Bitcoin. This reduces the implementation burden on wallets, exchanges, and 
 libraries since they can reuse code they already have.
 
@@ -246,7 +246,7 @@ it has the worst verification performance and requires a much more complex imple
 future as recent research shows massive performance improvements to SQIsign in version 2.0.<ref name="sqisign2"> "[SQIsign] signing is now nearly 20× faster, at 103.0 Mcycles, and verification is more than 6× faster, at 5.1 Mcycles" [https://csrc.nist.gov/csrc/media/Projects/pqc-dig-sig/documents/round-2/spec-files/sqisign-spec-round2-web.pdf SQIsign: Algorithm specifications and supporting documentation Version 2.0 (February 5 2025)]</ref>.
 
 ML-DSA is intended as the main PQ signature algorithm in Bitcoin. It provides a good balance of security, performance 
-and signature size and is likely to the most widely supported PQ signature algorithm on the internet. SLH-DSA has a radically 
+and signature size and is likely to be the most widely supported PQ signature algorithm on the internet. SLH-DSA has a radically 
 different design and set of cryptographic assumptions than ML-DSA. As such SLH-DSA provides an effective
 hedge against an unexpected cryptanalytic breakthrough.
 
@@ -258,7 +258,7 @@ To improve the viability of the activation client and adoption by wallets and li
 libsecp256k1 will be developed. This library, [https://github.com/cryptoquick/libbitcoinpqc libbitcoinpqc], will support the new PQ signature algorithms 
 and can be used as a reference for other language-native implementations.
 
-==== PQ Signature Size ====
+==== PQ signature size ====
 
 Post-quantum public keys are generally larger than those used by ECC, depending on the security level. Originally BIP-360
 proposed NIST Level V, 256-bit security, but this was changed to NIST Level I, 128-bit security due to concerns over the
@@ -278,7 +278,50 @@ Later research <ref>Bas Westerbaan (2025), [https://groups.google.com/g/bitcoind
 provided strong evidence that this was not a feasible approach for the NIST approved Post-Quantum signature algorithms.
 It is an open question if Post-Quantum signature algorithms can be designed to provide JPEG resistance.
 
-==== Future Considerations ====
+==== Increasing witness stack element size ====
+
+A problem faced by any attempt to add PQ signatures to tapscript is the limit MAX_SCRIPT_ELEMENT_SIZE that stack elements in 
+tapscript can not be larger than 520 bytes. This is programatic because PQ signature algorithms often have signatures and 
+public keys that exceed this limit. For instance:
+
+* ML-DSA public keys are 1,312 bytes and signatures are 2,420 bytes
+* SLH-DSA public keys are 32 bytes and signatures are 7,856 bytes
+
+We will first look at our approach to the problem of PQ signatures and then give our solution for public keys larger than 520 bytes.
+
+We define P2QRH inputs to have a witness stack element size limit of 8,000 bytes. We arrive at 8,000 by rounding up from the
+needed 7,856 bytes. Because only P2QRH inputs can spend P2QRH outputs, the 520 would remain in place for all other output types.
+
+If we simply increased the witness stack element size to 8,000 bytes as a unintended side effect would be to increase the memory foot 
+print of Bitcoin transaction validation via the OP_DUP opcode. OP_DUP will duplicate any stack element. Thus, one could write a tapscript
+which will duplicate stack elements until it reaches the maximum number of elements on stack, i.e. 1000 elements. An increase from 520 bytes
+to 8,000 bytes would increase this memory footprint from 520 KB to 8 MB.
+
+To prevent OP_DUP from creating a 8 MB stack by duplicating stack elements larger than 520 bytes we define OP_DUP to fail on stack
+elements larger than 520 bytes. Note this change to OP_DUP is not consensus critical as currently there is no way to get a stack 
+element larger than 520 bytes onto the stack.
+
+==== Public keys larger than 520 bytes ====
+
+Turning our attention to public keys larger than 520 bytes. This is a different problem than signatures as public keys are typically pushed onto
+the stack in the redeem tapscript to commit to public keys in output. The OP_PUSHDATA opcode in tapscript fails if asked to push more than 520
+bytes onto the stack.
+
+To solve this issue, for signature schemes with public keys greater than 520 bytes, we use the hash of the public key in the redeem tapscript.
+We then package package the public key and signature together as the same stack element. Since the hash of the public key is only 32 bytes,
+the redeem tapscript can push it on the stack as it does today. The post quantum OP_CHECKSIG opcode pops the hash of the public key 
+and the signature packaged with public key off the stack. Checks the public key matches the hash of the public key and then verifies the signature.
+This is not needed for SHL-DSA as its public key is only 32 bytes.
+
+<source>
+script witness stack = [pubkey||signature] # len(pubkey) > 520 bytes and len(signature) > 520 bytes
+tapscript = [OP_PUSHDATA HASH256(expected_pubkey), OP_CHECKSIGVERIFY_ML]
+</source>
+
+TODO: We should think carefully about any issues allowing larger witness stack elements may cause because tapscript
+assumes no stack element sizes greater than 520 bytes.
+
+==== Future considerations ====
 
 While P2QRH lacks features like signature aggregation, it offers a pragmatic first step
 toward quantum resistance. Future BIPs can add enhancements like signature aggregation, and possibly full
@@ -338,19 +381,8 @@ block, but all 8 bits are used for versioning. We omit the public key from the c
 
 TODO: Do we want a version byte in the control block?
 
-A consequence of the above design, tapscript cannot pass a PQ public key to be verified with a PQ signature if the 
-PQ public key is larger than 520 bytes. This is because while the script stack can contain stack elements larger 
-than 520 bytes, the OP_PUSH opcode in tapscript cannot push stack elements larger than 520 bytes. To solve this issue the
-tapscript can push the HASH256 of the PQ public key and then verify that the PQ public key from the script witness stack
-hashes to the value committed in the tapscript.
 
-<source>
-script witness stack = [pubkey, signature] # len(pubkey) > 520 bytes and len(signature) > 520 bytes
-tapscript = [OP_DUP, OP_HASH256, OP_PUSHDATA HASH256(expected_pubkey), OP_EQUALVERIFY, OP_CHECKSIG_SLH, OP_VERIFY]
-</source>
 
-TODO: We should think very carefully about any issues allowing larger witness stack elements may cause because tapscript
-assumes no stack element sizes greater than 520 bytes.
 
 ==== Script Validation ====
 
