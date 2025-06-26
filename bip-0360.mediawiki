@@ -18,7 +18,7 @@
 
 This document proposes the introduction of a new output type Pay to Quantum Resistant Hash (P2QRH).
 This output type is designed to be compatible with the future addition of PQ signature algorithms to Bitcoin.
-This changes would enable the use of Bitcoin transactions and tapscripts that are secure against Cryptoanalytically-Relevant Quantum Computers (CRQCs).
+These changes would enable the use of Bitcoin transactions and tapscripts that are secure against Cryptanalytically-Relevant Quantum Computing (CRQCs).
 This approach for adding a post-quantum secure output type (and signatures) does not require a hard fork or block size increase.
 
 === Copyright ===
@@ -27,7 +27,7 @@ This document is licensed under the 3-clause BSD license.
 
 === Motivation ===
 
-The primary threat to Bitcoin from Cryptoanalytically-Relevant Quantum Computers (CRQCs)<ref name="CRQC">
+The primary threat to Bitcoin from Cryptanalytically-Relevant Quantum Computing (CRQCs)<ref name="CRQC">
 A Cryptoanalytically-Relevant Quantum Computer is an ''object'' which is only loosely defined by ''characteristics'' in quantum physics as of today. It could be understood in the context of this BIP and in bitcoin that it's a ''hardware-agnostic'' computer supposed to have the architecture to keep ''coherent'' a sufficient number of logical qubits to be able to run the Shor algorithm in an efficient fashion.</ref>
 is their potential to break the cryptographic assumptions of Elliptic Curve Cryptography (ECC), which secures Bitcoin's signatures and Taproot
 commitments. Specifically, [https://arxiv.org/pdf/quant-ph/0301141 Shor's algorithm] enables a CRQC to solve the
@@ -297,7 +297,7 @@ print of Bitcoin transaction validation via the OP_DUP opcode. OP_DUP will dupli
 which will duplicate stack elements until it reaches the maximum number of elements on stack, i.e. 1000 elements. An increase from 520 bytes
 to 8,000 bytes would increase this memory footprint from 520 KB to 8 MB.
 
-To prevent OP_DUP from creating a 8 MB stack by duplicating stack elements larger than 520 bytes we define OP_DUP to fail on stack
+To prevent OP_DUP from creating an 8 MB stack by duplicating stack elements larger than 520 bytes we define OP_DUP to fail on stack
 elements larger than 520 bytes. Note this change to OP_DUP is not consensus critical as currently there is no way to get a stack 
 element larger than 520 bytes onto the stack.
 
@@ -375,7 +375,7 @@ of the witness stack elements to 520 bytes. This is needed because PQ signatures
 
 The tapleaf script is a tapscript that is executed to validate the input. The tapscript in P2QRH is unchanged from BIP-342.
 
-The control block is a 1 + 32+m byte array, where the first byte is the version byte and the next 32+m bytes are the
+The control block is a 1 + 32*m byte array, where the first byte is the version byte and the next 32*m bytes are the
 Merkle path to the tapleaf script. The intent of the version byte is similar to the header byte in a P2TR control 
 block, but all 8 bits are used for versioning. We omit the public key from the control block as it is not needed in P2QRH.
 
@@ -445,7 +445,7 @@ The sighash for P2QRH outputs follows the same procedure as defined in [https://
 * '''Key Data:''' In addition to transaction data, the sighash includes the spent output's scriptPubKey.
 * '''Extension Fields:''' Specific data is included or excluded from the sighash based on the sighash flag.
 
-TODO: Currently BIP-360 proposes using the tag "TapSighash" in the tagged hash of the sighash for PQ signatures. I can see an argument that the sighash should be specific to the signature algorithm used to prevent signatures from one algorithm being used for an algorithm, e.g. "TapSighashML" for ML-DSA
+TODO: Currently BIP-360 proposes using the tag "TapSighash" in the tagged hash of the sighash for PQ signatures. I can see an argument that the sighash should be specific to the signature algorithm used to prevent signatures from one algorithm being used for another algorithm, e.g. "TapSighashML" for ML-DSA
 
 This signature hash construction ensures transaction malleability is prevented while providing flexibility through
 different sighash types (DEFAULT, ALL, NONE, SINGLE, and ANYONECANPAY variants). The exact computation follows the
