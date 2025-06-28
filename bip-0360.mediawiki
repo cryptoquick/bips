@@ -169,7 +169,7 @@ HASH160 <ref name="hash160">Used by P2PKH, P2SH, and P2WPKH addresses, though no
 using Grover's algorithm would require at least 10^24 quantum operations. As for Grover's application to mining, see
 [https://quantumcomputing.stackexchange.com/a/12847 Sam Jaques' post on this].
 
-=== Rationale ===
+=== Design ===
 
 This is the first in a series of BIPs under a QuBit soft fork. A qubit is a fundamental unit of quantum computing, and
 the capital B refers to Bitcoin. The name QuBit also rhymes to some extent with SegWit. This BIP proposes a new output type
@@ -179,6 +179,12 @@ but those algorithms will be specified in future BIPs.
 It is proposed to use SegWit version 3. This results in addresses that start with bc1r, which could be a useful way to
 remember that these are quantum (r)esistant addresses. This is referencing the lookup table under
 [https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki#bech32 BIP-173].
+
+TODO: ...pull elements of rationale here and then provide rationale in the next section.
+
+
+
+=== Rationale ===
 
 Our design to augment Bitcoin with quantum resistance is guided by the following principles:
 
@@ -212,6 +218,8 @@ P2QRH is simply P2TR with the quantum vulnerable key-spend path removed so that 
 the tapleaf merkle tree in the output. This allows P2QRH to reuse the mature and battle tested P2TR, tapleaf 
 and tapscript code already in Bitcoin. This reduces the implementation burden on wallets, exchanges, and 
 libraries since they can reuse code they already have.
+
+==== PQ signatures ====
 
 By separating P2QRH from the introduction of PQ signatures relying parties can move from P2TR to P2QRH 
 without simultaneously having to change from Schnorr signatures to PQ signatures. Simply moving coins from 
@@ -254,6 +262,8 @@ P2QRH, ML-DSA, and SLH-DSA could be activated simultaneously in a single soft fo
 ML-DSA and SLH-DSA could be independently activated by redefining OP_SUCCESSx opcodes. If at some future point another signature
 algorithm was desired it could follow this pattern.
 
+TODO: Discuss the two ways of PQ signature size increase softfork. With OP_CHECKSIG upgrade via new tapleaf version or with OP_SUCCESSx upgrade.
+
 To improve the viability of the activation client and adoption by wallets and libraries, a library akin to 
 libsecp256k1 will be developed. This library, [https://github.com/cryptoquick/libbitcoinpqc libbitcoinpqc], will support the new PQ signature algorithms 
 and can be used as a reference for other language-native implementations.
@@ -278,48 +288,49 @@ Later research <ref>Bas Westerbaan (2025), [https://groups.google.com/g/bitcoind
 provided strong evidence that this was not a feasible approach for the NIST approved Post-Quantum signature algorithms.
 It is an open question if Post-Quantum signature algorithms can be designed to provide JPEG resistance.
 
-==== Increasing witness stack element size ====
+==== Raising tapscript's stack element size ====
 
-A problem faced by any attempt to add PQ signatures to tapscript is the limit MAX_SCRIPT_ELEMENT_SIZE that stack elements in 
-tapscript can not be larger than 520 bytes. This is programatic because PQ signature algorithms often have signatures and 
-public keys that exceed this limit. For instance:
+TODO: Add discussion of why stack element size is increased in PQ signature algorithms rather than this in this BIP.
+
+A problem faced by any attempt to add PQ signatures to tapscript is that the stack elements in tapscript can not be larger than 520 bytes
+because the MAX_SCRIPT_ELEMENT_SIZE=520. This is programatic because PQ signature algorithms often have signatures and 
+public keys in excess of 520 bytes. For instance:
 
 * ML-DSA public keys are 1,312 bytes and signatures are 2,420 bytes
 * SLH-DSA public keys are 32 bytes and signatures are 7,856 bytes
 
 We will first look at our approach to the problem of PQ signatures and then give our solution for public keys larger than 520 bytes.
 
-We define P2QRH inputs to have a witness stack element size limit of 8,000 bytes. We arrive at 8,000 by rounding up from the
+We define P2QRH inputs to have a stack element size limit of 8,000 bytes. We arrive at 8,000 by rounding up from the
 needed 7,856 bytes. Because only P2QRH inputs can spend P2QRH outputs, the 520 would remain in place for all other output types.
-
-If we simply increased the witness stack element size to 8,000 bytes as a unintended side effect would be to increase the memory foot 
-print of Bitcoin transaction validation via the OP_DUP opcode. OP_DUP will duplicate any stack element. Thus, one could write a tapscript
-which will duplicate stack elements until it reaches the maximum number of elements on stack, i.e. 1000 elements. An increase from 520 bytes
-to 8,000 bytes would increase this memory footprint from 520 KB to 8 MB.
 
 To prevent OP_DUP from creating an 8 MB stack by duplicating stack elements larger than 520 bytes we define OP_DUP to fail on stack
 elements larger than 520 bytes. Note this change to OP_DUP is not consensus critical as currently there is no way to get a stack 
 element larger than 520 bytes onto the stack.
 
+OP_DUP will duplicate any stack element. Thus, if we allowed OP_DUP to duplicate stack elements of size 8,000 bytes, it would be possible 
+to write a tapscript which will duplicate stack elements until it reaches the maximum number of elements on stack, i.e. 1000 elements. 
+An increase from 520 bytes to 8,000 bytes would increase the memory footprint from 520 KB to 8 MB.
+
 ==== Public keys larger than 520 bytes ====
 
-Turning our attention to public keys larger than 520 bytes. This is a different problem than signatures as public keys are typically pushed onto
-the stack in the redeem tapscript to commit to public keys in output. The OP_PUSHDATA opcode in tapscript fails if asked to push more than 520
-bytes onto the stack.
+Turning our attention to public keys larger than 520 bytes. This is not needed for SHL-DSA as its public key is only 32 bytes. 
+This is a different problem than signatures as public keys are typically pushed onto
+the stack by the tapleaf script (redeem script) to commit to public keys in output. The OP_PUSHDATA opcode in tapscript fails if asked to push
+more than 520 bytes onto the stack. 
 
-To solve this issue, for signature schemes with public keys greater than 520 bytes, we use the hash of the public key in the redeem tapscript.
-We then package package the public key and signature together as the same stack element. Since the hash of the public key is only 32 bytes,
-the redeem tapscript can push it on the stack as it does today. The post quantum OP_CHECKSIG opcode pops the hash of the public key 
-and the signature packaged with public key off the stack. Checks the public key matches the hash of the public key and then verifies the signature.
-This is not needed for SHL-DSA as its public key is only 32 bytes.
+To solve this issue, for signature schemes with public keys greater than 520 bytes, we use the hash of the public key in the tapleaf script.
+We then package the public key and signature together as the same stack element on the input stack. Since the hash of the public key is 
+only 32 bytes, the tapleaf script can push it on the stack as it does today. Consider the following example with a 
+OP_CHECKSIGVERIFY_ML opcode for ML-DSA:
 
 <source>
-script witness stack = [pubkey||signature] # len(pubkey) > 520 bytes and len(signature) > 520 bytes
+stack = [pubkey||signature]
 tapscript = [OP_PUSHDATA HASH256(expected_pubkey), OP_CHECKSIGVERIFY_ML]
 </source>
 
-TODO: We should think carefully about any issues allowing larger witness stack elements may cause because tapscript
-assumes no stack element sizes greater than 520 bytes.
+1. OP_PUSHDATA HASH256(expected_pubkey) updates the stack to [HASH256(expected_pubkey), pubkey||signature]
+2. OP_CHECKSIGVERIFY_ML pops HASH256(expected_pubkey) and pubkey||signature, checks HASH256(expected_pubkey) == pubkey and verifies signature against pubkey.
 
 ==== Future considerations ====
 
@@ -358,16 +369,18 @@ Root = tagged_hash("QuantumRoot", ABCDE)
 TODO: Add image of P2QRH output merkle tree structure.
 
 Validation follows the pattern of a P2TR script spend but without the P2TR public key, internal key, or key tweak.
-A P2QRH input provides the following:
+A P2QRH input witness provides the following:
 
 <source>
-script witness stack,
+script input_0
+...
+script input_N
 tapleaf script,
 control block = [version byte, m*32 byte merkle path] # m is the depth of the merkle tree
 </source>
 
-The script witness stack provides the same functionality as it does in P2TR. It places input values on the stack to 
-be evaluated by the tapscript. 
+The script inputs provide the same functionality as they does in P2TR. It places input values on the stack to 
+be evaluated by the tapleaf script, a.k.a. the redeem script. 
 
 A P2QRH script witness stack differs in only one way from a P2TR script witness stack. P2QRH does not limit the size 
 of the witness stack elements to 520 bytes. This is needed because PQ signatures and public keys can be larger than 
@@ -379,22 +392,7 @@ The control block is a 1 + 32*m byte array, where the first byte is the version 
 Merkle path to the tapleaf script. The intent of the version byte is similar to the header byte in a P2TR control 
 block, but all 8 bits are used for versioning. We omit the public key from the control block as it is not needed in P2QRH.
 
-TODO: Do we want a version byte in the control block?
-
-
-
-
-==== Script Validation ====
-
-To spend a P2QRH output, the following conditions must be met:
-
-1. The <code>scriptPubKey</code> must be of the form:
-
-OP_PUSHNUM_3 <32-byte hash>
-
-TODO: Very specific specification of P2QRH validation
-
-==== Address Format ====
+=== Address Format ===
 
 P2QRH uses SegWit version 3 outputs, resulting in addresses that start with <code>bc1r</code>, following
 [https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki#bech32 BIP-173]. Bech32 encoding maps version 3 to the
@@ -402,9 +400,9 @@ prefix <code>r</code>.
 
 Example P2QRH address:
 
-<code>bc1r...</code> (32-byte Bech32m-encoded tagged hash tapleaf merkle root)
+<code>bc1r...</code> (32-byte Bech32m-encoded tapleaf merkle root)
 
-==== ScriptPubKey ====
+=== ScriptPubKey ===
 
 The <code>scriptPubKey</code> for a P2QRH output is:
 
@@ -413,7 +411,37 @@ The <code>scriptPubKey</code> for a P2QRH output is:
 Where:
 
 * <code>OP_PUSHNUM_3</code> (<code>0x03</code>) indicates SegWit version 3.
-* <nowiki><hash></nowiki> is the 32-byte HASH256 of the commitment, as defined in the Hash Commitment section below.
+* <nowiki><hash></nowiki> is the 32-byte tapleaf merkle root.
+
+==== Script Validation ====
+
+A P2QRH output is a native SegWit output (see [[bip-0141.mediawiki|BIP141]]) with version number 3, and a 32-byte witness program.
+Unlike taproot this witness program is the tapleaf merkle root. For the sake of comparison we have, as much as possible, copied the 
+language verbatim from the [[bip-0341.mediawiki|BIP341]] script validation section.
+
+TODO: Add image of P2QRH output and input and merkle tree structure
+
+* Let ''q'' be the 32-byte array containing the witness program (the second push in the scriptPubKey) which represents root of tapleaf merkle tree.
+* Fail if the witness stack does not have two or more elements.
+* If there are at least three witness elements, and the first byte of the last element is 0x50, this last element is called ''annex'' ''a'' and is removed from the witness stack. The annex (or the lack of thereof) is always covered by the signature and contributes to transaction weight, but is otherwise ignored during taproot validation.
+* There must be at least two witness elements left.
+** Call the last stack element ''s'', the script (as defined in [[bip-0341.mediawiki|BIP341]])
+** The last stack element is called the control block ''c'', and must have length ''1 + 32m'', for a value of ''m'' that is an integer between 0 and 128, inclusive. Fail if it does not have such a length.
+** Let ''v = c[0] & 0xfe'' be the ''leaf version'' (as defined in [[bip-0341.mediawiki|BIP341]]). To maintain ''leaf version'' encoding compatibility the last bit of c[0] is unused and must be 1 <ref>'''Why set the last bit of c[0] to one?''' Consider a faulty implementation that deserializes the ''leaf version'' as c[0] rather than c[0] & 0xfe for both P2TR and P2QRH. If they test against P2QRH outputs and require that last bit is 1, this deserialization bug will cause an immediate.</ref>.
+** Let ''k<sub>0</sub> = hash<sub>TapLeaf</sub>(v || compact_size(size of s) || s)''; also call it the ''tapleaf hash''.
+** For ''j'' in ''[0,1,...,m-1]'':
+*** Let ''e<sub>j</sub> = c[33+32j:65+32j]''.
+*** Let ''k<sub>j+1</sub> depend on whether ''k<sub>j</sub> < e<sub>j</sub>'' (lexicographically):
+**** If ''k<sub>j</sub> < e<sub>j</sub>'': ''k<sub>j+1</sub> = hash<sub>TapBranch</sub>(k<sub>j</sub> || e<sub>j</sub>)''.
+**** If ''k<sub>j</sub> &ge; e<sub>j</sub>'': ''k<sub>j+1</sub> = hash<sub>TapBranch</sub>(e<sub>j</sub> || k<sub>j</sub>)''.
+** Let ''r = hash<sub>QuantumRoot</sub>(k<sub>m</sub>)''.
+** If ''q &ne; r'', fail.
+** Execute the script, according to the applicable script rules, using the witness stack elements excluding the script ''s'', the control block ''c'', and the annex ''a'' if present, as initial stack. This implies that for the future leaf versions (non-''0xC0'') the execution must succeed.
+
+The steps above follow the script path spending logic from [[bip-0341.mediawiki|BIP341]] with the following changes:
+- The witness program is the tapleaf merkle root and not a public key. This means that we skip directly to [[bip-0341.mediawiki|BIP341]] spend path tapleaf merkle tree validation.
+- We compute the tagged tapleaf merkle root r and compaire it directly to the witness program q.
+- The control block is 1 + 32*m bytes, instead of 33 + 32*m bytes.
 
 === Post-Quantum Signature Algorithms ===
 
@@ -425,8 +453,8 @@ These opcodes function similarly to the existing OP_CHECKSIG opcode. They pop th
 and then perform signature verification using the specified post-quantum signature algorithm.
 
 TODO: Open questions:
-TODO: 1. Should we have OP_CHECKSIG_VERIFY and OP_CHECKSIGADD variants as well?
-TODO: 2. Should we provide these opcodes been in a separate BIP?
+TODO: 1. Should we have OP_CHECKSIG_VERIFY and OP_CHECKSIGADD variants as well? YES
+TODO: 2. Should we provide these opcodes been in a separate BIP? YES
 
 ==== OP_CHECKSIG_ML ====
 
@@ -472,10 +500,10 @@ ECDSA or Schnorr signatures.
 
 ==== Performance Impact ====
 
-Verification of quantum-resistant signatures will be computationally more intensive, and any attestation discount will
-also increase storage requirements. Node operators should consider the potential impact on resource usage in the long
-term. Developers may need to optimize signature verification implementations, especially by implementing caching for
-key generation.
+Verification of quantum-resistant signatures will be computationally more intensive, and any future witness discount for 
+PQ signatures will also increase storage requirements. Node operators should consider the potential impact
+on resource usage in the long term. Developers may need to optimize signature verification implementations, especially
+by implementing caching for key generation.
 
 ==== Algorithm Selection ====
 
