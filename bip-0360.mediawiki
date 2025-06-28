@@ -180,9 +180,41 @@ It is proposed to use SegWit version 3. This results in addresses that start wit
 remember that these are quantum (r)esistant addresses. This is referencing the lookup table under
 [https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki#bech32 BIP-173].
 
-TODO: ...pull elements of rationale here and then provide rationale in the next section.
+P2QRH (Pay to Quantum Resistant Hash) is a new output type that commits to the root of a tapleaf merkle tree. It is functionally
+identical to a P2TR (Pay to Taproot) output with no quantum vulnerable key spend path. The lack of a key spend path in P2QRH in a simple
+output type with no internal key and key tweak. Instead a P2QRH output is just the 32 byte root of the tapleaf merkle tree defined
+as in [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP-341].
 
+To construct a P2QRH output we follow the same process as [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP-341]
+to compute the tapscript merkle root. However, instead of the root of the Merkle tree being hashed together with the internal
+key in P2QRH the root is hashed by itself using the tag "QuantumRoot".
 
+<source>
+D = tagged_hash("TapLeaf", bytes([leaf_version]) + ser_script(script))
+CD = tagged_hash("TapBranch", C + D)
+CDE = tagged_hash("TapBranch", E + CD)
+ABCDE = tagged_hash("TapBranch", AB + CDE)
+Root = tagged_hash("QuantumRoot", ABCDE)
+</source>
+
+TODO: Add image of P2QRH output merkle tree structure.
+
+A P2QRH input witness provides the following:
+
+<source>
+script input_0,
+...,
+script input_N,
+tapleaf script,
+control block = [version byte, m*32 byte merkle path] # m is the depth of the merkle tree
+</source>
+
+The script inputs provide the same functionality as they does in P2TR. That is, they place input values on the stack to 
+be evaluated by the tapleaf script, a.k.a. the redeem script.
+
+The control block is a 1 + 32*m byte array, where the first byte is the version byte and the next 32*m bytes are the
+Merkle path to the tapleaf script. We preserve the header byte in a P2TR control block, including the 7 bits are used
+to specify the tapleaf version. We omit the public key from the control block as it is not needed in P2QRH.
 
 === Rationale ===
 
@@ -209,9 +241,9 @@ is that parties seeking to securely store bitcoins over decades can secure their
 ensuring their coins will not be stolen even in the face of a catastrophic break in one of those signature algorithms.
 
 Based on these principles, we propose two independent changes that together provide Bitcoin with
-full quantum resistance. First, we introduce a new output type called P2QRH (Pay to Quantum Resistant Hash) so that tapscript
-can be used in a quantum resistant manner. Second, in a future BIP we add opcodes to tapscript for verifying two Post-Quantum (PQ) signature
-algorithms, ML-DSA (CRYSTALS-Dilithium) and SLH-DSA (SPHINCS+). It is important to consider these two changes together as P2QRH must
+full quantum resistance. In this BIP, we introduce a new output type called P2QRH (Pay to Quantum Resistant Hash) so that tapscript
+can be used in a quantum resistant manner. Then in a future BIP, we enable tapscript programs to verify two Post-Quantum (PQ) signature
+algorithms, ML-DSA (CRYSTALS-Dilithium) and SLH-DSA (SPHINCS+). It is important to consider these two changes together because P2QRH must
 be designed to support the addition of these PQ signature algorithms. The full description of these signatures will be provided in a future BIP.
 
 P2QRH is simply P2TR with the quantum vulnerable key-spend path removed so that it commits to the root of 
@@ -259,10 +291,28 @@ different design and set of cryptographic assumptions than ML-DSA. As such SLH-D
 hedge against an unexpected cryptanalytic breakthrough.
 
 P2QRH, ML-DSA, and SLH-DSA could be activated simultaneously in a single soft fork or P2QRH could be activated first and then
-ML-DSA and SLH-DSA could be independently activated by redefining OP_SUCCESSx opcodes. If at some future point another signature
+ML-DSA and SLH-DSA could be independently activated. If at some future point another signature
 algorithm was desired it could follow this pattern.
 
-TODO: Discuss the two ways of PQ signature size increase softfork. With OP_CHECKSIG upgrade via new tapleaf version or with OP_SUCCESSx upgrade.
+We consider two different paths for activating PQ signatures in Bitcoin. The first approach is to redefine OP_SUCCESSx opcodes for each
+signature algorithm. For ML-DSA this would give us OP_CHECKMLSIG, OP_CHECKMLSIGVERIFY, OP_CHECKMLSIGADD, OP_CHECKMLMULTISIG
+and OP_CHECKMLMULTISIGVERIFY. The second approach is to use a new tapleaf version that changes the OP_CHECKSIG opcodes to support the 
+new PQ signature algorithms. In both cases, we would need to include as part of the softfork an increase in the tapscript stack element
+size to accommodate the larger signatures and public keys sizes of the PQ signature algorithms.
+
+The OP_SUCCESSx approach has the advantage of providing a straightforward path to add new signature algorithms in the future. Simply redefine
+a set of five OP_SUCCESSx opcodes for the new signature algorithm. This would allow us to activate a single PQ signature at a time, adding 
+new ones as needed. Additionally this approach allows developers to be very explicit in the signature algorithm type that they wish to verify.
+The main disadvantage is that it uses five OP_SUCCESSx opcodes per signature algorithm. Supporting ML-DSA and SLH-DSA would require ten new opcodes.
+
+Adding PQ signatures via a tapleaf version increase does not introduce any new opcodes and allows previously written tapscript programs to be used with PQ signatures
+by simply using the new tapleaf version. Developers rather than being able explicitly specify the intended signature algorithm by using an opcode,
+the algorithm must be signaled in the public key or public key hash<ref>'''Why not have CHECKSIG infer the algorithm based on signature size?''' Each of the three signature algorithms, Schnorr, ML-DSA, and SLH-DSA, have unique signature sizes. The problem with using signature size to infer algorithm is that spender specifies the signature. This would allow a public key which was intended to be verified by Schnorr to be verified using ML-DSA as the spender specified a ML-DSA signature. Signature algorithms are not often not secure if you can mix and match public key and signature across algorithms.</ref>.
+The disadvantage of this approach is that it requires a new tapleaf version each time we want to add a new signature algorithm.
+
+Both approaches must raise the stack element size limit. In the OP_SUCCESSx case, the increased size limit would only be effect for transaction outputs 
+that use of the new opcodes. Otherwise this stack element size limit increase would be a soft fork. If the tapleaf version is used, then the stack 
+element size limit increase would apply to any tapscript program with the new tapleaf version.
 
 To improve the viability of the activation client and adoption by wallets and libraries, a library akin to 
 libsecp256k1 will be developed. This library, [https://github.com/cryptoquick/libbitcoinpqc libbitcoinpqc], will support the new PQ signature algorithms 
@@ -290,8 +340,6 @@ It is an open question if Post-Quantum signature algorithms can be designed to p
 
 ==== Raising tapscript's stack element size ====
 
-TODO: Add discussion of why stack element size is increased in PQ signature algorithms rather than this in this BIP.
-
 A problem faced by any attempt to add PQ signatures to tapscript is that the stack elements in tapscript can not be larger than 520 bytes
 because the MAX_SCRIPT_ELEMENT_SIZE=520. This is programatic because PQ signature algorithms often have signatures and 
 public keys in excess of 520 bytes. For instance:
@@ -301,16 +349,19 @@ public keys in excess of 520 bytes. For instance:
 
 We will first look at our approach to the problem of PQ signatures and then give our solution for public keys larger than 520 bytes.
 
-We define P2QRH inputs to have a stack element size limit of 8,000 bytes. We arrive at 8,000 by rounding up from the
-needed 7,856 bytes. Because only P2QRH inputs can spend P2QRH outputs, the 520 would remain in place for all other output types.
+To keep P2QRH small and simple we have opted not to raise the stack element size limit as part of P2QRH but instead make this change when 
+adding of PQ signatures. That said, we are not strongly opposed to putting this increase in P2QRH.
 
-To prevent OP_DUP from creating an 8 MB stack by duplicating stack elements larger than 520 bytes we define OP_DUP to fail on stack
-elements larger than 520 bytes. Note this change to OP_DUP is not consensus critical as currently there is no way to get a stack 
-element larger than 520 bytes onto the stack.
+We propose a stack element size limit of 8,000 bytes. We arrive at 8,000 by rounding up from the needed 7,856 bytes. 
 
 OP_DUP will duplicate any stack element. Thus, if we allowed OP_DUP to duplicate stack elements of size 8,000 bytes, it would be possible 
 to write a tapscript which will duplicate stack elements until it reaches the maximum number of elements on stack, i.e. 1000 elements. 
 An increase from 520 bytes to 8,000 bytes would increase the memory footprint from 520 KB to 8 MB.
+
+To prevent OP_DUP from creating an 8 MB stack by duplicating stack elements larger than 520 bytes we define OP_DUP to fail on stack 
+elements larger than 520 bytes. Note this change to OP_DUP is not consensus critical and does not require any sort of fork. This is
+because currently there is no way to get a stack element larger than 520 bytes onto the stack so triggering this rule is currently
+impossible and would only matter if the stack element size limit was raised.
 
 ==== Public keys larger than 520 bytes ====
 
@@ -322,15 +373,15 @@ more than 520 bytes onto the stack.
 To solve this issue, for signature schemes with public keys greater than 520 bytes, we use the hash of the public key in the tapleaf script.
 We then package the public key and signature together as the same stack element on the input stack. Since the hash of the public key is 
 only 32 bytes, the tapleaf script can push it on the stack as it does today. Consider the following example with a 
-OP_CHECKSIGVERIFY_ML opcode for ML-DSA:
+OP_CHECKMLSIGVERIFY opcode for ML-DSA:
 
 <source>
 stack = [pubkey||signature]
-tapscript = [OP_PUSHDATA HASH256(expected_pubkey), OP_CHECKSIGVERIFY_ML]
+tapscript = [OP_PUSHDATA HASH256(expected_pubkey), OP_CHECKMLSIGVERIFY]
 </source>
 
 1. OP_PUSHDATA HASH256(expected_pubkey) updates the stack to [HASH256(expected_pubkey), pubkey||signature]
-2. OP_CHECKSIGVERIFY_ML pops HASH256(expected_pubkey) and pubkey||signature, checks HASH256(expected_pubkey) == pubkey and verifies signature against pubkey.
+2. OP_CHECKMLSIGVERIFYA pops HASH256(expected_pubkey) and pubkey||signature, checks HASH256(expected_pubkey) == pubkey and verifies signature against pubkey.
 
 ==== Future considerations ====
 
@@ -357,40 +408,6 @@ and used as an internal value in P2TR.
 To construct a P2QRH output we follow the same process as [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP-341]
 to compute the tapscript merkle root. However, instead of the root of the Merkle tree being hashed together with the internal
 key in P2QRH the root is hashed by itself using the tag "QuantumRoot".
-
-<source>
-D = tagged_hash("TapLeaf", bytes([leaf_version]) + ser_script(script))
-CD = tagged_hash("TapBranch", C + D)
-CDE = tagged_hash("TapBranch", E + CD)
-ABCDE = tagged_hash("TapBranch", AB + CDE)
-Root = tagged_hash("QuantumRoot", ABCDE)
-</source>
-
-TODO: Add image of P2QRH output merkle tree structure.
-
-Validation follows the pattern of a P2TR script spend but without the P2TR public key, internal key, or key tweak.
-A P2QRH input witness provides the following:
-
-<source>
-script input_0,
-...,
-script input_N,
-tapleaf script,
-control block = [version byte, m*32 byte merkle path] # m is the depth of the merkle tree
-</source>
-
-The script inputs provide the same functionality as they does in P2TR. It places input values on the stack to 
-be evaluated by the tapleaf script, a.k.a. the redeem script. 
-
-A P2QRH script witness stack differs in only one way from a P2TR script witness stack. P2QRH does not limit the size 
-of the witness stack elements to 520 bytes. This is needed because PQ signatures and public keys can be larger than 
-520 bytes.
-
-The tapleaf script is a tapscript that is executed to validate the input. The tapscript in P2QRH is unchanged from BIP-342.
-
-The control block is a 1 + 32*m byte array, where the first byte is the version byte and the next 32*m bytes are the
-Merkle path to the tapleaf script. The intent of the version byte is similar to the header byte in a P2TR control 
-block, but all 8 bits are used for versioning. We omit the public key from the control block as it is not needed in P2QRH.
 
 === Address Format ===
 
@@ -419,7 +436,7 @@ A P2QRH output is a native SegWit output (see [[bip-0141.mediawiki|BIP141]]) wit
 Unlike taproot this witness program is the tapleaf merkle root. For the sake of comparison we have, as much as possible, copied the 
 language verbatim from the [[bip-0341.mediawiki|BIP341]] script validation section.
 
-TODO: Add image of P2QRH output and input and merkle tree structure
+TODO: Add image of P2QRH output and input
 
 * Let ''q'' be the 32-byte array containing the witness program (the second push in the scriptPubKey) which represents root of tapleaf merkle tree.
 * Fail if the witness stack does not have two or more elements.
@@ -443,27 +460,6 @@ The steps above follow the script path spending logic from [[bip-0341.mediawiki|
 - We compute the tagged tapleaf merkle root r and compaire it directly to the witness program q.
 - The control block is 1 + 32*m bytes, instead of 33 + 32*m bytes.
 
-=== Post-Quantum Signature Algorithms ===
-
-We propose adding the opcodes OP_CHECKSIG_ML (ML-DSA) and OP_CHECKSIG_SLH (SLH-DSA) to tapscript by redefining OP_SUCCESSx
-opcodes. As ML-DSA and SLH-DSA are post-quantum signature algorithms this would allow the user of post-quantum signatures 
-in tapscript.
-
-These opcodes function similarly to the existing OP_CHECKSIG opcode. They pop the public key and signature from the stack
-and then perform signature verification using the specified post-quantum signature algorithm.
-
-TODO: Open questions:
-TODO: 1. Should we have OP_CHECKSIG_VERIFY and OP_CHECKSIGADD variants as well? YES
-TODO: 2. Should we provide these opcodes been in a separate BIP? YES
-
-==== OP_CHECKSIG_ML ====
-
-TODO: Add full specification here
-
-==== OP_CHECKSIG_SLH ====
-
-TODO: Add full specification here
-
 ==== Sighash Calculation ====
 
 The sighash for P2QRH outputs follows the same procedure as defined in [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP-341] for Taproot transactions:
@@ -472,8 +468,6 @@ The sighash for P2QRH outputs follows the same procedure as defined in [https://
 * '''Tagged Hash:''' Computed as H(tag || tag || data) where H is SHA256 and tag is the SHA256 of the tag name.
 * '''Key Data:''' In addition to transaction data, the sighash includes the spent output's scriptPubKey.
 * '''Extension Fields:''' Specific data is included or excluded from the sighash based on the sighash flag.
-
-TODO: Currently BIP-360 proposes using the tag "TapSighash" in the tagged hash of the sighash for PQ signatures. I can see an argument that the sighash should be specific to the signature algorithm used to prevent signatures from one algorithm being used for another algorithm, e.g. "TapSighashML" for ML-DSA
 
 This signature hash construction ensures transaction malleability is prevented while providing flexibility through
 different sighash types (DEFAULT, ALL, NONE, SINGLE, and ANYONECANPAY variants). The exact computation follows the
@@ -495,7 +489,7 @@ processing rules. Nodes that do not recognize SegWit version 3 will treat these 
 Quantum-resistant signatures are significantly larger than traditional signatures, increasing transaction size and the
 fees required. Users and wallet developers should be aware of this and plan accordingly.
 
-For example, for CRYSTALS-Dilithium Level I, a single public key is 1,312 bytes, and a signature is 2,420 bytes, resulting in a substantial increase over current
+For example, for ML-DSA Level I, a single public key is 1,312 bytes, and a signature is 2,420 bytes, resulting in a substantial increase over current
 ECDSA or Schnorr signatures.
 
 ==== Performance Impact ====
