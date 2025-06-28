@@ -372,9 +372,9 @@ Validation follows the pattern of a P2TR script spend but without the P2TR publi
 A P2QRH input witness provides the following:
 
 <source>
-script input_0
-...
-script input_N
+script input_0,
+...,
+script input_N,
 tapleaf script,
 control block = [version byte, m*32 byte merkle path] # m is the depth of the merkle tree
 </source>
