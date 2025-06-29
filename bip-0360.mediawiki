@@ -199,8 +199,6 @@ ABCDE = tagged_hash("TapBranch", AB + CDE)
 Root = tagged_hash("QuantumRoot", ABCDE)
 </source>
 
-
-
 A P2QRH input witness provides the following:
 
 <source>
@@ -483,7 +481,27 @@ By adhering to the SegWit transaction structure and versioning, P2QRH outputs ar
 processing rules. Nodes that do not recognize SegWit version 3 will treat these outputs as anyone-can-spend but, per
 [https://github.com/bitcoin/bips/blob/master/bip-0141.mediawiki BIP-141], will not relay or mine such transactions.
 
-=== Usage Considerations ===
+=== Security ===
+
+P2QRH outputs provide the same tapscript functionality as P2TR outputs, but without the quantum-vulnerable key spend
+path. This enables users, exchanges and other hodlers to easily move their coins from taproot outputs to P2QRH outputs
+and thereby protect their coins from long-exposure quantum attacks. The protection from long-exposure quantum attacks
+does not depend on the activation of post-quantum signatures in Bitcoin but does require that users do not expose their
+quantum vulnerable public keys to attackers via address reuse or other unsafe practices.
+
+P2QRH provides similar resistance to long-exposure quantum attacks as provided by P2SH or P2PKH 
+but with a greater level of security. This is because P2SH or P2PKH use a 160-bit hash output and thus can only provide
+80 bits of collision resistance and 160-bits of preimage resistance. P2QRH uses a 256-bit and provides 128 bits of
+collision resistance and 256 bits of preimage resistance. From a functionality standard P2QRH is compatible with tapscript
+whereas P2SH and P2PKH are not. As the upgrade path for tapscript is far easier and safer than for pre-tapscript outputs 
+like P2SH and P2PKH, PQ signatures are unlikely to be added to pre-tapscript outputs. Thus, even if we were comfortable 
+with the weaker security offered by P2SH or P2PKH, they do not present a viable upgrade path to full quantum resistance.
+
+P2QRH does not, by itself, protect against short-exposure quantum attacks, but such attacks can be mitigated by the future
+activation of post-quantum signatures in Bitcoin. With P2QRH hash, these would provide full quantum resistance to P2QRH outputs in Bitcoin.
+That said, the protection offered by resistance to long-exposure quantum attacks should not be underestimated. It is likely
+that the first CRQCs (Cryptographically Relevant Quantum Computers) will not be able to perform short-exposure quantum 
+attacks.
 
 ==== Transaction Size and Fees ====
 
