@@ -185,6 +185,8 @@ identical to a P2TR (Pay to Taproot) output with no quantum vulnerable key spend
 output type with no internal key and key tweak. Instead a P2QRH output is just the 32 byte root of the tapleaf merkle tree defined
 as in [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP-341].
 
+[[File:bip-0360/merkletree.png|center|740px|thumb|]]
+
 To construct a P2QRH output we follow the same process as [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP-341]
 to compute the tapscript merkle root. However, instead of the root of the Merkle tree being hashed together with the internal
 key in P2QRH the root is hashed by itself using the tag "QuantumRoot".
@@ -197,7 +199,7 @@ ABCDE = tagged_hash("TapBranch", AB + CDE)
 Root = tagged_hash("QuantumRoot", ABCDE)
 </source>
 
-TODO: Add image of P2QRH output merkle tree structure.
+
 
 A P2QRH input witness provides the following:
 
@@ -206,15 +208,16 @@ script input_0,
 ...,
 script input_N,
 tapleaf script,
-control block = [version byte, m*32 byte merkle path] # m is the depth of the merkle tree
+control block = [control byte, m*32 byte merkle path] # m is the depth of the merkle tree
 </source>
 
 The script inputs provide the same functionality as they does in P2TR. That is, they place input values on the stack to 
 be evaluated by the tapleaf script, a.k.a. the redeem script.
 
-The control block is a 1 + 32*m byte array, where the first byte is the version byte and the next 32*m bytes are the
-Merkle path to the tapleaf script. We preserve the header byte in a P2TR control block, including the 7 bits are used
-to specify the tapleaf version. We omit the public key from the control block as it is not needed in P2QRH.
+The control block is a 1 + 32*m byte array, where the first byte is the control byte and the next 32*m bytes are the
+Merkle path to the tapleaf script. The control byte is the same as the control byte in a P2TR control block, 
+including the 7 bits are used to specify the tapleaf version. The parity bit of the control byte is always 1
+since P2QRH does not have a key spend path. We omit the public key from the control block as it is not needed in P2QRH.
 
 === Rationale ===
 
