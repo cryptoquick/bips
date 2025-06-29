@@ -26,9 +26,9 @@
      inkscape:pagecheckerboard="0"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="0.77771465"
-     inkscape:cx="439.74998"
-     inkscape:cy="585.6904"
+     inkscape:zoom="1.0998546"
+     inkscape:cx="140.01851"
+     inkscape:cy="248.66923"
      inkscape:window-width="2560"
      inkscape:window-height="1369"
      inkscape:window-x="-8"
@@ -652,6 +652,18 @@
        width="394.88538"
        height="34.549486"
        id="rect2700-7-7-27" />
+    <rect
+       x="447.4649"
+       y="102.22258"
+       width="144.86412"
+       height="22.391521"
+       id="rect41542-0-8" />
+    <rect
+       x="447.4649"
+       y="102.22258"
+       width="144.86412"
+       height="22.391521"
+       id="rect41542-0-8-9" />
   </defs>
   <g
      inkscape:label="Layer 1"
@@ -659,7 +671,7 @@
      id="layer1">
     <text
        xml:space="preserve"
-       transform="matrix(0.26458333,0,0,0.26458333,-10.103608,-1.0825301)"
+       transform="matrix(0.26458333,0,0,0.26458333,-10.103608,-4.786697)"
        id="text2698"
        style="font-size:16px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect2700)"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
@@ -667,9 +679,9 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="46.289062"
          y="54.458613"
-         id="tspan510083"><tspan
+         id="tspan17855"><tspan
            style="font-weight:bold"
-           id="tspan510081">P2QRH Witness (input)</tspan></tspan></text>
+           id="tspan17853">P2QRH Witness (input)</tspan></tspan></text>
     <rect
        style="fill:#e4bee3;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect12088"
@@ -765,9 +777,9 @@
          style="font-size:16px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect135795);stroke-width:1.88976;stroke-miterlimit:4;stroke-dasharray:none"><tspan
            x="614.62109"
            y="205.54064"
-           id="tspan510087"><tspan
+           id="tspan17859"><tspan
              style="stroke:none"
-             id="tspan510085">annex</tspan></tspan></text>
+             id="tspan17857">annex</tspan></tspan></text>
       <text
          xml:space="preserve"
          transform="matrix(0.26458333,0,0,0.26458333,-97.506514,-16.277673)"
@@ -775,9 +787,9 @@
          style="font-size:16px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect145949);stroke-width:0.498898;stroke-miterlimit:4;stroke-dasharray:none"><tspan
            x="590.07812"
            y="180.52893"
-           id="tspan510091"><tspan
+           id="tspan17863"><tspan
              style="stroke:#808080"
-             id="tspan510089">50</tspan></tspan></text>
+             id="tspan17861">50</tspan></tspan></text>
     </g>
     <rect
        style="fill:#e8baba;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
@@ -816,16 +828,16 @@
     <text
        xml:space="preserve"
        style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
-       x="51.836483"
-       y="36.488731"
+       x="51.355358"
+       y="18.157969"
        id="text14922-4-3"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
        inkscape:export-ydpi="71.752861"><tspan
          sodipodi:role="line"
          style="stroke-width:0.264583"
-         x="51.836483"
-         y="36.488731"
+         x="51.355358"
+         y="18.157969"
          id="tspan399754">Script</tspan></text>
     <text
        xml:space="preserve"
@@ -858,7 +870,7 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="52.076172"
          y="238.97229"
-         id="tspan510093">Script Inputs</tspan></text>
+         id="tspan17865">Script Inputs</tspan></text>
     <g
        id="g17745-5-3"
        transform="matrix(1.5040779,0,0,1.0049545,22.685492,-31.200521)"
@@ -895,10 +907,10 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="447.46484"
          y="116.81994"
-         id="tspan510095">Merkle Path (32*m bytes)</tspan></text>
+         id="tspan17867">Merkle path (32*m bytes)</tspan></text>
     <text
        xml:space="preserve"
-       transform="matrix(0.26458333,0,0,0.26458333,-26.347015,-12.781038)"
+       transform="matrix(0.26458333,0,0,0.26458333,-20.573525,-12.540476)"
        id="text41540-7"
        style="font-size:16px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect41542-0)"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
@@ -906,7 +918,29 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="447.46484"
          y="116.81994"
-         id="tspan510097">Control block</tspan></text>
+         id="tspan17869">Control block</tspan></text>
+    <text
+       xml:space="preserve"
+       transform="matrix(0.26458333,0,0,0.26458333,-62.001274,30.326575)"
+       id="text41540-7-3"
+       style="font-size:16px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect41542-0-8)"
+       inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
+       inkscape:export-xdpi="71.752861"
+       inkscape:export-ydpi="71.752861"><tspan
+         x="447.46484"
+         y="116.81994"
+         id="tspan17871">Witness Program</tspan></text>
+    <text
+       xml:space="preserve"
+       transform="matrix(0.26458333,0,0,0.26458333,-109.12454,29.833839)"
+       id="text41540-7-3-6"
+       style="font-size:16px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect41542-0-8-9)"
+       inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
+       inkscape:export-xdpi="71.752861"
+       inkscape:export-ydpi="71.752861"><tspan
+         x="447.46484"
+         y="116.81994"
+         id="tspan17873">SegWit version 3</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,-3.2518289,-37.057947)"
@@ -917,23 +951,23 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="300.88086"
          y="231.90002"
-         id="tspan510099">tapleaf </tspan><tspan
+         id="tspan17875">tapleaf </tspan><tspan
          x="300.88086"
          y="251.90002"
-         id="tspan510101">version</tspan></text>
+         id="tspan17877">version</tspan></text>
     <rect
        style="fill:#e8baba;fill-opacity:1;stroke:#000000;stroke-width:0.467735;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect12088-0-7-7-8-7-9"
        width="16.597395"
        height="10.823597"
        x="4.4330664"
-       y="183.40594"
+       y="195.04745"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
        inkscape:export-ydpi="71.752861" />
     <text
        xml:space="preserve"
-       transform="matrix(0.26458333,0,0,0.26458333,-74.414064,126.60577)"
+       transform="matrix(0.26458333,0,0,0.26458333,-74.414064,138.24751)"
        id="text53359-2"
        style="font-size:16px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect53361-0)"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
@@ -941,10 +975,10 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="300.88086"
          y="231.90002"
-         id="tspan510103">tapleaf </tspan><tspan
+         id="tspan17879">tapleaf </tspan><tspan
          x="300.88086"
          y="251.90002"
-         id="tspan510105">version</tspan></text>
+         id="tspan17881">version</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,1.1708515,-48.643815)"
@@ -955,7 +989,7 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="372.88672"
          y="286.54846"
-         id="tspan510107">1</tspan></text>
+         id="tspan17883">1</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(-0.00160967,-0.1592893,0.53311092,-0.00163141,53.796304,85.188522)"
@@ -966,9 +1000,9 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="298.2207"
          y="84.010126"
-         id="tspan510111"><tspan
+         id="tspan17887"><tspan
            style="-inkscape-font-specification:sans-serif"
-           id="tspan510109">{</tspan></tspan></text>
+           id="tspan17885">{</tspan></tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(-0.0017354,-0.1592893,0.57475143,-0.00163141,-10.689285,85.028412)"
@@ -979,9 +1013,9 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="298.2207"
          y="84.010126"
-         id="tspan510115"><tspan
+         id="tspan17891"><tspan
            style="-inkscape-font-specification:sans-serif"
-           id="tspan510113">{</tspan></tspan></text>
+           id="tspan17889">{</tspan></tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,-9.6102756,36.875316)"
@@ -992,12 +1026,12 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="46.289062"
          y="54.458613"
-         id="tspan510119"><tspan
+         id="tspan17895"><tspan
            style="font-weight:bold"
-           id="tspan510117">P2QRH scriptPubkey (output)</tspan></tspan></text>
+           id="tspan17893">P2QRH scriptPubkey (output)</tspan></tspan></text>
     <text
        xml:space="preserve"
-       transform="matrix(0.26458333,0,0,0.26458333,-9.6079194,62.056017)"
+       transform="matrix(0.26458333,0,0,0.26458333,-9.6079194,73.697691)"
        id="text2698-9-2"
        style="font-size:16px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect2700-7-7-27)"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
@@ -1005,16 +1039,16 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="46.289062"
          y="54.458613"
-         id="tspan510123"><tspan
+         id="tspan17899"><tspan
            style="font-weight:bold"
-           id="tspan510121">How the Tapleaf Merkle Root is computed:</tspan></tspan></text>
+           id="tspan17897">How the tapleaf Merkle Root is computed:</tspan></tspan></text>
     <rect
        style="fill:#d6d6d6;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect12088-0-7-9"
        width="35.458385"
        height="10.64917"
-       x="9.7959461"
-       y="56.025177"
+       x="9.45574"
+       y="63.093693"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
        inkscape:export-ydpi="71.752861" />
@@ -1023,16 +1057,16 @@
        id="rect12088-0-7-9-5"
        width="52.433285"
        height="10.544161"
-       x="48.429337"
-       y="56.130188"
+       x="48.08913"
+       y="63.198704"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
        inkscape:export-ydpi="71.752861" />
     <text
        xml:space="preserve"
        style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
-       x="10.899187"
-       y="62.851616"
+       x="10.558981"
+       y="69.920135"
        id="text14922-4-7-8"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
@@ -1040,20 +1074,20 @@
          sodipodi:role="line"
          id="tspan14920-8-7-4"
          style="stroke-width:0.264583"
-         x="10.899187"
-         y="62.851616">OP_PUSHNUM3</tspan></text>
+         x="10.558981"
+         y="69.920135">OP_PUSHNUM3</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
-       x="53.60537"
-       y="62.90374"
+       x="53.265163"
+       y="69.97226"
        id="text14922-4-7-8-4"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
        inkscape:export-ydpi="71.752861"><tspan
          style="stroke-width:0.264583"
-         x="53.60537"
-         y="62.90374"
+         x="53.265163"
+         y="69.97226"
          id="tspan173477"
          sodipodi:role="line">tapleaf Merkle root</tspan></text>
     <rect
@@ -1062,7 +1096,7 @@
        width="52.433285"
        height="10.544161"
        x="73.857193"
-       y="81.330284"
+       y="92.971962"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
        inkscape:export-ydpi="71.752861" />
@@ -1070,14 +1104,14 @@
        xml:space="preserve"
        style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
        x="79.033226"
-       y="88.103836"
+       y="99.745514"
        id="text14922-4-7-8-4-8"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
        inkscape:export-ydpi="71.752861"><tspan
          style="stroke-width:0.264583"
          x="79.033226"
-         y="88.103836"
+         y="99.745514"
          id="tspan173477-6"
          sodipodi:role="line">tapleaf Merkle root</tspan></text>
     <rect
@@ -1086,7 +1120,7 @@
        width="37.463589"
        height="12.938135"
        x="82.881538"
-       y="98.272415"
+       y="109.91407"
        ry="6.4690676"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
@@ -1095,7 +1129,7 @@
        xml:space="preserve"
        style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
        x="86.146797"
-       y="103.70377"
+       y="115.34544"
        id="text249033"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
@@ -1104,11 +1138,11 @@
          id="tspan249031"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';stroke-width:0.264583"
          x="86.146797"
-         y="103.70377">tagged_hash</tspan><tspan
+         y="115.34544">tagged_hash</tspan><tspan
          sodipodi:role="line"
          style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Italic';stroke-width:0.264583"
          x="86.146797"
-         y="108.99544"
+         y="120.63711"
          id="tspan282693">QuantumRoot</tspan></text>
     <rect
        style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
@@ -1116,7 +1150,7 @@
        width="37.463589"
        height="12.938135"
        x="3.2807019"
-       y="164.7063"
+       y="176.34781"
        ry="6.4690676"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
@@ -1125,7 +1159,7 @@
        xml:space="preserve"
        style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
        x="6.5459585"
-       y="170.13766"
+       y="181.77917"
        id="text249033-0"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
@@ -1134,11 +1168,11 @@
          id="tspan249031-4"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';stroke-width:0.264583"
          x="6.5459585"
-         y="170.13766">tagged_hash</tspan><tspan
+         y="181.77917">tagged_hash</tspan><tspan
          sodipodi:role="line"
          style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Italic';stroke-width:0.264583"
          x="6.5459585"
-         y="175.42932"
+         y="187.07083"
          id="tspan282693-5">    Tapleaf</tspan></text>
     <rect
        style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
@@ -1146,7 +1180,7 @@
        width="37.463589"
        height="12.938135"
        x="24.571875"
-       y="149.18657"
+       y="160.82808"
        ry="6.4690676"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
@@ -1155,7 +1189,7 @@
        xml:space="preserve"
        style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
        x="27.83713"
-       y="154.61795"
+       y="166.25946"
        id="text249033-0-8"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
@@ -1164,11 +1198,11 @@
          id="tspan249031-4-50"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';stroke-width:0.264583"
          x="27.83713"
-         y="154.61795">tagged_hash</tspan><tspan
+         y="166.25946">tagged_hash</tspan><tspan
          sodipodi:role="line"
          style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Italic';stroke-width:0.264583"
          x="27.83713"
-         y="159.90961"
+         y="171.55112"
          id="tspan282693-5-4">   TapBranch</tspan></text>
     <rect
        style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
@@ -1176,7 +1210,7 @@
        width="37.463589"
        height="12.938135"
        x="99.844353"
-       y="149.20467"
+       y="160.84618"
        ry="6.4690676"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
@@ -1185,7 +1219,7 @@
        xml:space="preserve"
        style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
        x="103.10961"
-       y="154.63605"
+       y="166.27756"
        id="text249033-0-8-5"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
@@ -1194,11 +1228,11 @@
          id="tspan249031-4-50-9"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';stroke-width:0.264583"
          x="103.10961"
-         y="154.63605">tagged_hash</tspan><tspan
+         y="166.27756">tagged_hash</tspan><tspan
          sodipodi:role="line"
          style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Italic';stroke-width:0.264583"
          x="103.10961"
-         y="159.9277"
+         y="171.56921"
          id="tspan282693-5-4-6">   TapBranch</tspan></text>
     <rect
        style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
@@ -1206,7 +1240,7 @@
        width="37.463589"
        height="12.938135"
        x="132.41666"
-       y="133.56813"
+       y="145.20964"
        ry="6.4690676"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
@@ -1215,7 +1249,7 @@
        xml:space="preserve"
        style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
        x="135.68192"
-       y="138.9995"
+       y="150.64101"
        id="text249033-0-8-5-0"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
@@ -1224,11 +1258,11 @@
          id="tspan249031-4-50-9-9"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';stroke-width:0.264583"
          x="135.68192"
-         y="138.9995">tagged_hash</tspan><tspan
+         y="150.64101">tagged_hash</tspan><tspan
          sodipodi:role="line"
          style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Italic';stroke-width:0.264583"
          x="135.68192"
-         y="144.29115"
+         y="155.93266"
          id="tspan282693-5-4-6-3">   TapBranch</tspan></text>
     <rect
        style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
@@ -1236,7 +1270,7 @@
        width="37.463589"
        height="12.938135"
        x="83.391846"
-       y="117.08875"
+       y="128.73038"
        ry="6.4690676"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
@@ -1245,7 +1279,7 @@
        xml:space="preserve"
        style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
        x="86.657104"
-       y="122.52013"
+       y="134.16171"
        id="text249033-0-8-4"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
@@ -1254,11 +1288,11 @@
          id="tspan249031-4-50-4"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';stroke-width:0.264583"
          x="86.657104"
-         y="122.52013">tagged_hash</tspan><tspan
+         y="134.16171">tagged_hash</tspan><tspan
          sodipodi:role="line"
          style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Italic';stroke-width:0.264583"
          x="86.657104"
-         y="127.81179"
+         y="139.45337"
          id="tspan282693-5-4-8">   TapBranch</tspan></text>
     <text
        xml:space="preserve"
@@ -1267,7 +1301,7 @@
        style="font-size:16px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect255768)" />
     <g
        id="g17745-7-1"
-       transform="matrix(1.0795084,0,0,0.99750903,-30.802456,159.38375)"
+       transform="matrix(1.0795084,0,0,0.99750903,-30.802456,171.02549)"
        style="fill:#808080;fill-opacity:1;stroke:#000000;stroke-width:0.426423;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
@@ -1293,7 +1327,7 @@
     </g>
     <text
        xml:space="preserve"
-       transform="matrix(0.26458333,0,0,0.26458333,-5.5740096,27.411946)"
+       transform="matrix(0.26458333,0,0,0.26458333,-5.5740096,39.05362)"
        id="text259482-8"
        style="font-size:16px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect259484-1)"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
@@ -1301,26 +1335,26 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="102.74023"
          y="605.58361"
-         id="tspan510125">tapleaf
+         id="tspan17901">tapleaf
 </tspan><tspan
          x="102.74023"
          y="625.58361"
-         id="tspan510129">    <tspan
+         id="tspan17905">    <tspan
    style="font-weight:bold"
-   id="tspan510127">A</tspan></tspan></text>
+   id="tspan17903">A</tspan></tspan></text>
     <rect
        style="fill:#e8baba;fill-opacity:1;stroke:#000000;stroke-width:0.467735;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect12088-0-7-7-8-7-9-5"
        width="16.597395"
        height="10.823597"
        x="43.27272"
-       y="183.21893"
+       y="194.86044"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
        inkscape:export-ydpi="71.752861" />
     <text
        xml:space="preserve"
-       transform="matrix(0.26458333,0,0,0.26458333,-35.57441,126.41877)"
+       transform="matrix(0.26458333,0,0,0.26458333,-35.57441,138.06051)"
        id="text53359-2-1"
        style="font-size:16px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect53361-0-7)"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
@@ -1328,13 +1362,13 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="300.88086"
          y="231.90002"
-         id="tspan510131">tapleaf </tspan><tspan
+         id="tspan17907">tapleaf </tspan><tspan
          x="300.88086"
          y="251.90002"
-         id="tspan510133">version</tspan></text>
+         id="tspan17909">version</tspan></text>
     <g
        id="g17745-7-1-4"
-       transform="matrix(1.057386,0,0,0.99792136,9.0958478,159.18458)"
+       transform="matrix(1.057386,0,0,0.99792136,9.0958478,170.82632)"
        style="fill:#e7ce9b;fill-opacity:1;stroke:#000000;stroke-width:0.426423;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
@@ -1360,7 +1394,7 @@
     </g>
     <text
        xml:space="preserve"
-       transform="matrix(0.26458333,0,0,0.26458333,33.265644,27.224938)"
+       transform="matrix(0.26458333,0,0,0.26458333,33.265644,38.866612)"
        id="text259482-8-2"
        style="font-size:16px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect259484-1-3)"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
@@ -1368,26 +1402,26 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="102.74023"
          y="605.58361"
-         id="tspan510135">tapleaf
+         id="tspan17911">tapleaf
 </tspan><tspan
          x="102.74023"
          y="625.58361"
-         id="tspan510139">    <tspan
+         id="tspan17915">    <tspan
    style="font-weight:bold"
-   id="tspan510137">B</tspan></tspan></text>
+   id="tspan17913">B</tspan></tspan></text>
     <rect
        style="fill:#e8baba;fill-opacity:1;stroke:#000000;stroke-width:0.467735;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect12088-0-7-7-8-7-9-5-6"
        width="16.597395"
        height="10.823597"
        x="82.154274"
-       y="183.22142"
+       y="194.86293"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
        inkscape:export-ydpi="71.752861" />
     <text
        xml:space="preserve"
-       transform="matrix(0.26458333,0,0,0.26458333,3.3071379,126.42123)"
+       transform="matrix(0.26458333,0,0,0.26458333,3.3071379,138.06297)"
        id="text53359-2-1-8"
        style="font-size:16px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect53361-0-7-0)"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
@@ -1395,13 +1429,13 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="300.88086"
          y="231.90002"
-         id="tspan510141">tapleaf </tspan><tspan
+         id="tspan17917">tapleaf </tspan><tspan
          x="300.88086"
          y="251.90002"
-         id="tspan510143">version</tspan></text>
+         id="tspan17919">version</tspan></text>
     <g
        id="g17745-7-1-4-4"
-       transform="matrix(1.057386,0,0,0.99792136,47.977385,159.18703)"
+       transform="matrix(1.057386,0,0,0.99792136,47.977385,170.82877)"
        style="fill:#808080;fill-opacity:1;stroke:#000000;stroke-width:0.426423;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
@@ -1427,7 +1461,7 @@
     </g>
     <text
        xml:space="preserve"
-       transform="matrix(0.26458333,0,0,0.26458333,72.147194,27.227401)"
+       transform="matrix(0.26458333,0,0,0.26458333,72.147194,38.869075)"
        id="text259482-8-2-3"
        style="font-size:16px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect259484-1-3-1)"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
@@ -1435,26 +1469,26 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="102.74023"
          y="605.58361"
-         id="tspan510145">tapleaf
+         id="tspan17921">tapleaf
 </tspan><tspan
          x="102.74023"
          y="625.58361"
-         id="tspan510149">    <tspan
+         id="tspan17925">    <tspan
    style="font-weight:bold"
-   id="tspan510147">C</tspan></tspan></text>
+   id="tspan17923">C</tspan></tspan></text>
     <rect
        style="fill:#e8baba;fill-opacity:1;stroke:#000000;stroke-width:0.467735;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect12088-0-7-7-8-7-9-5-6-9"
        width="16.597395"
        height="10.823597"
        x="120.91499"
-       y="183.21361"
+       y="194.85512"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
        inkscape:export-ydpi="71.752861" />
     <text
        xml:space="preserve"
-       transform="matrix(0.26458333,0,0,0.26458333,42.067813,126.41341)"
+       transform="matrix(0.26458333,0,0,0.26458333,42.067813,138.05515)"
        id="text53359-2-1-8-1"
        style="font-size:16px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect53361-0-7-0-8)"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
@@ -1462,13 +1496,13 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="300.88086"
          y="231.90002"
-         id="tspan510151">tapleaf </tspan><tspan
+         id="tspan17927">tapleaf </tspan><tspan
          x="300.88086"
          y="251.90002"
-         id="tspan510153">version</tspan></text>
+         id="tspan17929">version</tspan></text>
     <g
        id="g17745-7-1-4-4-3"
-       transform="matrix(1.0647598,0,0,0.99778343,86.385197,159.18327)"
+       transform="matrix(1.0647598,0,0,0.99778343,86.385197,170.82501)"
        style="fill:#808080;fill-opacity:1;stroke:#000000;stroke-width:0.426423;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
@@ -1494,7 +1528,7 @@
     </g>
     <text
        xml:space="preserve"
-       transform="matrix(0.26458333,0,0,0.26458333,110.90788,27.219578)"
+       transform="matrix(0.26458333,0,0,0.26458333,110.90788,38.861252)"
        id="text259482-8-2-3-8"
        style="font-size:16px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect259484-1-3-1-8)"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
@@ -1502,26 +1536,26 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="102.74023"
          y="605.58361"
-         id="tspan510155">tapleaf
+         id="tspan17931">tapleaf
 </tspan><tspan
          x="102.74023"
          y="625.58361"
-         id="tspan510159">    <tspan
+         id="tspan17935">    <tspan
    style="font-weight:bold"
-   id="tspan510157">D</tspan></tspan></text>
+   id="tspan17933">D</tspan></tspan></text>
     <rect
        style="fill:#e8baba;fill-opacity:1;stroke:#000000;stroke-width:0.467735;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect12088-0-7-7-8-7-9-5-6-9-8"
        width="16.597395"
        height="10.823597"
        x="159.6756"
-       y="183.20576"
+       y="194.84727"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
        inkscape:export-ydpi="71.752861" />
     <text
        xml:space="preserve"
-       transform="matrix(0.26458333,0,0,0.26458333,80.82847,126.40556)"
+       transform="matrix(0.26458333,0,0,0.26458333,80.82847,138.0473)"
        id="text53359-2-1-8-1-8"
        style="font-size:16px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect53361-0-7-0-8-1)"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
@@ -1529,13 +1563,13 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="300.88086"
          y="231.90002"
-         id="tspan510161">tapleaf </tspan><tspan
+         id="tspan17937">tapleaf </tspan><tspan
          x="300.88086"
          y="251.90002"
-         id="tspan510163">version</tspan></text>
+         id="tspan17939">version</tspan></text>
     <g
        id="g17745-7-1-4-4-3-0"
-       transform="matrix(1.0500126,0,0,0.99805978,125.85157,159.16728)"
+       transform="matrix(1.0500126,0,0,0.99805978,125.85157,170.80902)"
        style="fill:#808080;fill-opacity:1;stroke:#000000;stroke-width:0.426423;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
@@ -1561,7 +1595,7 @@
     </g>
     <text
        xml:space="preserve"
-       transform="matrix(0.26458333,0,0,0.26458333,149.66855,27.211737)"
+       transform="matrix(0.26458333,0,0,0.26458333,149.66855,38.853411)"
        id="text259482-8-2-3-8-9"
        style="font-size:16px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect259484-1-3-1-8-4)"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
@@ -1569,13 +1603,13 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="102.74023"
          y="605.58361"
-         id="tspan510165">tapleaf
+         id="tspan17941">tapleaf
 </tspan><tspan
          x="102.74023"
          y="625.58361"
-         id="tspan510169">    <tspan
+         id="tspan17945">    <tspan
    style="font-weight:bold"
-   id="tspan510167">E</tspan></tspan></text>
+   id="tspan17943">E</tspan></tspan></text>
     <text
        xml:space="preserve"
        transform="scale(0.26458333)"
@@ -1588,7 +1622,7 @@
        style="font-size:16px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect288534)" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2Mend)"
-       d="m 22.609152,183.22348 0.07857,-5.25398"
+       d="m 22.609152,194.86522 0.07857,-5.25398"
        id="path335242"
        sodipodi:nodetypes="cc"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
@@ -1596,7 +1630,7 @@
        inkscape:export-ydpi="71.752861" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2Mend-4)"
-       d="m 22.360748,164.94099 3.860645,-4.62693"
+       d="m 22.360748,176.58273 3.860645,-4.62693"
        id="path335242-5"
        sodipodi:nodetypes="cc"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
@@ -1604,7 +1638,7 @@
        inkscape:export-ydpi="71.752861" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2Mend-4-0)"
-       d="M 43.249827,149.16294 83.512534,125.14425"
+       d="M 43.249827,160.80468 83.512534,136.78599"
        id="path335242-5-6"
        sodipodi:nodetypes="cc"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
@@ -1612,7 +1646,7 @@
        inkscape:export-ydpi="71.752861" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2Mend-4-6)"
-       d="m 65.205432,164.49574 -4.105534,-4.15717"
+       d="m 65.205432,176.13748 -4.105534,-4.15717"
        id="path335242-5-4"
        sodipodi:nodetypes="cc"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
@@ -1620,7 +1654,7 @@
        inkscape:export-ydpi="71.752861" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2Mend-4-6-0)"
-       d="m 96.212424,164.74121 4.569726,-4.41232"
+       d="m 96.212424,176.38295 4.569726,-4.41232"
        id="path335242-5-4-8"
        sodipodi:nodetypes="cc"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
@@ -1628,7 +1662,7 @@
        inkscape:export-ydpi="71.752861" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2Mend-4-6-0-3-9)"
-       d="m 128.52736,148.96239 4.82487,-4.58242"
+       d="m 128.52736,160.60413 4.82487,-4.58242"
        id="path335242-5-4-8-0-8"
        sodipodi:nodetypes="cc"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
@@ -1636,7 +1670,7 @@
        inkscape:export-ydpi="71.752861" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2Mend-4-6-0-3-9-3)"
-       d="m 151.91242,133.13763 -30.72667,-8.6649"
+       d="m 151.91242,144.77937 -30.72667,-8.6649"
        id="path335242-5-4-8-0-8-9"
        sodipodi:nodetypes="cc"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
@@ -1644,7 +1678,7 @@
        inkscape:export-ydpi="71.752861" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2Mend-4-6-0-3-9-3-4)"
-       d="M 179.3028,165.42383 165.75654,147.06306"
+       d="M 179.3028,177.06557 165.75654,158.7048"
        id="path335242-5-4-8-0-8-9-0"
        sodipodi:nodetypes="cc"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
@@ -1652,7 +1686,7 @@
        inkscape:export-ydpi="71.752861" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2Mend-4-6-0-8)"
-       d="m 140.23036,164.57663 -3.82952,-4.21991"
+       d="m 140.23036,176.21837 -3.82952,-4.21991"
        id="path335242-5-4-8-5"
        sodipodi:nodetypes="cc"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
@@ -1664,7 +1698,7 @@
        width="37.463589"
        height="12.938135"
        x="43.017963"
-       y="164.70424"
+       y="176.34575"
        ry="6.4690676"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
@@ -1673,7 +1707,7 @@
        xml:space="preserve"
        style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
        x="46.283218"
-       y="170.1356"
+       y="181.77711"
        id="text249033-0-9"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
@@ -1682,15 +1716,15 @@
          id="tspan249031-4-5"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';stroke-width:0.264583"
          x="46.283218"
-         y="170.1356">tagged_hash</tspan><tspan
+         y="181.77711">tagged_hash</tspan><tspan
          sodipodi:role="line"
          style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Italic';stroke-width:0.264583"
          x="46.283218"
-         y="175.42726"
+         y="187.06877"
          id="tspan282693-5-5">    Tapleaf</tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2Mend-0)"
-       d="m 61.82606,183.40369 0.07857,-5.25398"
+       d="m 61.82606,195.04543 0.07857,-5.25398"
        id="path335242-2"
        sodipodi:nodetypes="cc"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
@@ -1702,7 +1736,7 @@
        width="37.463589"
        height="12.938135"
        x="121.27724"
-       y="164.702"
+       y="176.34351"
        ry="6.4690676"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
@@ -1711,7 +1745,7 @@
        xml:space="preserve"
        style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
        x="124.54253"
-       y="170.13336"
+       y="181.77487"
        id="text249033-0-4"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
@@ -1720,15 +1754,15 @@
          id="tspan249031-4-6"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';stroke-width:0.264583"
          x="124.54253"
-         y="170.13336">tagged_hash</tspan><tspan
+         y="181.77487">tagged_hash</tspan><tspan
          sodipodi:role="line"
          style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Italic';stroke-width:0.264583"
          x="124.54253"
-         y="175.42502"
+         y="187.06653"
          id="tspan282693-5-1">    Tapleaf</tspan></text>
     <path
-       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2Mend-2)"
-       d="m 139.5472,183.21918 0.0786,-5.25398"
+       style="fill:none;stroke:#000000;stroke-width:0.480312;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2Mend-2)"
+       d="m 139.54564,194.80779 0.0821,-4.64023"
        id="path335242-1"
        sodipodi:nodetypes="cc"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
@@ -1740,7 +1774,7 @@
        width="37.463589"
        height="12.938135"
        x="160.48552"
-       y="164.69994"
+       y="176.87061"
        ry="6.4690676"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
@@ -1749,7 +1783,7 @@
        xml:space="preserve"
        style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
        x="163.75078"
-       y="170.1313"
+       y="181.77281"
        id="text249033-0-9-1"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
@@ -1758,15 +1792,15 @@
          id="tspan249031-4-5-83"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';stroke-width:0.264583"
          x="163.75078"
-         y="170.1313">tagged_hash</tspan><tspan
+         y="181.77281">tagged_hash</tspan><tspan
          sodipodi:role="line"
          style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Italic';stroke-width:0.264583"
          x="163.75078"
-         y="175.42296"
+         y="187.06447"
          id="tspan282693-5-5-7">    Tapleaf</tspan></text>
     <path
-       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2Mend-0-6)"
-       d="m 178.76409,183.39939 0.0786,-5.25398"
+       style="fill:none;stroke:#000000;stroke-width:0.483252;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2Mend-0-6)"
+       d="m 178.76277,194.99536 0.0816,-4.72751"
        id="path335242-2-0"
        sodipodi:nodetypes="cc"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
@@ -1774,7 +1808,7 @@
        inkscape:export-ydpi="71.752861" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2Mend-0-4)"
-       d="m 100.88388,116.74058 0.0786,-5.25395"
+       d="m 100.88388,128.38232 0.0786,-5.25395"
        id="path335242-2-8"
        sodipodi:nodetypes="cc"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
@@ -1782,7 +1816,7 @@
        inkscape:export-ydpi="71.752861" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2Mend-0-4-7)"
-       d="m 101.05399,98.539579 0.0786,-5.25398"
+       d="m 101.05399,110.18131 0.0786,-5.25401"
        id="path335242-2-8-7"
        sodipodi:nodetypes="cc"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
@@ -1794,7 +1828,7 @@
        width="37.463589"
        height="12.938135"
        x="82.069061"
-       y="164.70424"
+       y="176.34575"
        ry="6.4690676"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
@@ -1803,7 +1837,7 @@
        xml:space="preserve"
        style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
        x="85.334312"
-       y="170.1356"
+       y="181.77711"
        id="text249033-0-9-8"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
        inkscape:export-xdpi="71.752861"
@@ -1812,15 +1846,15 @@
          id="tspan249031-4-5-8"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';stroke-width:0.264583"
          x="85.334312"
-         y="170.1356">tagged_hash</tspan><tspan
+         y="181.77711">tagged_hash</tspan><tspan
          sodipodi:role="line"
          style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Italic';stroke-width:0.264583"
          x="85.334312"
-         y="175.42726"
+         y="187.06877"
          id="tspan282693-5-5-1">    Tapleaf</tspan></text>
     <path
-       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2Mend-0-1)"
-       d="m 101.39749,183.22143 0.0786,-5.25398"
+       style="fill:none;stroke:#000000;stroke-width:0.480312;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow2Mend-0-1)"
+       d="m 101.39593,194.81004 0.0821,-4.64023"
        id="path335242-2-3"
        sodipodi:nodetypes="cc"
        inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
