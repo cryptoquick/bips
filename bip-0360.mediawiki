@@ -297,7 +297,7 @@ algorithm was desired it could follow this pattern.
 We consider two different paths for activating PQ signatures in Bitcoin. The first approach is to redefine OP_SUCCESSx opcodes for each
 signature algorithm. For ML-DSA this would give us OP_CHECKMLSIG, OP_CHECKMLSIGVERIFY, OP_CHECKMLSIGADD, OP_CHECKMLMULTISIG
 and OP_CHECKMLMULTISIGVERIFY. The second approach is to use a new tapleaf version that changes the OP_CHECKSIG opcodes to support the 
-new PQ signature algorithms. In both cases, we would need to include as part of the softfork an increase in the tapscript stack element
+new PQ signature algorithms. In both cases, we would need to include as part of the soft fork an increase in the tapscript stack element
 size to accommodate the larger signatures and public keys sizes of the PQ signature algorithms.
 
 The OP_SUCCESSx approach has the advantage of providing a straightforward path to add new signature algorithms in the future. Simply redefine
@@ -341,7 +341,7 @@ It is an open question if Post-Quantum signature algorithms can be designed to p
 ==== Raising tapscript's stack element size ====
 
 A problem faced by any attempt to add PQ signatures to tapscript is that the stack elements in tapscript can not be larger than 520 bytes
-because the MAX_SCRIPT_ELEMENT_SIZE=520. This is programatic because PQ signature algorithms often have signatures and 
+because the MAX_SCRIPT_ELEMENT_SIZE=520. This is programmatic because PQ signature algorithms often have signatures and 
 public keys in excess of 520 bytes. For instance:
 
 * ML-DSA public keys are 1,312 bytes and signatures are 2,420 bytes
@@ -365,7 +365,7 @@ impossible and would only matter if the stack element size limit was raised.
 
 ==== Public keys larger than 520 bytes ====
 
-Turning our attention to public keys larger than 520 bytes. This is not needed for SHL-DSA as its public key is only 32 bytes. 
+Turning our attention to public keys larger than 520 bytes. This is not needed for SLH-DSA as its public key is only 32 bytes. 
 This is a different problem than signatures as public keys are typically pushed onto
 the stack by the tapleaf script (redeem script) to commit to public keys in output. The OP_PUSHDATA opcode in tapscript fails if asked to push
 more than 520 bytes onto the stack. 
@@ -381,7 +381,7 @@ tapscript = [OP_PUSHDATA HASH256(expected_pubkey), OP_CHECKMLSIGVERIFY]
 </source>
 
 1. OP_PUSHDATA HASH256(expected_pubkey) updates the stack to [HASH256(expected_pubkey), pubkey||signature]
-2. OP_CHECKMLSIGVERIFYA pops HASH256(expected_pubkey) and pubkey||signature, checks HASH256(expected_pubkey) == pubkey and verifies signature against pubkey.
+2. OP_CHECKMLSIGVERIFY pops HASH256(expected_pubkey) and pubkey||signature, checks HASH256(expected_pubkey) == pubkey and verifies signature against pubkey.
 
 ==== Future considerations ====
 
@@ -427,7 +427,7 @@ The <code>scriptPubKey</code> for a P2QRH output is:
 
 Where:
 
-* <code>OP_PUSHNUM_3</code> (<code>0x03</code>) indicates SegWit version 3.
+* <code>OP_PUSHNUM_3</code> (<code>0x53</code>) indicates SegWit version 3.
 * <nowiki><hash></nowiki> is the 32-byte tapleaf merkle root.
 
 ==== Script Validation ====
@@ -444,7 +444,7 @@ TODO: Add image of P2QRH output and input
 * There must be at least two witness elements left.
 ** Call the last stack element ''s'', the script (as defined in [[bip-0341.mediawiki|BIP341]])
 ** The last stack element is called the control block ''c'', and must have length ''1 + 32m'', for a value of ''m'' that is an integer between 0 and 128, inclusive. Fail if it does not have such a length.
-** Let ''v = c[0] & 0xfe'' be the ''leaf version'' (as defined in [[bip-0341.mediawiki|BIP341]]). To maintain ''leaf version'' encoding compatibility the last bit of c[0] is unused and must be 1 <ref>'''Why set the last bit of c[0] to one?''' Consider a faulty implementation that deserializes the ''leaf version'' as c[0] rather than c[0] & 0xfe for both P2TR and P2QRH. If they test against P2QRH outputs and require that last bit is 1, this deserialization bug will cause an immediate.</ref>.
+** Let ''v = c[0] & 0xfe'' be the ''leaf version'' (as defined in [[bip-0341.mediawiki|BIP-341]]). To maintain ''leaf version'' encoding compatibility the last bit of c[0] is unused and must be 1 <ref>'''Why set the last bit of c[0] to one?''' Consider a faulty implementation that deserializes the ''leaf version'' as c[0] rather than c[0] & 0xfe for both P2TR and P2QRH. If they test against P2QRH outputs and require that last bit is 1, this deserialization bug will cause an immediate error.</ref>.
 ** Let ''k<sub>0</sub> = hash<sub>TapLeaf</sub>(v || compact_size(size of s) || s)''; also call it the ''tapleaf hash''.
 ** For ''j'' in ''[0,1,...,m-1]'':
 *** Let ''e<sub>j</sub> = c[33+32j:65+32j]''.
@@ -455,8 +455,8 @@ TODO: Add image of P2QRH output and input
 ** If ''q &ne; r'', fail.
 ** Execute the script, according to the applicable script rules, using the witness stack elements excluding the script ''s'', the control block ''c'', and the annex ''a'' if present, as initial stack. This implies that for the future leaf versions (non-''0xC0'') the execution must succeed.
 
-The steps above follow the script path spending logic from [[bip-0341.mediawiki|BIP341]] with the following changes:
-- The witness program is the tapleaf merkle root and not a public key. This means that we skip directly to [[bip-0341.mediawiki|BIP341]] spend path tapleaf merkle tree validation.
+The steps above follow the script path spending logic from [[bip-0341.mediawiki|BIP-341]] with the following changes:
+- The witness program is the tapleaf merkle root and not a public key. This means that we skip directly to BIP-341 spend path tapleaf merkle tree validation.
 - We compute the tagged tapleaf merkle root r and compare it directly to the witness program q.
 - The control block is 1 + 32*m bytes, instead of 33 + 32*m bytes.
 
