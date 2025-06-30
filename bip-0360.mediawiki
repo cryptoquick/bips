@@ -16,7 +16,7 @@
 
 === Abstract ===
 
-This document proposes the introduction of a new output type Pay to Quantum Resistant Hash (P2QRH) via a soft fork.
+This document proposes the introduction of a new output type, Pay to Quantum Resistant Hash (P2QRH), via a soft fork.
 P2QRH provides the same tapscript functionality as Pay to TapRoot (P2TR) but removes the quantum-vulnerable
 key-spend path in P2TR. By itself, P2QRH provides protection against long-exposure quantum attacks, 
 but requires PQ signatures to provide full security against Cryptanalytically-Relevant Quantum Computing (CRQCs).
