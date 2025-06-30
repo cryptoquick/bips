@@ -271,7 +271,7 @@ is the most plausible and convenient upgrade path to full quantum resistance.
 By separating P2QRH from the introduction of PQ signatures relying parties can move from P2TR to P2QRH 
 without simultaneously having to change from Schnorr signatures to PQ signatures. Simply moving coins from 
 P2TR to P2QRH protects those coins from long-exposure quantum attacks. Then to gain full quantum resistance, 
-verification of PQ signatures can be added as an additional tapleaf alongside Schnorr signatures<ref name="mattleaf">Inspired by Matt Corallo's discussion of this idea on the Bitcoin-dev mailing list [https://groups.google.com/g/bitcoindev/c/oQKezDOc4us/m/T1vSMkZNAAAJ Re: P2QRH / BIP-360 Update]</ref>. 
+verification of PQ signatures can be added as an additional tapleaf alongside Schnorr signatures<ref name="mattleaf">Matt Corallo, [https://groups.google.com/g/bitcoindev/c/8O857bRSVV8/m/rTrpeFjWDAAJ Trivial QC signatures with clean upgrade path], (2024)</ref>. 
 When quantum attacks become practical, users would then be fully protected as the P2QRH output would allow
 them to switch to sending their coins using the PQ signature algorithms. This allows the upgrade to quantum 
 resistance to be largely invisible to users.
@@ -640,6 +640,38 @@ It is worth noting by way of comparison that
 proposed solution] in an Ethereum quantum emergency is quite different from the approach in this BIP. His plan involves
 a hard fork of the chain, reverting all blocks after a sufficient amount of theft, and using STARKs based on BIP-32
 seeds to act as the authoritative secret when signing. These measures are deemed far too heavy-handed for Bitcoin.
+
+P2QRH and MAST (Merkelized Abstract Syntax Tree) [https://github.com/bitcoin/bips/blob/master/bip-0114.mediawiki BIP-114],
+and related BIPs [https://github.com/bitcoin/bips/blob/master/bip-0116.mediawiki BIP-116], [https://github.com/bitcoin/bips/blob/master/bip-0117.mediawiki BIP-117],
+share the idea of committing to a Merkle tree of scripts. While MAST was never activated, taproot
+[https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP-341] incorporated this idea of a Merkle tree of
+scripts into its design. For the purposes of compatibility, simplicity and code reuse P2QRH inherits this capability from taproot
+rather than implementing MAST directly.
+
+Below we attempt to summarize some of the ideas discussed on the Bitcoin Bitcoin-Dev that relate to P2QRH.
+
+The idea of a taproot but with the key-spend path removed has been discussed a number of times in the Bitcoin community.
+[https://gnusha.org/pi/bitcoindev/CAD5xwhgzR8e5r1e4H-5EH2mSsE1V39dd06+TgYniFnXFSBqLxw@mail.gmail.com/ OP_CAT Makes Bitcoin Quantum Secure]
+notes that if we disable the key-spend in taproot and activated CAT [https://github.com/bitcoin/bips/blob/master/bip-0347.mediawik BIP-347],
+we could achieve quantum resistance by using Lamport signatures with CAT.
+[https://groups.google.com/g/bitcoindev/c/8O857bRSVV8/m/rTrpeFjWDAAJ Trivial QC signatures with clean upgrade path] and 
+[https://groups.google.com/g/bitcoindev/c/oQKezDOc4us/m/T1vSMkZNAAAJ Re: P2QRH / BIP-360 Update] discusses the idea of 
+taproot but with the future ability to disable the key-spend path.
+The design of P2QRH is partly inspired by these discussions as P2QRH can be understood as P2TR without the key-spend path.
+
+Commit-reveal schemes such as
+[https://gnusha.org/pi/bitcoindev/1518710367.3550.111.camel@mmci.uni-saarland.de/  Re: Transition to post-quantum (2018)] 
+and [https://groups.google.com/g/bitcoindev/c/LpWOcXMcvk8/m/YEiH-kTHAwAJ Post-Quantum commit / reveal Fawkescoin variant as a soft fork (2025)]
+have been proposed as a way to safely spend bitcoins if CRQCs become practical prior to Bitcoin adopting achieving quantum resistance.
+The essential idea is to leverage the fact that a CRQC can only learn your private key after a user has revealed their public key.
+Thus, Bitcoin could fork in an alternative way to spend an output that would leverage this property.
+Spending via commit-reveal would require two steps, first the user's commits on-chain to their public key along with a set of outputs the user wishes
+to spend to. Then, in reveal, the user sign and reveals their public key. While CRQC might be able to generate competing signatures it can not produce
+a commitment to the user's public key earlier than the user's commitment as it does not learn it until the reveal step.
+
+Commit-reveal schemes can only be spent from and to outputs that are not vulnerable to long-exposure quantum attacks, such as 
+P2PKH, P2SK, P2WPKH, etc... To use tapscript outputs with this system either a soft fork could disable the key-spend path of P2TR outputs
+or P2QRH could be used here as it does not have a key-spend path and thus is not vulnerable to long-exposure quantum attacks.
 
 == References ==
 
