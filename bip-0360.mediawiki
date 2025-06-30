@@ -208,13 +208,13 @@ script input_0,
 ...,
 script input_N,
 tapleaf script,
-control block = [control byte, m*32 byte merkle path] # m is the depth of the merkle tree
+control block = [control byte, 32m byte Merkle path] # m is the depth of the Merkle tree
 </source>
 
 The script inputs provide the same functionality as they does in P2TR. That is, they place input values on the stack to 
 be evaluated by the tapleaf script, a.k.a. the redeem script.
 
-The control block is a 1 + 32*m byte array, where the first byte is the control byte and the next 32*m bytes are the
+The control block is a 1 + 32m byte array, where the first byte is the control byte and the next 32*m bytes are the
 Merkle path to the tapleaf script. The control byte is the same as the control byte in a P2TR control block, 
 including the 7 bits are used to specify the tapleaf version. The parity bit of the control byte is always 1
 since P2QRH does not have a key-spend path. We omit the public key from the control block as it is not needed in P2QRH.
@@ -511,18 +511,40 @@ attacks.
 
 ==== Transaction Size and Fees ====
 
-P2QRH inputs can be slightly larger or smaller than their equivalent P2TR inputs. Lets consider the case:
+P2QRH inputs can be slightly larger or smaller than their equivalent P2TR inputs. Let's consider the cases:
 
-'''P2TR Key-spend''' P2QRH inputs will be larger than P2TR inputs when the P2TR output would have been spent via the key-spend path.
-P2QRH quantum resistance comes from removing the P2TR key-spend path. Consequently it can not make use of taproot's optimization
-where P2TR key-spends do not require including a merkle path in the P2TR input. The size difference is roughly:
-len(tapleaf executed) + 32m - len(pubkey) - len(signature) bytes, where m=log2(number of tapleafs). For a single tapleaf 
-P2QRH would be 4 bytes longer.
+'''P2TR key-spend''' P2QRH inputs will be larger than P2TR inputs when the P2TR output would have been spent via the key-spend path.
+P2QRH quantum resistance comes from removing the P2TR key-spend path. Consequently it cannot make use of taproot's optimization
+where P2TR key-spends do not require including a merkle path in the P2TR input. If the Merkle tree only has a single tapleaf, 
+no Merkle path is needed in the control block giving use a 1 byte control block and the 34 byte tapleaf itself.
 
+P2QRH witness (99 bytes)
+<source>
+signature (64 bytes),
+tapleaf script = [OP_PUSHBYTES_32, 32 byte public key, OP_CHECKSIGVERIFY] (34 bytes),
+control block = [control byte]  (1 byte)
+</source>
 
-'''P2TR Script-spend''' P2QRH inputs will be smaller than P2TR inputs if the P2TR output would have been spent via
+P2TR key-spend witness (64 bytes):
+<source>
+signature (64 bytes)
+</source>
+
+Thus, the P2QRH input would be 35 = 99-64 bytes larger than a P2TR key-spend input. 
+
+If the Merkle tree has more than a single tapleaf, then the Merkle path must be included in 
+the control block. For a Merkle path of length m, it would add an additional ~32m bytes to the P2QRH input.
+
+P2QRH witness (99+32m bytes)
+<source>
+signature (64 bytes),
+tapleaf script = [OP_PUSHBYTES_32, 32 byte public key, OP_CHECKSIGVERIFY] (34 bytes),
+control block = [control byte, 32m byte Merkle path] (1 + 32m bytes)
+</source>
+
+'''P2TR script-spend''' P2QRH inputs will be smaller than P2TR inputs if the P2TR output would have been spent via
 the script-spend path. This is because P2QRH inputs do not require that the input includes a public key in the witness control block to
-open the commitment to the tapleaf merkle root. An equivalent P2QRH input will be 32 bytes smaller than a P2TR script-spend input. 
+open the commitment to the tapleaf merkle root. An equivalent P2QRH input will be 32 bytes smaller than a P2TR script-spend input.
 
 Equivalent P2QRH and P2TR outputs are always the same size.
 
