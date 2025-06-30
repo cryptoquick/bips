@@ -211,7 +211,7 @@ tapleaf script,
 control block = [control byte, 32m byte Merkle path] # m is the depth of the Merkle tree
 </source>
 
-The script inputs provide the same functionality as they does in P2TR. That is, they place input values on the stack to 
+The script inputs provide the same functionality as they do in P2TR. That is, they place input values on the stack to 
 be evaluated by the tapleaf script, a.k.a. the redeem script.
 
 The control block is a 1 + 32m byte array, where the first byte is the control byte and the next 32*m bytes are the
