@@ -492,24 +492,8 @@ By adhering to the SegWit transaction structure and versioning, P2QRH outputs ar
 processing rules. Nodes that do not recognize SegWit version 3 will treat these outputs as anyone-can-spend but, per
 [https://github.com/bitcoin/bips/blob/master/bip-0141.mediawiki BIP-141], will not relay or mine such transactions.
 
-=== Security ===
 
-P2QRH outputs provide the same tapscript functionality as P2TR outputs, but without the quantum-vulnerable key-spend
-path. This enables users, exchanges and other hodlers to easily move their coins from taproot outputs to P2QRH outputs
-and thereby protect their coins from long-exposure quantum attacks. The protection from long-exposure quantum attacks
-does not depend on the activation of post-quantum signatures in Bitcoin but does require that users do not expose their
-quantum vulnerable public keys to attackers via address reuse or other unsafe practices.
-
-P2QRH uses a 256-bit hash output, providing 128 bits of collision resistance and 256 bits of preimage resistance. 
-This is the same level of security as P2WSH, which also uses a 256-bit hash output.
-
-P2QRH does not, by itself, protect against short-exposure quantum attacks, but such attacks can be mitigated by the future
-activation of post-quantum signatures in Bitcoin. With P2QRH hash, these would provide full quantum resistance to P2QRH outputs in Bitcoin.
-That said, the protection offered by resistance to long-exposure quantum attacks should not be underestimated. It is likely
-that the first CRQCs (Cryptographically Relevant Quantum Computers) will not be able to perform short-exposure quantum 
-attacks.
-
-==== Transaction Size and Fees ====
+=== Transaction Size and Fees ===
 
 P2QRH inputs can be slightly larger or smaller than their equivalent P2TR inputs. Let's consider the cases:
 
@@ -548,12 +532,12 @@ open the commitment to the tapleaf merkle root. An equivalent P2QRH input will b
 
 Equivalent P2QRH and P2TR outputs are always the same size.
 
-==== Performance Impact ====
+=== Performance Impact ===
 
 P2QRH is slightly more computationally performant than P2TR, as the operations to spending a P2QRH output is a strict 
 subset of the operations needed  to spend a P2TR output.
 
-==== Backward Compatibility ====
+=== Backward Compatibility ===
 
 Older wallets and nodes that have not been made compatible with SegWit version 3 and P2QRH will not recognize these
 outputs. Users should ensure they are using updated wallets and nodes to use P2QRH addresses and validate transactions
@@ -562,6 +546,22 @@ using P2QRH outputs.
 P2QRH is fully compatible with tapscript and existing tapscript programs can be used in P2QRH outputs without modification.
 
 == Security ==
+
+P2QRH outputs provide the same tapscript functionality as P2TR outputs, but without the quantum-vulnerable key-spend
+path. This enables users, exchanges and other hodlers to easily move their coins from taproot outputs to P2QRH outputs
+and thereby protect their coins from long-exposure quantum attacks. The protection from long-exposure quantum attacks
+does not depend on the activation of post-quantum signatures in Bitcoin but does require that users do not expose their
+quantum vulnerable public keys to attackers via address reuse or other unsafe practices.
+
+P2QRH uses a 256-bit hash output, providing 128 bits of collision resistance and 256 bits of preimage resistance. 
+This is the same level of security as P2WSH, which also uses a 256-bit hash output.
+
+P2QRH does not, by itself, protect against short-exposure quantum attacks, but such attacks can be mitigated by the future
+activation of post-quantum signatures in Bitcoin. With P2QRH hash, these would provide full quantum resistance to P2QRH outputs in Bitcoin.
+That said, the protection offered by resistance to long-exposure quantum attacks should not be underestimated. It is likely
+that the first CRQCs (Cryptographically Relevant Quantum Computers) will not be able to perform short-exposure quantum 
+attacks.
+
 
 {| class="wikitable"
 |+ Candidate quantum-resistant signature algorithms ordered by largest to smallest NIST Level V signature size
