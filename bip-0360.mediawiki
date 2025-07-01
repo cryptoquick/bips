@@ -390,15 +390,15 @@ more than 520 bytes onto the stack.
 To solve this issue, for signature schemes with public keys greater than 520 bytes, we use the hash of the public key in the tapleaf script.
 We then package the public key and signature together as the same stack element on the input stack. Since the hash of the public key is 
 only 32 bytes, the tapleaf script can push it on the stack as it does today. Consider the following example with a 
-OP_CHECKMLSIGVERIFY opcode for ML-DSA:
+OP_CHECKMLSIG opcode for ML-DSA:
 
 <source>
 stack = [pubkey||signature]
-tapscript = [OP_PUSHDATA HASH256(expected_pubkey), OP_CHECKMLSIGVERIFY]
+tapscript = [OP_PUSHDATA HASH256(expected_pubkey), OP_CHECKMLSIG]
 </source>
 
 1. OP_PUSHDATA HASH256(expected_pubkey) updates the stack to [HASH256(expected_pubkey), pubkey||signature]
-2. OP_CHECKMLSIGVERIFY pops HASH256(expected_pubkey) and pubkey||signature, checks HASH256(expected_pubkey) == pubkey and verifies signature against pubkey.
+2. OP_CHECKMLSIG pops HASH256(expected_pubkey) and pubkey||signature, checks HASH256(expected_pubkey) == pubkey and verifies signature against pubkey.
 
 ==== Future considerations ====
 
@@ -495,42 +495,50 @@ processing rules. Nodes that do not recognize SegWit version 3 will treat these 
 
 === Transaction Size and Fees ===
 
-P2QRH inputs can be slightly larger or smaller than their equivalent P2TR inputs. Let's consider the cases:
+Equivalent P2QRH and P2TR outputs are always the same size. P2QRH inputs can be slightly larger or smaller than
+their equivalent P2TR inputs. Let's consider the cases:
 
 '''P2TR key-spend''' P2QRH inputs will be larger than P2TR inputs when the P2TR output would have been spent via the key-spend path.
 P2QRH quantum resistance comes from removing the P2TR key-spend path. Consequently it cannot make use of taproot's optimization
 where P2TR key-spends do not require including a merkle path in the P2TR input. If the Merkle tree only has a single tapleaf, 
-no Merkle path is needed in the control block giving use a 1 byte control block and the 34 byte tapleaf itself.
+no Merkle path is needed in the control block giving us a 1 byte control block.
 
-P2QRH witness (99 bytes)
+P2QRH witness (103 bytes):
 <source>
-signature (64 bytes),
-tapleaf script = [OP_PUSHBYTES_32, 32 byte public key, OP_CHECKSIGVERIFY] (34 bytes),
-control block = [control byte]  (1 byte)
+[count] (1 byte), # Number of elements in the witness
+[size] signature  (1 + 64 bytes = 65 bytes),
+tapleaf script = [size] [OP_PUSHBYTES_32, 32 byte public key, OP_CHECKSIG] (1 + 1 + 32 + 1 bytes = 35 bytes),
+control block = [size] [control byte]  (1 + 1 = 2 bytes)
 </source>
 
-P2TR key-spend witness (64 bytes):
+P2TR key-spend witness (66 bytes):
 <source>
-signature (64 bytes)
+[count] (1 byte), # Number of elements in the witness
+[size] signature (1 + 64 bytes = 65 bytes)
 </source>
 
-Thus, the P2QRH input would be 35 = 99-64 bytes larger than a P2TR key-spend input. 
+Thus, the P2QRH input would be 103 - 66 = 37 bytes larger than a P2TR key-spend input.
 
-If the Merkle tree has more than a single tapleaf, then the Merkle path must be included in 
-the control block. For a Merkle path of length m, it would add an additional ~32m bytes to the P2QRH input.
-
-P2QRH witness (99+32m bytes)
+If the Merkle tree has more than a single tapleaf, then the Merkle path must be included in
+the control block.
+P2QRH witness (103+32m bytes)
 <source>
-signature (64 bytes),
-tapleaf script = [OP_PUSHBYTES_32, 32 byte public key, OP_CHECKSIGVERIFY] (34 bytes),
-control block = [control byte, 32m byte Merkle path] (1 + 32m bytes)
+[count] (1 byte), # Number of elements in the witness
+[size] signature  (64 + 1 bytes = 65 bytes),
+tapleaf script = [size] [OP_PUSHBYTES_32, 32 byte public key, OP_CHECKSIG] (34 + 1 bytes = 35 bytes),
+control block = [size] [control byte, 32m byte Merkle path]  (1 + 1 + 32m = 2 + 32m bytes)
 </source>
 
-'''P2TR script-spend''' P2QRH inputs will be smaller than P2TR inputs if the P2TR output would have been spent via
-the script-spend path. This is because P2QRH inputs do not require that the input includes a public key in the witness control block to
-open the commitment to the tapleaf merkle root. An equivalent P2QRH input will be 32 bytes smaller than a P2TR script-spend input.
+For a Merkle path of length m, it would add an additional ~32m bytes to the P2QRH input<ref>If the number is large enough we will the compact size will need 2 bytes, increasing the size by 1 byte.</ref>.
+This would make it 37 + 32m bytes larger than a P2TR key-spend input.
 
-Equivalent P2QRH and P2TR outputs are always the same size.
+Considering a P2QRH output that has a PQ signature tapleaf and a Schnorr tapleaf. The P2QRH witness to spend the Schnorr path 
+would be 103 + 32*1 = 135 bytes. It is unfortunate that we can not use the key-spend optimization for P2QRH inputs, but the key-spend optimization is 
+exactly what makes P2TR vulnerable to quantum attacks. If spend-key was quantum resistant we wouldn't need P2QRH at all.
+
+'''P2TR script-spend''' P2QRH inputs will be smaller than equivalent script-spend path P2TR inputs. This is because P2QRH inputs
+do not require that the input includes a public key in the witness control block to open the commitment to the tapleaf merkle root.
+An equivalent P2QRH input will be 32 bytes smaller than a P2TR script-spend input.
 
 === Performance Impact ===
 
@@ -645,15 +653,18 @@ P2QRH and MAST (Merkelized Abstract Syntax Tree) [https://github.com/bitcoin/bip
 and related BIPs [https://github.com/bitcoin/bips/blob/master/bip-0116.mediawiki BIP-116], [https://github.com/bitcoin/bips/blob/master/bip-0117.mediawiki BIP-117],
 share the idea of committing to a Merkle tree of scripts. While MAST was never activated, taproot
 [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP-341] incorporated this idea of a Merkle tree of
-scripts into its design. For the purposes of compatibility, simplicity and code reuse P2QRH inherits this capability from taproot
-rather than implementing MAST directly.
+scripts into its design. P2QRH inherits this capability from taproot because P2QRH is simply taproot with the key-spend
+path removed. As a result, P2QRH does have the taproot internal key or tweak key, instead P2QRH commits directly to the
+Merkle tree of scripts.
 
 Below we attempt to summarize some of the ideas discussed on the Bitcoin Bitcoin-Dev that relate to P2QRH.
 
 The idea of a taproot but with the key-spend path removed has been discussed a number of times in the Bitcoin community.
 [https://gnusha.org/pi/bitcoindev/CAD5xwhgzR8e5r1e4H-5EH2mSsE1V39dd06+TgYniFnXFSBqLxw@mail.gmail.com/ OP_CAT Makes Bitcoin Quantum Secure]
 notes that if we disable the key-spend in taproot and activated CAT [https://github.com/bitcoin/bips/blob/master/bip-0347.mediawik BIP-347],
-we could achieve quantum resistance by using Lamport signatures with CAT.
+we could achieve quantum resistance by using Lamport signatures with CAT. Lamport and WOTS (Winternitz One-Time Signatures) built from CAT
+are quantum resistant but are one-time signatures. This means that if you sign twice for the same public key, you leak your secret key.
+This would require major changes to wallet behavior and would represent a significant security downgrade.
 [https://groups.google.com/g/bitcoindev/c/8O857bRSVV8/m/rTrpeFjWDAAJ Trivial QC signatures with clean upgrade path] and 
 [https://groups.google.com/g/bitcoindev/c/oQKezDOc4us/m/T1vSMkZNAAAJ Re: P2QRH / BIP-360 Update] discusses the idea of 
 taproot but with the future ability to disable the key-spend path.
