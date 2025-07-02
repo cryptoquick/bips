@@ -543,7 +543,7 @@ An equivalent P2QRH input will be 32 bytes smaller than a P2TR script-spend inpu
 === Performance Impact ===
 
 P2QRH is slightly more computationally performant than P2TR, as the operations to spending a P2QRH output is a strict 
-subset of the operations needed  to spend a P2TR output.
+subset of the operations needed to spend a P2TR output.
 
 === Backward Compatibility ===
 
