@@ -204,20 +204,21 @@ Root = tagged_hash("QuantumRoot", ABCDE)
 A P2QRH input witness provides the following:
 
 <source>
-script input_0,
+initial stack element 0,
 ...,
-script input_N,
+initial stack element N,
 tapleaf script,
 control block = [control byte, 32 * m byte Merkle path] # m is the depth of the Merkle tree
 </source>
 
-The script inputs provide the same functionality as they do in P2TR. That is, they place input values on the stack to 
+The initial stack elements provide the same functionality as they do in P2TR. That is, they place elements on the stack to
 be evaluated by the tapleaf script, a.k.a. the redeem script.
 
 The control block is a 1 + 32 * m byte array, where the first byte is the control byte and the next 32*m bytes are the
 Merkle path to the tapleaf script. The control byte is the same as the control byte in a P2TR control block, 
 including the 7 bits are used to specify the tapleaf version. The parity bit of the control byte is always 1
 since P2QRH does not have a key-spend path. We omit the public key from the control block as it is not needed in P2QRH.
+We maintain support for the optional annex in the witness (see specification for more details).
 
 === Rationale ===
 
