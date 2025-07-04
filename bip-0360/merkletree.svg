@@ -679,9 +679,9 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="46.289062"
          y="54.458613"
-         id="tspan17855"><tspan
+         id="tspan18241"><tspan
            style="font-weight:bold"
-           id="tspan17853">P2QRH Witness (input)</tspan></tspan></text>
+           id="tspan18239">P2QRH Witness (input)</tspan></tspan></text>
     <rect
        style="fill:#e4bee3;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect12088"
@@ -777,9 +777,9 @@
          style="font-size:16px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect135795);stroke-width:1.88976;stroke-miterlimit:4;stroke-dasharray:none"><tspan
            x="614.62109"
            y="205.54064"
-           id="tspan17859"><tspan
+           id="tspan18245"><tspan
              style="stroke:none"
-             id="tspan17857">annex</tspan></tspan></text>
+             id="tspan18243">annex</tspan></tspan></text>
       <text
          xml:space="preserve"
          transform="matrix(0.26458333,0,0,0.26458333,-97.506514,-16.277673)"
@@ -787,9 +787,9 @@
          style="font-size:16px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect145949);stroke-width:0.498898;stroke-miterlimit:4;stroke-dasharray:none"><tspan
            x="590.07812"
            y="180.52893"
-           id="tspan17863"><tspan
+           id="tspan18249"><tspan
              style="stroke:#808080"
-             id="tspan17861">50</tspan></tspan></text>
+             id="tspan18247">50</tspan></tspan></text>
     </g>
     <rect
        style="fill:#e8baba;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
@@ -870,7 +870,7 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="52.076172"
          y="238.97229"
-         id="tspan17865">Script Inputs</tspan></text>
+         id="tspan18251">Script Inputs</tspan></text>
     <g
        id="g17745-5-3"
        transform="matrix(1.5040779,0,0,1.0049545,22.685492,-31.200521)"
@@ -907,7 +907,7 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="447.46484"
          y="116.81994"
-         id="tspan17867">Merkle path (32*m bytes)</tspan></text>
+         id="tspan18253">Merkle path (32*m bytes)</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,-20.573525,-12.540476)"
@@ -918,7 +918,7 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="447.46484"
          y="116.81994"
-         id="tspan17869">Control block</tspan></text>
+         id="tspan18255">Control block</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,-62.001274,30.326575)"
@@ -929,7 +929,7 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="447.46484"
          y="116.81994"
-         id="tspan17871">Witness Program</tspan></text>
+         id="tspan18257">Witness Program</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,-109.12454,29.833839)"
@@ -940,7 +940,7 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="447.46484"
          y="116.81994"
-         id="tspan17873">SegWit version 3</tspan></text>
+         id="tspan18259">SegWit version 3</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,-3.2518289,-37.057947)"
@@ -951,10 +951,10 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="300.88086"
          y="231.90002"
-         id="tspan17875">tapleaf </tspan><tspan
+         id="tspan18261">tapleaf </tspan><tspan
          x="300.88086"
          y="251.90002"
-         id="tspan17877">version</tspan></text>
+         id="tspan18263">version</tspan></text>
     <rect
        style="fill:#e8baba;fill-opacity:1;stroke:#000000;stroke-width:0.467735;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect12088-0-7-7-8-7-9"
@@ -975,10 +975,10 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="300.88086"
          y="231.90002"
-         id="tspan17879">tapleaf </tspan><tspan
+         id="tspan18265">tapleaf </tspan><tspan
          x="300.88086"
          y="251.90002"
-         id="tspan17881">version</tspan></text>
+         id="tspan18267">version</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,1.1708515,-48.643815)"
@@ -989,7 +989,7 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="372.88672"
          y="286.54846"
-         id="tspan17883">1</tspan></text>
+         id="tspan18269">1</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(-0.00160967,-0.1592893,0.53311092,-0.00163141,53.796304,85.188522)"
@@ -1000,9 +1000,9 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="298.2207"
          y="84.010126"
-         id="tspan17887"><tspan
+         id="tspan18273"><tspan
            style="-inkscape-font-specification:sans-serif"
-           id="tspan17885">{</tspan></tspan></text>
+           id="tspan18271">{</tspan></tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(-0.0017354,-0.1592893,0.57475143,-0.00163141,-10.689285,85.028412)"
@@ -1013,9 +1013,9 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="298.2207"
          y="84.010126"
-         id="tspan17891"><tspan
+         id="tspan18277"><tspan
            style="-inkscape-font-specification:sans-serif"
-           id="tspan17889">{</tspan></tspan></text>
+           id="tspan18275">{</tspan></tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,-9.6102756,36.875316)"
@@ -1026,9 +1026,9 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="46.289062"
          y="54.458613"
-         id="tspan17895"><tspan
+         id="tspan18281"><tspan
            style="font-weight:bold"
-           id="tspan17893">P2QRH scriptPubkey (output)</tspan></tspan></text>
+           id="tspan18279">P2QRH scriptPubkey (output)</tspan></tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,-9.6079194,73.697691)"
@@ -1039,9 +1039,9 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="46.289062"
          y="54.458613"
-         id="tspan17899"><tspan
+         id="tspan18285"><tspan
            style="font-weight:bold"
-           id="tspan17897">How the tapleaf Merkle Root is computed:</tspan></tspan></text>
+           id="tspan18283">How the tapleaf Merkle Root is computed:</tspan></tspan></text>
     <rect
        style="fill:#d6d6d6;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect12088-0-7-9"
@@ -1335,13 +1335,13 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="102.74023"
          y="605.58361"
-         id="tspan17901">tapleaf
+         id="tspan18287">tapleaf
 </tspan><tspan
          x="102.74023"
          y="625.58361"
-         id="tspan17905">    <tspan
+         id="tspan18291">    <tspan
    style="font-weight:bold"
-   id="tspan17903">A</tspan></tspan></text>
+   id="tspan18289">A</tspan></tspan></text>
     <rect
        style="fill:#e8baba;fill-opacity:1;stroke:#000000;stroke-width:0.467735;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect12088-0-7-7-8-7-9-5"
@@ -1362,10 +1362,10 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="300.88086"
          y="231.90002"
-         id="tspan17907">tapleaf </tspan><tspan
+         id="tspan18293">tapleaf </tspan><tspan
          x="300.88086"
          y="251.90002"
-         id="tspan17909">version</tspan></text>
+         id="tspan18295">version</tspan></text>
     <g
        id="g17745-7-1-4"
        transform="matrix(1.057386,0,0,0.99792136,9.0958478,170.82632)"
@@ -1402,13 +1402,13 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="102.74023"
          y="605.58361"
-         id="tspan17911">tapleaf
+         id="tspan18297">tapleaf
 </tspan><tspan
          x="102.74023"
          y="625.58361"
-         id="tspan17915">    <tspan
+         id="tspan18301">    <tspan
    style="font-weight:bold"
-   id="tspan17913">B</tspan></tspan></text>
+   id="tspan18299">B</tspan></tspan></text>
     <rect
        style="fill:#e8baba;fill-opacity:1;stroke:#000000;stroke-width:0.467735;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect12088-0-7-7-8-7-9-5-6"
@@ -1429,10 +1429,10 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="300.88086"
          y="231.90002"
-         id="tspan17917">tapleaf </tspan><tspan
+         id="tspan18303">tapleaf </tspan><tspan
          x="300.88086"
          y="251.90002"
-         id="tspan17919">version</tspan></text>
+         id="tspan18305">version</tspan></text>
     <g
        id="g17745-7-1-4-4"
        transform="matrix(1.057386,0,0,0.99792136,47.977385,170.82877)"
@@ -1469,13 +1469,13 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="102.74023"
          y="605.58361"
-         id="tspan17921">tapleaf
+         id="tspan18307">tapleaf
 </tspan><tspan
          x="102.74023"
          y="625.58361"
-         id="tspan17925">    <tspan
+         id="tspan18311">    <tspan
    style="font-weight:bold"
-   id="tspan17923">C</tspan></tspan></text>
+   id="tspan18309">C</tspan></tspan></text>
     <rect
        style="fill:#e8baba;fill-opacity:1;stroke:#000000;stroke-width:0.467735;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect12088-0-7-7-8-7-9-5-6-9"
@@ -1496,10 +1496,10 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="300.88086"
          y="231.90002"
-         id="tspan17927">tapleaf </tspan><tspan
+         id="tspan18313">tapleaf </tspan><tspan
          x="300.88086"
          y="251.90002"
-         id="tspan17929">version</tspan></text>
+         id="tspan18315">version</tspan></text>
     <g
        id="g17745-7-1-4-4-3"
        transform="matrix(1.0647598,0,0,0.99778343,86.385197,170.82501)"
@@ -1536,13 +1536,13 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="102.74023"
          y="605.58361"
-         id="tspan17931">tapleaf
+         id="tspan18317">tapleaf
 </tspan><tspan
          x="102.74023"
          y="625.58361"
-         id="tspan17935">    <tspan
+         id="tspan18321">    <tspan
    style="font-weight:bold"
-   id="tspan17933">D</tspan></tspan></text>
+   id="tspan18319">D</tspan></tspan></text>
     <rect
        style="fill:#e8baba;fill-opacity:1;stroke:#000000;stroke-width:0.467735;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect12088-0-7-7-8-7-9-5-6-9-8"
@@ -1563,10 +1563,10 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="300.88086"
          y="231.90002"
-         id="tspan17937">tapleaf </tspan><tspan
+         id="tspan18323">tapleaf </tspan><tspan
          x="300.88086"
          y="251.90002"
-         id="tspan17939">version</tspan></text>
+         id="tspan18325">version</tspan></text>
     <g
        id="g17745-7-1-4-4-3-0"
        transform="matrix(1.0500126,0,0,0.99805978,125.85157,170.80902)"
@@ -1603,13 +1603,13 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="102.74023"
          y="605.58361"
-         id="tspan17941">tapleaf
+         id="tspan18327">tapleaf
 </tspan><tspan
          x="102.74023"
          y="625.58361"
-         id="tspan17945">    <tspan
+         id="tspan18331">    <tspan
    style="font-weight:bold"
-   id="tspan17943">E</tspan></tspan></text>
+   id="tspan18329">E</tspan></tspan></text>
     <text
        xml:space="preserve"
        transform="scale(0.26458333)"
