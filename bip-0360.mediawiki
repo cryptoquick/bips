@@ -269,7 +269,7 @@ is the most plausible and convenient upgrade path to full quantum resistance.
 
 ==== PQ signatures ====
 
-By separating P2QRH from the introduction of PQ signatures relying parties can move from P2TR to P2QRH 
+By separating P2QRH from the introduction of PQ signatures, relying parties can move from P2TR to P2QRH 
 without simultaneously having to change from Schnorr signatures to PQ signatures. Simply moving coins from 
 P2TR to P2QRH protects those coins from long-exposure quantum attacks. Then to gain full quantum resistance, 
 verification of PQ signatures can be added as an additional tapleaf alongside Schnorr signatures<ref name="mattleaf">Matt Corallo, [https://groups.google.com/g/bitcoindev/c/8O857bRSVV8/m/rTrpeFjWDAAJ Trivial QC signatures with clean upgrade path], (2024)</ref>. 
