@@ -83,8 +83,9 @@ As the value being sent increases, so too should the fee in order to commit the 
 possible. Once the transaction is mined, it makes useless the public key revealed by spending a UTXO, so long as it is
 never reused.
 
-It is proposed to implement a Pay to Quantum Resistant Hash (P2QRH) output type that relies on a PQ signature
-algorithm. This new output type protects transactions submitted to the mempool and helps preserve the fee market by
+As the first step to address these issues we propose Pay to Quantum Resistant Hash (P2QRH), an output type that allows 
+tapscript to be used in a quantum resistant manner.
+This new output type protects transactions submitted to the mempool and helps preserve the fee market by
 preventing the need for private, out-of-band mempool transactions.
 
 The following table is intended to inform the average Bitcoin user whether their bitcoin is vulnerable to a long-exposure
@@ -259,10 +260,10 @@ libraries since they can reuse code they already have.
 
 Both P2WSH (Pay 2 Witness Script Hash) and P2QRH protect against long-exposure quantum attacks and both provide 
 the same 256-bit security level. One may ask why not use the existing output type P2WSH instead of add a new one?
-The problem with P2WSH is that it can only execute pre-tapscript scripts and not tapscript.
-New programs in Bitcoin ecosystem have largely moved to tapscript for new scripts. Using P2WSH would require turning
+The problem with P2WSH is that it only works with pre-tapscript Script and cannot work with tapscript Script.
+New protocols and programs in the Bitcoin ecosystem have largely moved to tapscript. Using P2WSH would require turning
 back the clock and forcing projects to move from tapscript to pre-tapscript. More importantly, tapscript provides a far
-easier and safer upgrade path for adding PQ signatures. Changes to pre-script to enable it to support PQ signatures would likely
+easier and safer upgrade path for adding PQ signatures. Changes to pre-tapscript to enable it to support PQ signatures would likely
 require adding tapscript features into pre-tapscript. Even if this was possible, it would represent far more work and 
 risk than adding a new output type like P2QRH. Tapscript, and thereby a tapscript compatible output such as P2QRH, 
 is the most plausible and convenient upgrade path to full quantum resistance.
