@@ -357,7 +357,7 @@ It is an open question if Post-Quantum signature algorithms can be designed to p
 
 ==== Raising tapscript's stack element size ====
 
-A problem faced by any attempt to add PQ signatures to tapscript is that the stack elements in tapscript can not be larger than 520 bytes
+A problem faced by any attempt to add PQ signatures to tapscript is that the stack elements in tapscript cannot be larger than 520 bytes
 because the MAX_SCRIPT_ELEMENT_SIZE=520. This is problematic because PQ signature algorithms often have signatures and 
 public keys in excess of 520 bytes. For instance:
 
