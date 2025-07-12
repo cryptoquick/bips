@@ -622,45 +622,39 @@ using P2QRH outputs.
 == Security ==
 
 {| class="wikitable"
-|+ Candidate quantum-resistant signature algorithms ordered by largest to smallest NIST Level V signature size
+|+ Candidate quantum-resistant signature algorithms ordered by largest to smallest
 |-
-! Signature Algorithm !! Year First Introduced !! Signature Size !! Public Key Size !! Cryptographic Assumptions
+! Signature Algorithm !! Year First Introduced !! NIST Level !! Signature Size !! Public Key Size !! Cryptographic Assumptions
 |-
-| [https://en.wikipedia.org/wiki/Lamport_signature Lamport signature] || 1977 || 8,192 bytes || 16,384 bytes ||
+| [https://en.wikipedia.org/wiki/Lamport_signature Lamport signature]<ref name="one-time-signatures">Lamport and Winternitz signatures
+can only safely be used one time per public key. If addresses are reused, private key information might be leaked, allowing
+attackers to spend future outputs assigned to the same address.</ref> || 1977 || - || 8,192 bytes || 16,384 bytes ||
 Hash-based cryptography
 |-
-| [https://eprint.iacr.org/2011/191.pdf Winternitz signature] || 1982 || 2,368 bytes<ref name="winternitz">Winternitz
-signatures are much smaller than Lamport signatures due to efficient chunking, but computation is much higher,
-especially with high values for w. Winternitz values are for w of 4. It's worth noting that Winternitz signatures can
-only safely be used one time per public key. If addresses are reused, private key information might be leaked, allowing
-attackers to spend future outputs assigned to the same address.</ref> || 2,368 bytes || Hash-based cryptography
+| [https://sphincs.org/data/sphincs+-r3.1-specification.pdf SPHINCS+ Rd. 3.1 (FIPS 205 - SLH-DSA - SHAKE-128s)] || 2015 || 1 || 32 bytes || 7,856 bytes || Hash-based cryptography
 |-
-| [https://sphincs.org/data/sphincs+-r3.1-specification.pdf SPHINCS+ Rd. 3.1 (FIPS 205 - SLH-DSA)] || 2015 || 29,792
-bytes || 64 bytes || Hash-based cryptography
+| [https://eprint.iacr.org/2011/191.pdf Winternitz signature]<ref name="one-time-signatures"></ref> || 1982 || - || 2,368 bytes<ref name="one-time-signatures">Winternitz
+signatures are much smaller than Lamport signatures due to efficient chunking, but computation is much higher,
+especially with high values for w. Winternitz values are for w of 4.</ref> || 2,368 bytes || Hash-based cryptography
 |-
 | [https://eprint.iacr.org/2011/484.pdf XMSS]<ref name="xmss">XMSS, which is based on Winternitz, uses a value of 108
 for its most compact signature size, with only a 4.6x (2.34/0.51) increase in verification time. Signing and key
 generation are not considered a significant factor because they are not distributed throughout the entire Bitcoin
-network, which take place only inside of wallets one time.</ref> || 2011 || 15,384 bytes || 13,568 bytes ||
+network, which take place only inside of wallets one time.</ref> || 2011 || - ||  15,384 bytes || 13,568 bytes ||
 Hash-based cryptography (Winternitz OTS)
 |-
-| [https://pq-crystals.org/dilithium/ CRYSTALS-Dilithium (FIPS 204 - ML-DSA)] || 2017 || 4,595 bytes || 2,592 bytes ||
+| [https://pq-crystals.org/dilithium/ CRYSTALS-Dilithium (FIPS 204 - ML-DSA)] || 2017 || 2 || 1,312 bytes || 2,420 bytes ||
 Lattice cryptography
 |-
-| [https://eprint.iacr.org/2014/457.pdf pqNTRUsign] || 2016 || 1,814 bytes || 1,927 bytes || Lattice cryptography (NTRU)
+| [https://eprint.iacr.org/2014/457.pdf pqNTRUsign] || 2016 || - || 1,814 bytes || 1,927 bytes || Lattice cryptography (NTRU)
 |-
-| [https://falcon-sign.info FALCON (FIPS 206 - FN-DSA)] || 2017 || 1,280 bytes || 1,793 bytes || Lattice cryptography
+| [https://falcon-sign.info FALCON (FIPS 206 - FN-DSA)] || 2017 || 1 || 897 bytes || 666 bytes || Lattice cryptography
 (NTRU)
 |-
-| [https://eprint.iacr.org/2022/1155.pdf HAWK] || 2022 || 1,261 bytes || 2,329 bytes || Lattice cryptography
+| [https://eprint.iacr.org/2022/1155.pdf HAWK] || 2022 || 1 || 1,024 bytes || 555 bytes || Lattice cryptography
 |-
-| [https://sqisign.org SQIsign] || 2023 || 335 bytes || 128 bytes || Supersingular Elliptic Curve Isogeny
+| [https://sqisign.org SQIsign] || 2023 || 1 || 65 bytes || 148 bytes || Supersingular Elliptic Curve Isogeny
 |-
-| [https://eprint.iacr.org/2024/760.pdf SQIsign2D-West] || 2024 || 294 bytes || 130 bytes || Supersingular Elliptic
-Curve Isogeny
-|-
-| [https://eprint.iacr.org/2023/436.pdf SQIsignHD] || 2023 || 109 bytes (NIST Level I) || Not provided ||
-Supersingular Elliptic Curve Isogeny
 |}
 
 As shown, supersingular elliptic curve quaternion isogeny signature algorithms represent the state of the art in
