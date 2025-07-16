@@ -628,12 +628,12 @@ using P2QRH outputs.
 |-
 | [https://en.wikipedia.org/wiki/Lamport_signature Lamport signature]<ref name="one-time-signatures">Lamport and Winternitz signatures
 can only safely be used one time per public key. If addresses are reused, private key information might be leaked, allowing
-attackers to spend future outputs assigned to the same address.</ref> || 1977 || - || 8,192 bytes || 16,384 bytes ||
+attackers to spend future outputs assigned to the same address.</ref> || 1977 || - || 8,192 bytes<ref name="lamport-calc">Calculated assuming a 256-bit hash function which results in a public key of 2*256*256/8=16,384 bytes and a signature of 256*256/8=8,192 bytes.</ref> || 16,384 bytes ||
 Hash-based cryptography
 |-
 | [https://sphincs.org/data/sphincs+-r3.1-specification.pdf SPHINCS+ Rd. 3.1 (FIPS 205 - SLH-DSA - SHAKE-128s)] || 2015 || 1 || 32 bytes || 7,856 bytes || Hash-based cryptography
 |-
-| [https://eprint.iacr.org/2011/191.pdf Winternitz signature]<ref name="one-time-signatures"></ref> || 1982 || - || 2,368 bytes<ref name="one-time-signatures">Winternitz
+| [https://eprint.iacr.org/2011/191.pdf Winternitz signature]<ref name="one-time-signatures"></ref> || 1982 || - || 2,368 bytes<ref name="winternitz-calc">Winternitz
 signatures are much smaller than Lamport signatures due to efficient chunking, but computation is much higher,
 especially with high values for w. Winternitz values are for w of 4.</ref> || 2,368 bytes || Hash-based cryptography
 |-
