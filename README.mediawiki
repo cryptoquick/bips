@@ -1172,7 +1172,7 @@ Those proposing changes should consider that ultimately consent may rest with th
 |-
 | [[bip-0360.mediawiki|360]]
 | Consensus (soft fork)
-| Pay to Quantum Resistant Hash
+| Pay to Tap Script Hash
 | Hunter Beast, Ethan Heilman
 | Standard
 | Draft
