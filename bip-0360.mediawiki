@@ -624,18 +624,14 @@ using P2QRH outputs.
 {| class="wikitable"
 |+ Candidate quantum-resistant signature algorithms ordered by largest to smallest
 |-
-! Signature Algorithm !! Year First Introduced !! NIST Level !! Signature Size !! Public Key Size !! Cryptographic Assumptions
+! Algorithm !! Year Introduced !! NIST Level !! Signature Size !! Public Key Size !! Cryptographic Assumptions
 |-
-| [https://en.wikipedia.org/wiki/Lamport_signature Lamport signature]<ref name="one-time-signatures">Lamport and Winternitz signatures
-can only safely be used one time per public key. If addresses are reused, private key information might be leaked, allowing
-attackers to spend future outputs assigned to the same address.</ref> || 1977 || - || 8,192 bytes<ref name="lamport-calc">Calculated assuming a 256-bit hash function which results in a public key of 2*256*256/8=16,384 bytes and a signature of 256*256/8=8,192 bytes.</ref> || 16,384 bytes ||
+| [https://en.wikipedia.org/wiki/Lamport_signature Lamport signature] || 1977 || - || 8,192 bytes<ref name="lamport-calc">Calculated assuming a 256-bit hash function which results in a public key of 2*256*256/8=16,384 bytes and a signature of 256*256/8=8,192 bytes.</ref> || 16,384 bytes ||
 Hash-based cryptography
 |-
 | [https://sphincs.org/data/sphincs+-r3.1-specification.pdf SPHINCS+ Rd. 3.1 (FIPS 205 - SLH-DSA - SHAKE-128s)] || 2015 || 1 || 32 bytes || 7,856 bytes || Hash-based cryptography
 |-
-| [https://eprint.iacr.org/2011/191.pdf Winternitz signature]<ref name="one-time-signatures"></ref> || 1982 || - || 2,368 bytes<ref name="winternitz-calc">Winternitz
-signatures are much smaller than Lamport signatures due to efficient chunking, but computation is much higher,
-especially with high values for w. Winternitz values are for w of 4.</ref> || 2,368 bytes || Hash-based cryptography
+| [https://eprint.iacr.org/2011/191.pdf Winternitz OTS] || 1982 || - || 2,144 bytes<ref name="winternitz-calc">Winternitz OTS requires signing both the message digest and a checksum on the message. Assuming a 256-bit hash function and w=16 (chunk size), we get a signature on the message digest consisting of 256/log2(16) = 64 hashes and a signature on the checksum consisting log2(256/log2(16)*log2(16-1))/log2(16)+1=2.99 which rounded up is 3 hashes. This results in a combined signature size of (64+3)*256/8 = 2144-bytes. The WOTS public key is the same size as the signature.</ref> || 2,144 bytes || Hash-based cryptography
 |-
 | [https://eprint.iacr.org/2011/484.pdf XMSS]<ref name="xmss">XMSS, which is based on Winternitz, uses a value of 108
 for its most compact signature size, with only a 4.6x (2.34/0.51) increase in verification time. Signing and key
@@ -656,6 +652,10 @@ Lattice cryptography
 | [https://sqisign.org SQIsign] || 2023 || 1 || 65 bytes || 148 bytes || Supersingular Elliptic Curve Isogeny
 |-
 |}
+
+Lamport and Winternitz OTS signatures can only securely be used one time per public key. If a one time signature scheme is 
+used more than once, an attacker can forge a signature for a different message. Winternitz signatures have smaller 
+public keys and signatures than Lamport signatures but require more computation to sign and verify.
 
 As shown, supersingular elliptic curve quaternion isogeny signature algorithms represent the state of the art in
 post-quantum cryptography, beyond lattice cryptography alone, especially when key and signature length are major
