@@ -708,6 +708,7 @@ seeds to act as the authoritative secret when signing. These measures are deemed
 
 To help implementors understand updates to this BIP, we keep a list of substantial changes.
 
+* 2025-07-20 - Updates PQ Signature Table
 * 2025-03-18 - Correct inconsistencies in commitment and attestation structure. Switch from merkle tree commitment to sorted vector hash commitment. Update descriptor format.
 * 2025-03-12 - Add verification times for each algorithm. 256 -> 128 (NIST V -> NIST I). Add key type bitmask. Clarify multisig semantics.
 * 2025-02-23 - More points of clarification from review. Update dead link.
