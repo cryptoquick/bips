@@ -67,8 +67,8 @@ pub struct TestVectorIntermediary {
     #[serde(default)]
     #[serde(rename = "leafHashes")]
     pub leaf_hashes: Vec<String>,
-    #[serde(rename = "quantumRoot")]
-    pub quantum_root: Option<String>
+    #[serde(rename = "merkleRoot")]
+    pub merkle_root: Option<String>
 }
 
 

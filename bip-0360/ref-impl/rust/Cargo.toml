@@ -1,5 +1,5 @@
 [package]
-name = "p2qrh-ref"
+name = "p2tsh-ref"
 version = "0.1.0"
 edition = "2024"
 
@@ -22,7 +22,7 @@ thiserror = "2.0.12"
 
 [patch.crates-io]
 
-#bitcoin = { git = "https://github.com/jbride/rust-bitcoin.git", branch = "p2qrh" }
+#bitcoin = { git = "https://github.com/jbride/rust-bitcoin.git", branch = "p2tsh" }
 
 # Verify:
 #  cargo update

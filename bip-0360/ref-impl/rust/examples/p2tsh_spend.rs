@@ -1,6 +1,6 @@
-use p2qrh_ref::{ pay_to_p2wpkh_tx, verify_schnorr_signature_via_bytes };
+use p2tsh_ref::{ pay_to_p2wpkh_tx, verify_schnorr_signature_via_bytes };
 
-use p2qrh_ref::data_structures::SpendDetails;
+use p2tsh_ref::data_structures::SpendDetails;
 use std::env;
 use log::{info, error};
 
@@ -52,7 +52,7 @@ fn main() -> SpendDetails {
             error!("CONTROL_BLOCK_HEX environment variable is required but not set");
             std::process::exit(1);
         });
-    info!("P2QRH control block size: {}", control_block_bytes.len());
+    info!("P2TSH control block size: {}", control_block_bytes.len());
 
     let leaf_script_priv_key_bytes: Vec<u8> = env::var("LEAF_SCRIPT_PRIV_KEY_HEX")
         .map(|s| hex::decode(s).unwrap())

@@ -17,7 +17,7 @@ use bitcoin::{ Amount, TxOut, WPubkeyHash,
     transaction::{Transaction, Sequence}
 };
 
-use bitcoin::p2qrh::{P2qrhScriptBuf, P2qrhBuilder, P2qrhSpendInfo, P2qrhControlBlock, QuantumRootHash, P2QRH_LEAF_VERSION};
+use bitcoin::p2tsh::{P2tshScriptBuf, P2tshBuilder, P2tshSpendInfo, P2tshControlBlock, P2TSH_LEAF_VERSION};
 
 use data_structures::{SpendDetails, UtxoReturn, TaptreeReturn};
 
@@ -80,28 +80,28 @@ fn create_huffman_tree() -> (Vec<(u32, ScriptBuf)>, Option<(SecretKey, XOnlyPubl
     return (huffman_entries, keypair_of_interest, script_buf_of_interest);
 }
 
-pub fn create_p2qrh_multi_leaf_taptree() -> TaptreeReturn {
+pub fn create_p2tsh_multi_leaf_taptree() -> TaptreeReturn {
     
     let (huffman_entries, keypair_of_interest, script_buf_of_interest) = create_huffman_tree();
-    let p2qrh_builder: P2qrhBuilder = P2qrhBuilder::with_huffman_tree(huffman_entries).unwrap();
+    let p2tsh_builder: P2tshBuilder = P2tshBuilder::with_huffman_tree(huffman_entries).unwrap();
 
-    let p2qrh_spend_info: P2qrhSpendInfo = p2qrh_builder.clone().finalize().unwrap();
-    let quantum_root: QuantumRootHash = p2qrh_spend_info.quantum_root.unwrap();
+    let p2tsh_spend_info: P2tshSpendInfo = p2tsh_builder.clone().finalize().unwrap();
+    let quantum_root:TapNodeHash = p2tsh_spend_info.merkle_root.unwrap();
     info!("keypair_of_interest: \n\tsecret_bytes: {} \n\tpubkey: {}",
         hex::encode(keypair_of_interest.unwrap().0.secret_bytes()),  // secret_bytes returns big endian
         hex::encode(keypair_of_interest.unwrap().1.serialize()),  // serialize returns little endian
         );
     
-    let tap_tree: TapTree = p2qrh_builder.clone().into_inner().try_into_taptree().unwrap();
+    let tap_tree: TapTree = p2tsh_builder.clone().into_inner().try_into_taptree().unwrap();
     let mut script_leaves: ScriptLeaves = tap_tree.script_leaves();
     let script_leaf = script_leaves
         .find(|leaf| leaf.script() == script_buf_of_interest.as_ref().unwrap().as_script())
         .expect("Script leaf not found");
 
-    let merkle_root_node_info: NodeInfo = p2qrh_builder.clone().into_inner().try_into_node_info().unwrap();
+    let merkle_root_node_info: NodeInfo = p2tsh_builder.clone().into_inner().try_into_node_info().unwrap();
     let merkle_root: TapNodeHash = merkle_root_node_info.node_hash();
 
-    let leaf_hash: TapLeafHash = TapLeafHash::from_script(script_leaf.script(), LeafVersion::from_consensus(P2QRH_LEAF_VERSION).unwrap());
+    let leaf_hash: TapLeafHash = TapLeafHash::from_script(script_leaf.script(), LeafVersion::from_consensus(P2TSH_LEAF_VERSION).unwrap());
 
     // Convert leaf hash to big-endian for display (like Bitcoin Core)
     let mut leaf_hash_bytes = leaf_hash.as_raw_hash().to_byte_array().to_vec();
@@ -117,12 +117,12 @@ pub fn create_p2qrh_multi_leaf_taptree() -> TaptreeReturn {
 
     info!("Leaf script: {}, merkle branch: {:?}", leaf_script, merkle_branch);
 
-    let control_block: P2qrhControlBlock = P2qrhControlBlock{
+    let control_block: P2tshControlBlock = P2tshControlBlock{
         merkle_branch: merkle_branch.clone(),
     };
 
-    // Not a requirement but useful to demonstrate what Bitcoin Core does as the verifier when spending from a p2qrh UTXO
-    control_block.verify_script_in_quantum_root_path(leaf_script, quantum_root);
+    // Not a requirement but useful to demonstrate what Bitcoin Core does as the verifier when spending from a p2tsh UTXO   
+    control_block.verify_script_in_merkle_root_path(leaf_script, merkle_root);
 
     let control_block_hex: String = hex::encode(control_block.serialize());
 
@@ -188,15 +188,15 @@ pub fn create_p2tr_multi_leaf_taptree(p2tr_internal_pubkey_hex: String) -> Taptr
     };
 }
 
-pub fn create_p2qrh_utxo(quantum_root_hex: String) -> UtxoReturn {
+pub fn create_p2tsh_utxo(quantum_root_hex: String) -> UtxoReturn {
 
     let quantum_root_bytes= hex::decode(quantum_root_hex.clone()).unwrap();
     let quantum_root: TapNodeHash = TapNodeHash::from_byte_array(quantum_root_bytes.try_into().unwrap());
     
     /* commit (in scriptPubKey) to the merkle root of all the script path leaves. ie:
-        This output key is what gets committed to in the final P2QRH address (ie: scriptPubKey)
+        This output key is what gets committed to in the final P2TSH address (ie: scriptPubKey)
     */
-    let script_buf: P2qrhScriptBuf = P2qrhScriptBuf::new_p2qrh(quantum_root);
+    let script_buf: P2tshScriptBuf = P2tshScriptBuf::new_p2tsh(quantum_root);
     let script: &Script = script_buf.as_script();
     let script_pubkey = script.to_hex_string();
 
@@ -216,8 +216,8 @@ pub fn create_p2qrh_utxo(quantum_root_hex: String) -> UtxoReturn {
     }
     
     // 4)  derive bech32m address and verify against test vector
-    //     p2qrh address is comprised of network HRP + WitnessProgram (version + program)
-    let bech32m_address = Address::p2qrh(Some(quantum_root), bitcoin_network);
+    //     p2tsh address is comprised of network HRP + WitnessProgram (version + program)
+    let bech32m_address = Address::p2tsh(Some(quantum_root), bitcoin_network);
 
     return UtxoReturn {
         script_pubkey_hex: script_pubkey,
@@ -227,7 +227,7 @@ pub fn create_p2qrh_utxo(quantum_root_hex: String) -> UtxoReturn {
 
 }
 
-// Given script path p2tr or p2qrh UTXO details, spend to p2wpkh
+// Given script path p2tr or p2tsh UTXO details, spend to p2wpkh
 pub fn pay_to_p2wpkh_tx(
     funding_tx_id_bytes: Vec<u8>,
     funding_utxo_index: u32,
@@ -368,7 +368,7 @@ pub fn create_p2tr_utxo(merkle_root_hex: String, internal_pubkey_hex: String) ->
     }
 
     // 4)  derive bech32m address and verify against test vector
-    //     p2qrh address is comprised of network HRP + WitnessProgram (version + program)
+    //     p2tsh address is comprised of network HRP + WitnessProgram (version + program)
     let bech32m_address = Address::p2tr(
         &SECP,
         internal_xonly_pubkey,
