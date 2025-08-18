@@ -149,7 +149,7 @@ Coinbase outputs to P2PK keys go as far as block 200,000, so there are, at the t
 are vulnerable from the first epoch in P2PK outputs alone. The majority of these have a block reward of 50 coins each,
 and there are roughly 34,000 distinct P2PK scripts that are vulnerable. These coins can be considered
 "Satoshi's Shield." Any addresses with a balance of less than the original block subsidy of 50 coins can be considered
-cryptoeconomically incentive incompatible to capture until all of these are mined, and these addresses serve to provide
+cryptoeconomically incentive incompatible to capture until all of these are stolen, and these addresses serve to provide
 time to transition Bitcoin to implement post-quantum security.
 
 It's for the above reason that, for those who wish to be prepared for quantum emergency, it is recommended that no more
