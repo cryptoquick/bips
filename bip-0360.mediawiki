@@ -118,13 +118,12 @@ quantum attack:
 It should be noted that Taproot outputs are vulnerable in that they encode a 32-byte x-only public key, from which a
 full public key can be reconstructed.
 
-If a CRQC recovers an extended public key (xpub), including its chain code, it can derive all non-hardened child public
+If an attacker with a CRQC discovers an extended public key (xpub), including its chain code, it can derive all non-hardened child public
 keys by guessing or iterating through child indexes, as allowed by BIP 32's non-hardened derivation. With Shor's
 algorithm, the CRQC could then compute the corresponding non-hardened child private keys directly from those public keys,
-without needing the extended private key (xprv) or an exposed child private key. Hardened child keys remain secure since
-they cannot be derived from the xpub alone. However, if the xprv is exposed, then all child private keys--both hardened
-and non-hardened--become vulnerable. Thus, in a quantum context, the xpub alone is sufficient to expose all non-hardened
-child private keys.
+without needing the extended private key (xprv) or an exposed child private key.  But the attacker could also use Shor's algorithm
+to recover the xpriv directly from the xpub, and then all child private keys--both hardened and non-hardened--become vulnerable.
+Thus, in a quantum context, an xpub alone is sufficient to expose all child private keys.
 
 ==== Long Exposure and Short Exposure Quantum Attacks ====
 
@@ -150,7 +149,7 @@ Coinbase outputs to P2PK keys go as far as block 200,000, so there are, at the t
 are vulnerable from the first epoch in P2PK outputs alone. The majority of these have a block reward of 50 coins each,
 and there are roughly 34,000 distinct P2PK scripts that are vulnerable. These coins can be considered
 "Satoshi's Shield." Any addresses with a balance of less than the original block subsidy of 50 coins can be considered
-cryptoeconomically incentive incompatible to capture until all of these are mined, and these addresses serve to provide
+cryptoeconomically incentive incompatible to capture until all of these are stolen, and these addresses serve to provide
 time to transition Bitcoin to implement post-quantum security.
 
 It's for the above reason that, for those who wish to be prepared for quantum emergency, it is recommended that no more
