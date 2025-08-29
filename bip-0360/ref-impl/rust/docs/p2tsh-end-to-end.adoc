@@ -23,6 +23,12 @@ Build instructions for the `p2tsh` branch are the same as `master` and is docume
 
 As such, the following is an example series of steps (on a Fedora 42 host) to compile and run the `p2tsh` branch of bitcoin core:
 
+. Set BITCOIN_SOURCE_DIR
++
+-----
+$ export BITCOIN_SOURCE_DIR=/path/to/root/dir/of/cloned/bitcoin/source
+-----
+
 . build
 +
 -----
@@ -44,22 +50,35 @@ $ ./build/bin/bitcoind -daemon=0 -regtest=1 -txindex
 
 === Shell Environment
 
-. *b-reg* command line alias:
+. *b-cli* command line alias:
 +
-Configure an alias to the `bitcoin-cli` command that connects to your customized bitcoin-core node running in `regtest` mode.
+Configure an alias to the `bitcoin-cli` command that connects to your customized bitcoin-core node. ie:
++
+-----
+$ alias b-cli=bitcoin-cli -conf=$HOME/configs/bitcoin.conf.signet
+-----
+
 . *jq*: ensure json parsing utility is installed and available via your $PATH.
 . *awk* : standard utility for all Linux distros (often packaged as `gawk`).
 
 === Bitcoin Core Wallet
 
 This tutorial assumes that a bitcoin core wallet is available.
+
+. Set an environment variable specific to your Bitcoin network environment (regtest, signet, etc)
++
+-----
+$ export BITCOIN_NETWORK=regtest
+-----
+
 For example, the following would be sufficient:
 
 -----
-$ export W_NAME=regtest \
-        && export WPASS=regtest
 
-$ b-reg -named createwallet \
+$ export W_NAME=$BITCOIN_NETWORK \
+        && export WPASS=$BITCOIN_NETWORK
+
+$ b-cli -named createwallet \
     wallet_name=$W_NAME \
     descriptors=true \
     passphrase="$WPASS" \
@@ -80,8 +99,7 @@ NOTE: Defaults are 4 leaves with the first leaf (leaf 0 ) as the script to later
 . Generate a P2TSH scripPubKey with multi-leaf taptree:
 +
 -----
-$ export BITCOIN_NETWORK=regtest \
-    && export BITCOIN_ADDRESS_INFO=$( cargo run --example p2tsh_construction ) \
+$ export BITCOIN_ADDRESS_INFO=$( cargo run --example p2tsh_construction ) \
     && echo $BITCOIN_ADDRESS_INFO | jq -r .
 -----
 +
@@ -103,7 +121,7 @@ $ export QUANTUM_ROOT=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.taptree_return.tre
 . View tapscript used in target leaf of taptree:
 +
 -----
-$ b-reg decodescript $LEAF_SCRIPT_HEX | jq -r '.asm'
+$ b-cli decodescript $LEAF_SCRIPT_HEX | jq -r '.asm'
 -----
 +
 NOTE:  Notice that this script commits to a Schnorr 32-byte x-only public key.
@@ -111,25 +129,43 @@ NOTE:  Notice that this script commits to a Schnorr 32-byte x-only public key.
 
 . fund this P2TSH address with the coinbase reward of a newly generated block:
 +
+Choose from one of the following networks:
+
+
+.. Regtest
++
+If on `regtest` network, then execute the following:
++
 -----
-$ export COINBASE_REWARD_TX_ID=$( b-reg -named generatetoaddress 1 $P2TSH_ADDR 5 | jq -r '.[]' ) \
+$ export COINBASE_REWARD_TX_ID=$( b-cli -named generatetoaddress 1 $P2TSH_ADDR 5 | jq -r '.[]' ) \
     && echo $COINBASE_REWARD_TX_ID
 -----
 +
 NOTE:  Sometimes Bitcoin Core may not hit a block (even on regtest).  If so, just try the above command again.
 
+.. Signet
++
+If on `signet` network, then execute the following:
++
+-----
+$BITCOIN_SOURCE_DIR/contrib/signet/miner --cli "bitcoin-cli -conf=$HOME/configs/bitcoin.conf.signet" generate \
+    --address $P2TSH_ADDR \
+    --grind-cmd "$BITCOIN_SOURCE_DIR/build/bin/bitcoin-util grind" \
+    --min-nbits --set-block-time $(date +%s)
+-----
+
 . view summary of all txs that have funded P2TSH address
 +
 -----
-$ export P2TSH_DESC=$( b-reg getdescriptorinfo "addr($P2TSH_ADDR)" | jq -r '.descriptor' ) \
+$ export P2TSH_DESC=$( b-cli getdescriptorinfo "addr($P2TSH_ADDR)" | jq -r '.descriptor' ) \
     && echo $P2TSH_DESC \
-    && b-reg scantxoutset start '[{"desc": "'''$P2TSH_DESC'''"}]'
+    && b-cli scantxoutset start '[{"desc": "'''$P2TSH_DESC'''"}]'
 -----
 
 . grab txid of first tx with unspent funds:
 +
 -----
-$ export FUNDING_TX_ID=$( b-reg scantxoutset start '[{"desc": "'''$P2TSH_DESC'''"}]' | jq -r '.unspents[0].txid' ) \
+$ export FUNDING_TX_ID=$( b-cli scantxoutset start '[{"desc": "'''$P2TSH_DESC'''"}]' | jq -r '.unspents[0].txid' ) \
     && echo $FUNDING_TX_ID
 -----
 
@@ -142,7 +178,7 @@ $ export FUNDING_UTXO_INDEX=0
 . view details of funding UTXO to the P2TSH address:
 +
 -----
-$ export FUNDING_UTXO=$( b-reg getrawtransaction $FUNDING_TX_ID 1 | jq -r '.vout['''$FUNDING_UTXO_INDEX''']' ) \
+$ export FUNDING_UTXO=$( b-cli getrawtransaction $FUNDING_TX_ID 1 | jq -r '.vout['''$FUNDING_UTXO_INDEX''']' ) \
     && echo $FUNDING_UTXO | jq -r .
 -----
 +
@@ -163,7 +199,7 @@ $ export FUNDING_UTXO_AMOUNT_SATS=$(echo $FUNDING_UTXO | jq -r '.value' | awk '{
 This is necessary if you have only previously generated less than 100 blocks.
 +
 -----
-$ b-reg -generate 110
+$ b-cli -generate 110
 -----
 +
 Otherwise, you may see an error from bitcoin core such as the following when attempting to spend:
@@ -187,7 +223,7 @@ $ export RAW_P2TSH_SPEND_TX=$( echo $SPEND_DETAILS | jq -r '.tx_hex' ) \
 . Inspect the spending tx:
 +
 -----
-$ b-reg decoderawtransaction $RAW_P2TSH_SPEND_TX
+$ b-cli decoderawtransaction $RAW_P2TSH_SPEND_TX
 -----
 +
 Pay particular attention to the `vin.txinwitness` field.
@@ -197,13 +233,13 @@ What do you observe as the first byte of the `control block` element ?
 . Test standardness of the spending tx by sending to local mempool of p2tsh enabled Bitcoin Core:
 +
 -----
-$ b-reg testmempoolaccept '["'''$RAW_P2TSH_SPEND_TX'''"]'
+$ b-cli testmempoolaccept '["'''$RAW_P2TSH_SPEND_TX'''"]'
 -----
 
 . Submit tx:
 +
 -----
-$ export P2TSH_SPENDING_TX_ID=$( b-reg sendrawtransaction $RAW_P2TSH_SPEND_TX ) \
+$ export P2TSH_SPENDING_TX_ID=$( b-cli sendrawtransaction $RAW_P2TSH_SPEND_TX ) \
     && echo $P2TSH_SPENDING_TX_ID
 -----
 +
@@ -214,7 +250,7 @@ NOTE:  Should return same tx id as was included in $RAW_P2TSH_SPEND_TX
 . View tx in mempool:
 +
 -----
-$ b-reg getrawtransaction $P2TSH_SPENDING_TX_ID 1
+$ b-cli getrawtransaction $P2TSH_SPENDING_TX_ID 1
 -----
 +
 NOTE:  There will not yet be a field `blockhash` in the response.
@@ -222,20 +258,20 @@ NOTE:  There will not yet be a field `blockhash` in the response.
 . Mine 1 block:
 +
 -----
-$ b-reg -generate 1
+$ b-cli -generate 1
 -----
 
 . Obtain `blockhash` field of mined tx:
 +
 -----
-$ export BLOCK_HASH=$( b-reg getrawtransaction $P2TSH_SPENDING_TX_ID 1 | jq -r '.blockhash' ) \
+$ export BLOCK_HASH=$( b-cli getrawtransaction $P2TSH_SPENDING_TX_ID 1 | jq -r '.blockhash' ) \
     && echo $BLOCK_HASH
 -----
 
 . View tx in block:
 +
 -----
-$ b-reg getblock $BLOCK_HASH | jq -r .tx
+$ b-cli getblock $BLOCK_HASH | jq -r .tx
 -----
 
 == TO-DO
@@ -245,13 +281,13 @@ $ b-reg getblock $BLOCK_HASH | jq -r .tx
 NOTE:  currently fails with:   "message": "Cannot import descriptor without private keys to a wallet with private keys enabled"
 
 -----
-$ b-reg -rpcwallet=$W_NAME walletpassphrase $WPASS 120
+$ b-cli -rpcwallet=$W_NAME walletpassphrase $WPASS 120
 $ echo $P2TSH_ADDR
-$ export P2TSH_DESC=$( b-reg getdescriptorinfo "addr($P2TSH_ADDR)" | jq -r '.descriptor' ) \
+$ export P2TSH_DESC=$( b-cli getdescriptorinfo "addr($P2TSH_ADDR)" | jq -r '.descriptor' ) \
     && echo $P2TSH_DESC
 
 # Set as non-active address (because can't generate subsequent p2tsh addresses yet)
-$ b-reg importdescriptors '[{
+$ b-cli importdescriptors '[{
   "desc": "'''$P2TSH_DESC'''",
   "timestamp": "now",
   "active": false,
