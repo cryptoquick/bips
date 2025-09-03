@@ -11,7 +11,6 @@ This tutorial is inspired from the link:https://learnmeabitcoin.com/technical/up
 
 It is customized to create, fund and spend from a P2TSH UTXO to a P2WPKH address.
 
-Execute in Bitcoin Core `regtest` mode.
 
 == Pre-reqs
 
@@ -42,17 +41,30 @@ $ cmake -B build \
 $ cmake --build build -j$(nproc)
 -----
 
-. run in `regtest` mode
+. run in either `regtest` or `signet` mode:
+
+.. regtest:
 +
 -----
-$ ./build/bin/bitcoind -daemon=0 -regtest=1 -txindex
+$ ./build/bin/bitcoind -daemon=0 -regtest=1 -txindex -prune=0
 -----
+
+.. signet:
++
+-----
+$ ./build/bin/bitcoind -daemon=0 -signet=1 -txindex -prune=0
+-----
++
+NOTE: If running in `signet`, your bitcoin core will need to be configured with the `signetchallenge` property.
+link:https://edil.com.br/blog/creating-a-custom-bitcoin-signet[This tutorial] provides a nice overview of the topic.
 
 === Shell Environment
 
 . *b-cli* command line alias:
 +
-Configure an alias to the `bitcoin-cli` command that connects to your customized bitcoin-core node. ie:
+Configure an alias to the `bitcoin-cli` command that connects to your customized bitcoin-core node.
++
+ie: for signet
 +
 -----
 $ alias b-cli=bitcoin-cli -conf=$HOME/configs/bitcoin.conf.signet
@@ -75,14 +87,14 @@ For example, the following would be sufficient:
 
 -----
 
-$ export W_NAME=$BITCOIN_NETWORK \
-        && export WPASS=$BITCOIN_NETWORK
+$ export W_NAME=anduro
 
 $ b-cli -named createwallet \
-    wallet_name=$W_NAME \
+    wallet_name=$W_NAME \ 
     descriptors=true \
-    passphrase="$WPASS" \
-    load_on_startup=true
+    load_on_startup=true \
+    blank=true
+
 -----
 
 == Fund P2TSH UTXO
@@ -148,10 +160,11 @@ NOTE:  Sometimes Bitcoin Core may not hit a block (even on regtest).  If so, jus
 If on `signet` network, then execute the following:
 +
 -----
-$BITCOIN_SOURCE_DIR/contrib/signet/miner --cli "bitcoin-cli -conf=$HOME/configs/bitcoin.conf.signet" generate \
+$ $BITCOIN_SOURCE_DIR/contrib/signet/miner --cli "bitcoin-cli -conf=$HOME/anduro-360/configs/bitcoin.conf.signet" generate \
     --address $P2TSH_ADDR \
     --grind-cmd "$BITCOIN_SOURCE_DIR/build/bin/bitcoin-util grind" \
-    --min-nbits --set-block-time $(date +%s)
+    --min-nbits --set-block-time $(date +%s) \
+    --poolid "MARA Pool"
 -----
 
 . view summary of all txs that have funded P2TSH address
@@ -198,13 +211,21 @@ $ export FUNDING_UTXO_AMOUNT_SATS=$(echo $FUNDING_UTXO | jq -r '.value' | awk '{
 +
 This is necessary if you have only previously generated less than 100 blocks.
 +
------
-$ b-cli -generate 110
------
-+
 Otherwise, you may see an error from bitcoin core such as the following when attempting to spend:
 +
 _bad-txns-premature-spend-of-coinbase, tried to spend coinbase at depth 1_
+
+.. regtest
++
+-----
+$ b-cli -generate 110
+-----
+
+.. signet
++
+This will involve having the signet miner generate about 110 blocks .... which can take about 10 minutes.
++
+The `common/utils` directory of this project provides a script called: link:../../common/utils/signet_miner_loop.sh[signet_miner_loop.sh].
 
 
 . Referencing the funding tx (via $FUNDING_TX_ID and $FUNDING_UTXO_INDEX), create the spending tx:
@@ -256,9 +277,26 @@ $ b-cli getrawtransaction $P2TSH_SPENDING_TX_ID 1
 NOTE:  There will not yet be a field `blockhash` in the response.
 
 . Mine 1 block:
+
+.. regtest:
 +
 -----
 $ b-cli -generate 1
+-----
+
+.. signet:
++
+-----
+.. Signet
++
+If on `signet` network, then execute the following:
++
+-----
+$ $BITCOIN_SOURCE_DIR/contrib/signet/miner --cli "bitcoin-cli -conf=$HOME/anduro-360/configs/bitcoin.conf.signet" generate \
+    --address $P2TSH_ADDR \
+    --grind-cmd "$BITCOIN_SOURCE_DIR/build/bin/bitcoin-util grind" \
+    --min-nbits --set-block-time $(date +%s) \
+    --poolid "MARA Pool"
 -----
 
 . Obtain `blockhash` field of mined tx:
