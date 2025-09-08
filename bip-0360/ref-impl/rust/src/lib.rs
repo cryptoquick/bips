@@ -433,7 +433,19 @@ fn compact_size(n: u64) -> Vec<u8> {
 
 pub fn acquire_schnorr_keypair() -> (SecretKey, XOnlyPublicKey) {
 
+        /*  OsRng typically draws from the OS's entropy pool (hardware random num generators, system events, etc), ie:
+            *   1.  $ cat /proc/sys/kernel/random/entropy_avail
+            *   2.  $ sudo dmesg | grep -i "random\|rng\|entropy"
+
+            The Linux kernel's RNG (/dev/random and /dev/urandom) typically combines multiple entropy sources: ie:
+            *   Hardware RNG (if available)
+            *   CPU RNG instructions (RDRAND/RDSEED)
+            *   Hardware events (disk I/O, network packets, keyboard/mouse input)
+            *   Timer jitter
+            *   Interrupt timing
+        */
         let keypair = Keypair::new(&SECP, &mut OsRng);
+        
         let privkey: SecretKey = keypair.secret_key();
         let pubkey: (XOnlyPublicKey, Parity) = XOnlyPublicKey::from_keypair(&keypair);
     (privkey, pubkey.0)

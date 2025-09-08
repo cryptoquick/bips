@@ -1,0 +1,252 @@
+{
+    "version": 1,
+    "test_vectors": [
+        {
+            "id": "p2tsh_missing_leaf_script_tree_error",
+            "objective": "Tests P2TSH with missing leaf script tree",
+            "given": {
+                "script_tree": ""
+            },
+            "intermediary": {
+            },
+            "expected": {
+                "error": "P2TSH requires a script tree with at least one leaf"
+            }
+        },
+        {
+            "id": "p2tsh_single_leaf_script_tree",
+            "objective": "Tests P2TSH with single leaf script tree",
+            "given": {
+                "scriptTree": {
+                    "id": 0,
+                    "script": "201f4b1febdc7dfa77c1efacc875b43317b46155e5a564decf475fc369124c5f2450",
+                    "asm": "1f4b1febdc7dfa77c1efacc875b43317b46155e5a564decf475fc369124c5f24 OP_SUCCESS80",
+                    "priv_key": "3f0213a51771f25c906cd82c656175e4b2a10e85958039d6e358352a2eb62b791f4b1febdc7dfa77c1efacc875b43317b46155e5a564decf475fc369124c5f24",
+                    "leafVersion": 192
+                }
+            },
+            "intermediary": {
+                "leafHashes": [
+                    "3766faa61e804dd86fc1bd476f8cb445f76cb8db4e19d3e67474b275f2c83869"
+                ],
+                "merkleRoot": "3766faa61e804dd86fc1bd476f8cb445f76cb8db4e19d3e67474b275f2c83869"
+            },
+            "expected": {
+                "scriptPubKey": "52203766faa61e804dd86fc1bd476f8cb445f76cb8db4e19d3e67474b275f2c83869",
+                "bip350Address": "bc1zxan04fs7spxasm7ph4rklr95ghmkewxmfcva8en5wje8tukg8p5sfm2vnw",
+                "scriptPathControlBlocks": [
+                    "c1"
+                ]
+            }
+        },
+        {
+            "id": "p2tsh_different_version_leaves",
+            "objective": "Tests P2TSH with two script leaves of different versions.  TO-DO:  currently ignores given leaf version and over-rides.  Probably better to throw error",
+            "given": {
+                "scriptTree": [
+                    {
+                        "id": 0,
+                        "script": "201f4b1febdc7dfa77c1efacc875b43317b46155e5a564decf475fc369124c5f2450",
+                        "asm": "1f4b1febdc7dfa77c1efacc875b43317b46155e5a564decf475fc369124c5f24 OP_SUCCESS80",
+                        "priv_key": "3f0213a51771f25c906cd82c656175e4b2a10e85958039d6e358352a2eb62b791f4b1febdc7dfa77c1efacc875b43317b46155e5a564decf475fc369124c5f24",
+                        "leafVersion": 192
+                    },
+                    {
+                        "id": 1,
+                        "script": "06424950333431",
+                        "asm": "424950333431",
+                        "description": "just pushes the string 'BIP341' onto the stack",
+                        "leafVersion": 250
+                    }
+                ]
+            },
+            "intermediary": {
+                "leafHashes": [
+                    "3766faa61e804dd86fc1bd476f8cb445f76cb8db4e19d3e67474b275f2c83869",
+                    "f224a923cd0021ab202ab139cc56802ddb92dcfc172b9212261a539df79a112a"
+                ],
+                "merkleRoot": "1f8b34e43d12df49a89ec41b70f58bd57a020702ab4895bc350c88e4ab599c28"
+            },
+            "expected": {
+                "scriptPubKey": "52201f8b34e43d12df49a89ec41b70f58bd57a020702ab4895bc350c88e4ab599c28",
+                "bip350Address": "bc1zr79nfepazt05n2y7csdhpavt64aqypcz4dyft0p4pjywf26ens5qjlm4a6",
+                "scriptPathControlBlocks": [
+                    "c13766faa61e804dd86fc1bd476f8cb445f76cb8db4e19d3e67474b275f2c83869",
+                    "c1f224a923cd0021ab202ab139cc56802ddb92dcfc172b9212261a539df79a112a"
+                ]
+            }
+        },
+        {
+            "id": "p2tsh_simple_lightning_contract",
+            "objective": "Tests P2TSH with two script leaves that simulate a simple lightning network contract.  Reference: https://github.com/bitcoin-core/btcdeb/blob/master/doc/tapscript-example-with-tap.md",
+            "given": {
+                "scriptTree": [
+                    {
+                        "id": 0,
+                        "script": "029000b275201f4b1febdc7dfa77c1efacc875b43317b46155e5a564decf475fc369124c5f2450",
+                        "asm": "144 OP_CHECKSEQUENCEVERIFY OP_DROP 1f4b1febdc7dfa77c1efacc875b43317b46155e5a564decf475fc369124c5f24 OP_SUCCESS80",
+                        "priv_key": "3f0213a51771f25c906cd82c656175e4b2a10e85958039d6e358352a2eb62b791f4b1febdc7dfa77c1efacc875b43317b46155e5a564decf475fc369124c5f24",
+                        "description": "Alice takes the money after waiting 1 day",
+                        "leafVersion": 192
+                    },
+                    {
+                        "id": 1,
+                        "script": "a8206c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd533388204c7f98ab73cc36abeb76d6eace6a9d8b0ff69dfe0f4a17e4f94f0898ec52fadd",
+                        "asm": "OP_SHA256 6c60f404f8167a38fc70eaf8aa17ac351023bef86bcb9d1086a19afe95bd5333 OP_EQUALVERIFY 4c7f98ab73cc36abeb76d6eace6a9d8b0ff69dfe0f4a17e4f94f0898ec52fadd OP_SUCCESS80",
+                        "priv_key": "49a4214f386240d97ea68efb4268043fd5a55208dcdac18ce5bd3332b8e488944c7f98ab73cc36abeb76d6eace6a9d8b0ff69dfe0f4a17e4f94f0898ec52fadd",
+                        "description": "Bob takes the money whenever he wishes to by revealing the preimage_hash",
+                        "leafVersion": 192
+                    }
+                ]
+            },
+            "intermediary": {
+                "leafHashes": [
+                    "a9745ac96d4f3702b78751f1e08f3040fbe6347e7b4f520d22d3f907730cbb7e",
+                    "bf117a8095de4ae4727e8741061b40d29b8e0fe03e225cb603aa5edb54dcd441"
+                ],
+                "merkleRoot": "8488b7529e5590b49d2ea381e2949870670e59f2229ec4ae8c12f28ba1af26c2"
+            },
+            "expected": {
+                "scriptPubKey": "52208488b7529e5590b49d2ea381e2949870670e59f2229ec4ae8c12f28ba1af26c2",
+                "bip350Address": "bc1zsjytw5572kgtf8fw5wq799ycwpnsuk0jy20vft5vzteghgd0ympqkyk6vx",
+                "scriptPathControlBlocks": [
+                    "c1bf117a8095de4ae4727e8741061b40d29b8e0fe03e225cb603aa5edb54dcd441",
+                    "c1a9745ac96d4f3702b78751f1e08f3040fbe6347e7b4f520d22d3f907730cbb7e"
+                ]
+            }
+        },
+        {
+            "id": "p2tsh_two_leaf_same_version",
+            "objective": "Tests P2TSH with two script leaves of same version",
+            "given": {
+                "scriptTree": [
+                    {
+                        "id": 0,
+                        "script": "20e6b3dad32fc04095a021f5356163cfc14e15f703831e332c56f6b499801f534450",
+                        "asm": "e6b3dad32fc04095a021f5356163cfc14e15f703831e332c56f6b499801f5344 OP_SUCCESS80",
+                        "priv_key": "a695d8a1351774d59ed1b980462c2ab8d58b3b7a48f55b114c6a39980dc1c13ee6b3dad32fc04095a021f5356163cfc14e15f703831e332c56f6b499801f5344",
+                        "leafVersion": 192
+                    },
+                    {
+                        "id": 1,
+                        "script": "07546170726f6f74",
+                        "asm": "546170726f6f74",
+                        "description": "pushes the string 'Taproot' onto the stack",
+                        "leafVersion": 192
+                    }
+                ]
+            },
+            "intermediary": {
+                "leafHashes": [
+                    "2d13d635cf05ee7de0b6ea933efff5dce7f3aff9cc12a7f743fd561f6147c561",
+                    "2cb2b90daa543b544161530c925f285b06196940d6085ca9474d41dc3822c5cb"
+                ],
+                "merkleRoot": "8d14ecbad89fbe37cf010ea1cf016b015fdf53aaeb298d809b9a689d50984c02"
+            },
+            "expected": {
+                "scriptPubKey": "52208d14ecbad89fbe37cf010ea1cf016b015fdf53aaeb298d809b9a689d50984c02",
+                "bip350Address": "bc1z352wewkcn7lr0ncpp6su7qttq90a75a2av5cmqymnf5f65ycfspqdmwdrz",
+                "scriptPathControlBlocks": [
+                    "c12d13d635cf05ee7de0b6ea933efff5dce7f3aff9cc12a7f743fd561f6147c561",
+                    "c12cb2b90daa543b544161530c925f285b06196940d6085ca9474d41dc3822c5cb"
+                ]
+            }
+        },
+        {
+            "id": "p2tsh_three_leaf_complex",
+            "objective": "Tests P2TSH with a complex three-leaf script tree structure, demonstrating nested script paths and multiple verification options",
+            "given": {
+                "scriptTree": [
+                    {
+                        "id": 0,
+                        "script": "201d58016252d5a941f84574c4821b5f87e56778b2bbc3b610dfd801fc0250f6cc50",
+                        "asm": "1d58016252d5a941f84574c4821b5f87e56778b2bbc3b610dfd801fc0250f6cc OP_SUCCESS80",
+                        "priv_key": "2b339b5055fad695f0595d5581fa087455854f64c5443c03d5b4ca53549f12a41d58016252d5a941f84574c4821b5f87e56778b2bbc3b610dfd801fc0250f6cc",
+                        "leafVersion": 192
+                    },
+                    [
+                        {
+                            "id": 1,
+                            "script": "20a3b0dcac08f86306ba04f5fe2a3243ef3a0347c0e2a4529720a18d3cfdce90ad50",
+                            "asm": "a3b0dcac08f86306ba04f5fe2a3243ef3a0347c0e2a4529720a18d3cfdce90ad OP_SUCCESS80",
+                            "priv_key": "ec29d60c1be9263602906499b5e3c1de9e36cc88cec31154210191a578b92e9da3b0dcac08f86306ba04f5fe2a3243ef3a0347c0e2a4529720a18d3cfdce90ad",
+                            "leafVersion": 192
+                        },
+                        {
+                            "id": 2,
+                            "script": "20e6ccf03593dbd07eba10403e33586c130889de6e8219da0a9ccbdd46a56a5f3650",
+                            "asm": "e6ccf03593dbd07eba10403e33586c130889de6e8219da0a9ccbdd46a56a5f36 OP_SUCCESS80",
+                            "priv_key": "da04d13f706a6e0d22ac0db7c361f1aaa706a27043efca4edfecfed3125238e1e6ccf03593dbd07eba10403e33586c130889de6e8219da0a9ccbdd46a56a5f36",
+                            "leafVersion": 192
+                        }
+                    ]
+                ]
+            },
+            "intermediary": {
+                "leafHashes": [
+                    "35d1f75d65fbe192b8c5cbe44097ba5d9975e61789af49214e4a0709e4b9a8e5",
+                    "4350873c0939e615520d9d1bf9e42c7522d0b9cafe30fc575fa91ced72eb5d78",
+                    "6a198cc871eb9cb184b78c23b0b660541f8bc6e7854e69d21d1bcafb2da0ef17"
+                ],
+                "merkleRoot": "6e5b1eae3ea3cab9af523a878e823d471ca86c12ddfe253eb10d412bb8b084cd"
+            },
+            "expected": {
+                "scriptPubKey": "52206e5b1eae3ea3cab9af523a878e823d471ca86c12ddfe253eb10d412bb8b084cd",
+                "bip350Address": "bc1zded3at37509tnt6j82rcaq3aguw2smqjmhlz2043p4qjhw9ssnxs48f2e5",
+                "scriptPathControlBlocks": [
+                    "c1e1e25e1e72b47fe03f70dc934b798caec4aaad6861e6e698cee786a1d6248527",
+                    "c16a198cc871eb9cb184b78c23b0b660541f8bc6e7854e69d21d1bcafb2da0ef1735d1f75d65fbe192b8c5cbe44097ba5d9975e61789af49214e4a0709e4b9a8e5",
+                    "c14350873c0939e615520d9d1bf9e42c7522d0b9cafe30fc575fa91ced72eb5d7835d1f75d65fbe192b8c5cbe44097ba5d9975e61789af49214e4a0709e4b9a8e5"
+                ]
+            }
+        },
+        {
+            "id": "p2tsh_three_leaf_alternative",
+            "objective": "Tests another variant of P2TSH with three leaves arranged in a different tree structure, showing alternative script path spending options",
+            "given": {
+                "scriptTree": [
+                    {
+                        "id": 0,
+                        "script": "20409f78ce0978519ff5d960c4ab595174c7efca11b1f89410a4e98b70cd423e1c50",
+                        "asm": "409f78ce0978519ff5d960c4ab595174c7efca11b1f89410a4e98b70cd423e1c OP_SUCCESS80",
+                        "priv_key": "c6ec3801b04afa40be6f77f3f7a7b3b7cb8cfe233b0263fb70e2f087b21397c1409f78ce0978519ff5d960c4ab595174c7efca11b1f89410a4e98b70cd423e1c",
+                        "leafVersion": 192
+                    },
+                    [
+                        {
+                            "id": 1,
+                            "script": "209f0955dc884a5c88d1732e017d30e27e8a445889bce5aa42611b7635c5c1073a50",
+                            "asm": "9f0955dc884a5c88d1732e017d30e27e8a445889bce5aa42611b7635c5c1073a OP_SUCCESS80",
+                            "priv_key": "7524bca170d54231f1246f30fb00f9da2208b1363ba5a7bbaf11fc3b0309e9519f0955dc884a5c88d1732e017d30e27e8a445889bce5aa42611b7635c5c1073a",
+                            "leafVersion": 192
+                        },
+                        {
+                            "id": 2,
+                            "script": "20c60b10d57c0cdf27e5c751e131ea4301b37abe7384948059256c7f5f1f285a7f50",
+                            "asm": "c60b10d57c0cdf27e5c751e131ea4301b37abe7384948059256c7f5f1f285a7f OP_SUCCESS80",
+                            "priv_key": "d9d0f17d630b6a538e6a8a036373e7b9e5023a4c08f72dd8c3ef59288b98c079c60b10d57c0cdf27e5c751e131ea4301b37abe7384948059256c7f5f1f285a7f",
+                            "leafVersion": 192
+                        }
+                    ]
+                ]
+            },
+            "intermediary": {
+                "leafHashes": [
+                    "0102b0ba8fe443b500865e4e87e806d0d2fab23040b617b80bba31d0ea8b2164",
+                    "52fd4722ad69cb1d0c5e1b4830507c533d33389b39d86e20f2aff4991ecf7e27",
+                    "61cddcc41e5075a45f69bcc9486d7babdeb1bf9edcb0f292957f7f158026ae3a"
+                ],
+                "merkleRoot": "c82b934c5fd94054ab11204ae754ae3e6395abb23a6629bd6f93ede4cd5c1756"
+            },
+            "expected": {
+                "scriptPubKey": "5220c82b934c5fd94054ab11204ae754ae3e6395abb23a6629bd6f93ede4cd5c1756",
+                "bip350Address": "bc1zeq4exnzlm9q9f2c3yp9ww49w8e3et2aj8fnzn0t0j0k7fn2uzatq6vc68m",
+                "scriptPathControlBlocks": [
+                    "c11bf3e4588edf111915ed79885a5e56a2dd2f13ae375846c56b8e0723a5077966",
+                    "c161cddcc41e5075a45f69bcc9486d7babdeb1bf9edcb0f292957f7f158026ae3a0102b0ba8fe443b500865e4e87e806d0d2fab23040b617b80bba31d0ea8b2164",
+                    "c152fd4722ad69cb1d0c5e1b4830507c533d33389b39d86e20f2aff4991ecf7e270102b0ba8fe443b500865e4e87e806d0d2fab23040b617b80bba31d0ea8b2164"
+                ]
+            }
+        }
+    ]
+}
