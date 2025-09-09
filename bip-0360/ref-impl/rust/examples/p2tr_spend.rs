@@ -88,7 +88,8 @@ fn main() -> SpendDetails {
         leaf_script_bytes.clone(),
         leaf_script_priv_key_bytes,
         spend_output_pubkey_hash_bytes.clone(),
-        spend_output_amount_sats
+        spend_output_amount_sats,
+        false
     );
 
     // Remove first and last byte from leaf_script_bytes to get tapleaf_pubkey_bytes

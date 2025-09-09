@@ -87,7 +87,8 @@ fn test_script_path_spend_signatures() {
         input_leaf_script_bytes,
         input_script_priv_key_bytes,
         spend_output_pubkey_bytes,
-        spend_output_amount_sats
+        spend_output_amount_sats,
+        false
     );
 
     assert_eq!(result.sighash.as_slice(), test_sighash_bytes.as_slice(), "sighash mismatch");

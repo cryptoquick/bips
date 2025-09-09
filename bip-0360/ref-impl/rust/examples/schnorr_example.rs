@@ -20,6 +20,7 @@ fn main() {
 
     // acquire a schnorr keypair (leveraging OS provided random number generator)
     let keypair = acquire_schnorr_keypair();
+    let (secret_key, public_key) = keypair.as_schnorr().unwrap();
     let message_bytes = b"hello";
     
     // secp256k1 operates on a 256-bit (32-byte) field, so inputs must be exactly this size
@@ -40,10 +41,10 @@ fn main() {
     * Ensures signature uniqueness - Each signature should be cryptographically distinct
     * Protects against replay attacks - Different signatures for the same data
     */
-    let signature: bitcoin::secp256k1::schnorr::Signature = SECP.sign_schnorr(&message, &keypair.0.keypair(&SECP));
+    let signature: bitcoin::secp256k1::schnorr::Signature = SECP.sign_schnorr(&message, &secret_key.keypair(&SECP));
     info!("Signature created successfully, size: {}", signature.serialize().len());
     
-    let pubkey = keypair.1;
+    //let pubkey = public_key;
 
 
     /*
@@ -51,18 +52,18 @@ fn main() {
       * The nonce is mathematically eliminated during verification
       * The verifier only needs public information (signature, message, public key)
      */
-    let schnorr_valid = verify_schnorr_signature(signature, message, pubkey);
+    let schnorr_valid = verify_schnorr_signature(signature, message, *public_key);
     info!("schnorr_valid: {}", schnorr_valid);
 
 
     let aux_rand = [0u8; 32]; // 32 zero bytes; fine for testing
     let signature_aux_rand: bitcoin::secp256k1::schnorr::Signature = SECP.sign_schnorr_with_aux_rand(
         &message,
-        &keypair.0.keypair(&SECP),
+        &secret_key.keypair(&SECP),
         &aux_rand
     );
     info!("aux_rand signature created successfully, size: {}", signature_aux_rand.serialize().len());
 
-    let schnorr_valid_aux_rand = verify_schnorr_signature(signature_aux_rand, message, pubkey);
+    let schnorr_valid_aux_rand = verify_schnorr_signature(signature_aux_rand, message, *public_key);
     info!("schnorr_valid_aux_rand: {}", schnorr_valid_aux_rand);
 }

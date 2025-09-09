@@ -99,6 +99,12 @@ $ b-cli -named createwallet \
 
 == Fund P2TSH UTXO
 
+. OPTIONAL: Indicate whether you prefer to use _Post Quantum Cryptography_ (in the form of _SLH-DSA_.  Default is the use of `Schnorr` signatures ).
++
+-----
+$ export USE_PQC=false
+-----
+
 . OPTIONAL: Define number of leaves in tap tree as well as the tap leaf to later use as the unlocking script:
 +
 -----
@@ -136,7 +142,8 @@ $ export QUANTUM_ROOT=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.taptree_return.tre
 $ b-cli decodescript $LEAF_SCRIPT_HEX | jq -r '.asm'
 -----
 +
-NOTE:  Notice that this script commits to a Schnorr 32-byte x-only public key.
+NOTE:  If not using PQC, notice that this script commits to a Schnorr 32-byte x-only public key.
+If using PQC, this script commits to a Schnorr 32-byte SLH-DSA pub key and a OP_SUCCESS80 (represented as `OP_RESERVED`)
 
 
 . fund this P2TSH address with the coinbase reward of a newly generated block:

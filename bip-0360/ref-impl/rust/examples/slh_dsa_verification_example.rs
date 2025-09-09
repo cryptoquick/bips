@@ -5,7 +5,7 @@ use bitcoin::hashes::{sha256::Hash, Hash as HashTrait};
 use rand::{rng, RngCore};
 
 use bitcoinpqc::{
-    generate_keypair, public_key_size, secret_key_size, sign, signature_size, verify, Algorithm,
+    generate_keypair, public_key_size, secret_key_size, sign, signature_size, verify, Algorithm, KeyPair,
 };
 
 fn main() {
@@ -20,7 +20,7 @@ fn main() {
     let random_data = get_random_bytes(128);
     println!("Generated random data of size {}", random_data.len());
 
-    let keypair = generate_keypair(Algorithm::SLH_DSA_128S, &random_data)
+    let keypair: KeyPair = generate_keypair(Algorithm::SLH_DSA_128S, &random_data)
         .expect("Failed to generate SLH-DSA-128S keypair");
 
     let message_bytes = b"SLH-DSA-128S Test Message";

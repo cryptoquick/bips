@@ -3,7 +3,7 @@ use log::info;
 use rand::{rng, RngCore};
 
 use bitcoinpqc::{
-    generate_keypair, public_key_size, secret_key_size, Algorithm,
+    generate_keypair, public_key_size, secret_key_size, Algorithm, KeyPair,
 };
 
 fn main() {
@@ -18,7 +18,7 @@ fn main() {
     let random_data = get_random_bytes(128);
     println!("Generated random data of size {}", random_data.len());
 
-    let keypair = generate_keypair(Algorithm::SLH_DSA_128S, &random_data)
+    let keypair: KeyPair = generate_keypair(Algorithm::SLH_DSA_128S, &random_data)
         .expect("Failed to generate SLH-DSA-128S keypair");
 
     info!("public key size / value = {}, {}", public_key_size(Algorithm::SLH_DSA_128S), hex::encode(&keypair.public_key.bytes));

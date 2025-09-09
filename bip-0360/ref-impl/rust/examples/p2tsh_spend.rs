@@ -1,4 +1,4 @@
-use p2tsh_ref::{ pay_to_p2wpkh_tx, verify_schnorr_signature_via_bytes };
+use p2tsh_ref::{ pay_to_p2wpkh_tx, verify_schnorr_signature_via_bytes, verify_slh_dsa_via_bytes };
 
 use p2tsh_ref::data_structures::SpendDetails;
 use std::env;
@@ -61,6 +61,17 @@ fn main() -> SpendDetails {
             std::process::exit(1);
         });
 
+    let priv_key_size: usize = leaf_script_priv_key_bytes.len();
+    let use_pqc: bool = match priv_key_size {
+        32 => false,
+        64 => true,
+        _ => {
+            error!("Invalid private key size: {}. Expected 32 or 64 bytes", priv_key_size);
+            std::process::exit(1);
+        }
+    };
+
+
     // ie: OP_PUSHBYTES_32 6d4ddc0e47d2e8f82cbe2fc2d0d749e7bd3338112cecdc76d8f831ae6620dbe0 OP_CHECKSIG
     let leaf_script_bytes: Vec<u8> = env::var("LEAF_SCRIPT_HEX")
         .map(|s| hex::decode(s).unwrap())
@@ -88,17 +99,23 @@ fn main() -> SpendDetails {
         leaf_script_bytes.clone(),
         leaf_script_priv_key_bytes,
         spend_output_pubkey_hash_bytes,
-        spend_output_amount_sats
+        spend_output_amount_sats,
+        use_pqc
     );
 
     // Remove first and last byte from leaf_script_bytes to get tapleaf_pubkey_bytes
     let tapleaf_pubkey_bytes: Vec<u8> = leaf_script_bytes[1..leaf_script_bytes.len()-1].to_vec();
     
-    let is_valid: bool = verify_schnorr_signature_via_bytes(
-        &result.sig_bytes,
-        &result.sighash,
-        &tapleaf_pubkey_bytes);
-    info!("is_valid: {}", is_valid);
+    if use_pqc {
+        let is_valid: bool = verify_slh_dsa_via_bytes(&result.sig_bytes, &result.sighash, &tapleaf_pubkey_bytes);
+        info!("is_valid: {}", is_valid);
+    } else {
+        let is_valid: bool = verify_schnorr_signature_via_bytes(
+            &result.sig_bytes,
+            &result.sighash,
+            &tapleaf_pubkey_bytes);
+        info!("is_valid: {}", is_valid);
+    }
 
     return result;
 }

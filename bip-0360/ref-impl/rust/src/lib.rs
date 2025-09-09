@@ -4,6 +4,7 @@ pub mod error;
 use log::{debug, info, error};
 use std::env;
 use std::io::Write;
+use rand::{rng, RngCore};
 use once_cell::sync::Lazy;
 use bitcoin::hashes::{sha256, Hash};
 use bitcoin::key::{Secp256k1, Parity};
@@ -19,7 +20,11 @@ use bitcoin::{ Amount, TxOut, WPubkeyHash,
 
 use bitcoin::p2tsh::{P2tshScriptBuf, P2tshBuilder, P2tshSpendInfo, P2tshControlBlock, P2TSH_LEAF_VERSION};
 
-use data_structures::{SpendDetails, UtxoReturn, TaptreeReturn};
+use bitcoinpqc::{
+    generate_keypair, public_key_size, secret_key_size, Algorithm, KeyPair, sign, verify,
+};
+
+use data_structures::{SpendDetails, UtxoReturn, TaptreeReturn, UnifiedKeypair};
 
 /* Secp256k1 implements the Signing trait when it's initialized in signing mode.
    It's important to note that Secp256k1 has different capabilities depending on how it's constructed:
@@ -29,7 +34,7 @@ use data_structures::{SpendDetails, UtxoReturn, TaptreeReturn};
 */
 static SECP: Lazy<Secp256k1<bitcoin::secp256k1::All>> = Lazy::new(Secp256k1::new);
 
-fn create_huffman_tree() -> (Vec<(u32, ScriptBuf)>, Option<(SecretKey, XOnlyPublicKey)>, Option<ScriptBuf>) {
+fn create_huffman_tree(use_pqc: bool) -> (Vec<(u32, ScriptBuf)>, UnifiedKeypair, ScriptBuf) {
 
     let mut total_leaf_count: u32 = 1;
     if let Ok(env_value) = env::var("TOTAL_LEAF_COUNT") {
@@ -54,48 +59,53 @@ fn create_huffman_tree() -> (Vec<(u32, ScriptBuf)>, Option<(SecretKey, XOnlyPubl
 
     debug!("Creating multi-leaf taptree with total_leaf_count: {}, leaf_of_interest: {}", total_leaf_count, leaf_of_interest);
     let mut huffman_entries: Vec<(u32, ScriptBuf)> = vec![];
-    let mut keypair_of_interest: Option<(SecretKey, XOnlyPublicKey)> = None;
+    let mut keypair_of_interest: Option<UnifiedKeypair> = None;
     let mut script_buf_of_interest: Option<ScriptBuf> = None;
     for leaf_index in 0..total_leaf_count {
-        
-        let keypair: (SecretKey, XOnlyPublicKey) = acquire_schnorr_keypair();
-        let pubkey_bytes = keypair.1.serialize();
-        
+        let keypair: UnifiedKeypair;
+        let op_code: u8;
+        if !use_pqc {
+            keypair = acquire_schnorr_keypair();
+            op_code = 0xac;
+        } else {
+            keypair = acquire_slh_dsa_keypair();
+            op_code = 0x50;
+        }
+        let pubkey_bytes = keypair.public_key_bytes();
+            
         // OP_PUSHBYTES_32 <32-byte xonly pubkey> OP_CHECKSIG
         let mut script_buf_bytes = vec![0x20];
         script_buf_bytes.extend_from_slice(&pubkey_bytes);
-        script_buf_bytes.push(0xac);
-        let script_buf: ScriptBuf = ScriptBuf::from_bytes(script_buf_bytes.clone());
-        
-        let random_weight = thread_rng().gen_range(0..total_leaf_count);
-        
-        let huffman_entry = (random_weight, script_buf.clone());
-        huffman_entries.push(huffman_entry);
-        if leaf_index == leaf_of_interest {
-            keypair_of_interest = Some(keypair);
-            script_buf_of_interest = Some(script_buf.clone());
-            debug!("Selected leaf:  weight: {}, script: {:?}", random_weight, script_buf);
-        }
-    };
-    return (huffman_entries, keypair_of_interest, script_buf_of_interest);
+        script_buf_bytes.push(op_code);
+            let script_buf: ScriptBuf = ScriptBuf::from_bytes(script_buf_bytes.clone());
+            
+            let random_weight = thread_rng().gen_range(0..total_leaf_count);
+            
+            let huffman_entry = (random_weight, script_buf.clone());
+            huffman_entries.push(huffman_entry);
+            if leaf_index == leaf_of_interest {
+                keypair_of_interest = Some(keypair);
+                script_buf_of_interest = Some(script_buf.clone());
+                debug!("Selected leaf:  weight: {}, script: {:?}", random_weight, script_buf);
+            }
+    }
+    return (huffman_entries, keypair_of_interest.unwrap(), script_buf_of_interest.unwrap());
 }
 
-pub fn create_p2tsh_multi_leaf_taptree() -> TaptreeReturn {
+pub fn create_p2tsh_multi_leaf_taptree(use_pqc: bool) -> TaptreeReturn {
     
-    let (huffman_entries, keypair_of_interest, script_buf_of_interest) = create_huffman_tree();
+    let (huffman_entries, keypair_of_interest, script_buf_of_interest) = create_huffman_tree(use_pqc);
     let p2tsh_builder: P2tshBuilder = P2tshBuilder::with_huffman_tree(huffman_entries).unwrap();
+
 
     let p2tsh_spend_info: P2tshSpendInfo = p2tsh_builder.clone().finalize().unwrap();
     let quantum_root:TapNodeHash = p2tsh_spend_info.merkle_root.unwrap();
-    info!("keypair_of_interest: \n\tsecret_bytes: {} \n\tpubkey: {}",
-        hex::encode(keypair_of_interest.unwrap().0.secret_bytes()),  // secret_bytes returns big endian
-        hex::encode(keypair_of_interest.unwrap().1.serialize()),  // serialize returns little endian
-        );
+
     
     let tap_tree: TapTree = p2tsh_builder.clone().into_inner().try_into_taptree().unwrap();
     let mut script_leaves: ScriptLeaves = tap_tree.script_leaves();
     let script_leaf = script_leaves
-        .find(|leaf| leaf.script() == script_buf_of_interest.as_ref().unwrap().as_script())
+        .find(|leaf| leaf.script() == script_buf_of_interest.as_script())
         .expect("Script leaf not found");
 
     let merkle_root_node_info: NodeInfo = p2tsh_builder.clone().into_inner().try_into_node_info().unwrap();
@@ -127,7 +137,7 @@ pub fn create_p2tsh_multi_leaf_taptree() -> TaptreeReturn {
     let control_block_hex: String = hex::encode(control_block.serialize());
 
     return TaptreeReturn {
-        leaf_script_priv_key_hex: hex::encode(keypair_of_interest.unwrap().0.secret_bytes()),
+        leaf_script_priv_key_hex: hex::encode(keypair_of_interest.secret_key_bytes()),
         leaf_script_hex: leaf_script.to_hex_string(),
 
         tree_root_hex: hex::encode(quantum_root.to_byte_array()),
@@ -137,7 +147,7 @@ pub fn create_p2tsh_multi_leaf_taptree() -> TaptreeReturn {
 
 pub fn create_p2tr_multi_leaf_taptree(p2tr_internal_pubkey_hex: String) -> TaptreeReturn {
 
-    let (huffman_entries, keypair_of_interest, script_buf_of_interest) = create_huffman_tree();
+    let (huffman_entries, keypair_of_interest, script_buf_of_interest) = create_huffman_tree(false);
 
     let pub_key_string = format!("02{}", p2tr_internal_pubkey_hex);
     let internal_pubkey: PublicKey = pub_key_string.parse::<PublicKey>().unwrap();
@@ -155,14 +165,14 @@ pub fn create_p2tr_multi_leaf_taptree(p2tr_internal_pubkey_hex: String) -> Taptr
     let output_key: XOnlyPublicKey = p2tr_spend_info.output_key().into();
 
     info!("keypair_of_interest: \n\tsecret_bytes: {} \n\tpubkey: {} \n\tmerkle_root: {}",
-        hex::encode(keypair_of_interest.unwrap().0.secret_bytes()),  // secret_bytes returns big endian
-        hex::encode(keypair_of_interest.unwrap().1.serialize()),  // serialize returns little endian
+        hex::encode(keypair_of_interest.secret_key_bytes()),  // secret_bytes returns big endian
+        hex::encode(keypair_of_interest.public_key_bytes()),  // serialize returns little endian
         merkle_root);
 
     let tap_tree: TapTree = p2tr_builder.clone().try_into_taptree().unwrap();
     let mut script_leaves: ScriptLeaves = tap_tree.script_leaves();
     let script_leaf = script_leaves
-        .find(|leaf| leaf.script() == script_buf_of_interest.as_ref().unwrap().as_script())
+        .find(|leaf| leaf.script() == script_buf_of_interest.as_script())
         .expect("Script leaf not found");
     let leaf_script = script_leaf.script().to_hex_string();
     let merkle_branch: &TaprootMerkleBranch = script_leaf.merkle_branch();
@@ -181,7 +191,7 @@ pub fn create_p2tr_multi_leaf_taptree(p2tr_internal_pubkey_hex: String) -> Taptr
     info!("verify_taproot_commitment: {}", verify);
 
     return TaptreeReturn {
-        leaf_script_priv_key_hex: hex::encode(keypair_of_interest.unwrap().0.secret_bytes()),
+        leaf_script_priv_key_hex: hex::encode(keypair_of_interest.secret_key_bytes()),
         leaf_script_hex: leaf_script,
         tree_root_hex: hex::encode(merkle_root.to_byte_array()),
         control_block_hex: control_block_hex,
@@ -238,6 +248,7 @@ pub fn pay_to_p2wpkh_tx(
     leaf_script_priv_key_bytes: Vec<u8>,
     spend_output_pubkey_hash_bytes: Vec<u8>,
     spend_output_amount_sats: u64,
+    use_pqc: bool
 ) -> SpendDetails {
 
     let mut txid_little_endian = funding_tx_id_bytes.clone();  // initially in big endian format
@@ -301,17 +312,27 @@ pub fn pay_to_p2wpkh_tx(
 
     let spend_msg = Message::from(tapscript_sighash);
 
-    // assumes bytes are in big endian format
-    let secret_key = SecretKey::from_slice(&leaf_script_priv_key_bytes).unwrap();
+    let mut sig_bytes: Vec<u8>;
+    if use_pqc {
+        let secret_key: bitcoinpqc::SecretKey = bitcoinpqc::SecretKey::try_from_slice(
+            Algorithm::SLH_DSA_128S, &leaf_script_priv_key_bytes).unwrap();
+        let signature = sign(&secret_key, spend_msg.as_ref()).expect("Failed to sign with SLH-DSA-128S");
+        sig_bytes = signature.bytes;
+    } else {
+        // assumes bytes are in big endian format
+        let secret_key = SecretKey::from_slice(&leaf_script_priv_key_bytes).unwrap();
+    
+        // Spending a p2tr UTXO thus using Schnorr signature
+        // The aux_rand parameter ensures that signing the same message with the same key produces the same signature
+        // Otherwise (without providing aux_rand), the secp256k1 library internally generates a random nonce for each signature 
+        let signature: bitcoin::secp256k1::schnorr::Signature = SECP.sign_schnorr_with_aux_rand(
+            &spend_msg,
+            &secret_key.keypair(&SECP),
+            &[0u8; 32] // 32 zero bytes of auxiliary random data
+        );
+        sig_bytes = signature.serialize().to_vec();
+    }
 
-    // Spending a p2tr UTXO thus using Schnorr signature
-    // The aux_rand parameter ensures that signing the same message with the same key produces the same signature
-    let signature: bitcoin::secp256k1::schnorr::Signature = SECP.sign_schnorr_with_aux_rand(
-        &spend_msg,
-        &secret_key.keypair(&SECP),
-        &[0u8; 32] // 32 zero bytes of auxiliary random data
-    );
-    let mut sig_bytes: Vec<u8> = signature.serialize().to_vec();
     sig_bytes.push(TapSighashType::All as u8);
 
     let mut derived_witness: Witness = Witness::new();
@@ -431,7 +452,7 @@ fn compact_size(n: u64) -> Vec<u8> {
     }
 }
 
-pub fn acquire_schnorr_keypair() -> (SecretKey, XOnlyPublicKey) {
+pub fn acquire_schnorr_keypair() -> UnifiedKeypair {
 
         /*  OsRng typically draws from the OS's entropy pool (hardware random num generators, system events, etc), ie:
             *   1.  $ cat /proc/sys/kernel/random/entropy_avail
@@ -445,10 +466,10 @@ pub fn acquire_schnorr_keypair() -> (SecretKey, XOnlyPublicKey) {
             *   Interrupt timing
         */
         let keypair = Keypair::new(&SECP, &mut OsRng);
-        
+    
         let privkey: SecretKey = keypair.secret_key();
         let pubkey: (XOnlyPublicKey, Parity) = XOnlyPublicKey::from_keypair(&keypair);
-    (privkey, pubkey.0)
+    UnifiedKeypair::new_schnorr(privkey, pubkey.0)
 }
 
 pub fn verify_schnorr_signature_via_bytes(signature: &[u8], message: &[u8], pubkey_bytes: &[u8]) -> bool {
@@ -462,6 +483,24 @@ pub fn verify_schnorr_signature_via_bytes(signature: &[u8], message: &[u8], pubk
     let message = Message::from_digest_slice(message).unwrap();
     let pubkey = XOnlyPublicKey::from_slice(pubkey_bytes).unwrap();
     verify_schnorr_signature(signature, message, pubkey)
+}
+
+pub fn verify_slh_dsa_via_bytes(signature: &[u8], message: &[u8], pubkey_bytes: &[u8]) -> bool {
+    
+    // Remove possible trailing Sighash Type byte if present (SLH-DSA-128S is 7856 bytes, so 7857 would indicate SIGHASH byte)
+    let mut sig_bytes = signature.to_vec();
+    if sig_bytes.len() == 7857 {
+        sig_bytes.pop(); // Remove the last byte
+    }
+    
+    info!("verify_slh_dsa_via_bytes: signature length: {:?}, message: {:?}, pubkey_bytes: {:?}", 
+        sig_bytes.len(), 
+        hex::encode(message), 
+        hex::encode(pubkey_bytes));
+
+    let signature = bitcoinpqc::Signature::try_from_slice(Algorithm::SLH_DSA_128S, &sig_bytes).unwrap();
+    let public_key: bitcoinpqc::PublicKey = bitcoinpqc::PublicKey::try_from_slice(Algorithm::SLH_DSA_128S, pubkey_bytes).unwrap();
+    verify(&public_key, message, &signature).is_ok()
 }
 
 pub fn verify_schnorr_signature(mut signature: Signature, message: Message, pubkey: XOnlyPublicKey) -> bool {
@@ -497,4 +536,23 @@ pub fn verify_taproot_commitment(control_block_hex: String, output_key: XOnlyPub
     let control_block: ControlBlock = ControlBlock::decode(&control_block_bytes).unwrap();
 
     return control_block.verify_taproot_commitment(&SECP, output_key, script);
+}
+
+fn acquire_slh_dsa_keypair() -> UnifiedKeypair {
+    /*
+        In SPHINCS+ (underlying algorithm of SLH-DSA), the random data is used to:
+            * Initialize hash function parameters within the key generation
+            * Seed the Merkle tree construction that forms the public key
+            * Generate the secret key components that enable signing
+    */
+    let random_data = get_random_bytes(128);
+    let keypair: KeyPair = generate_keypair(Algorithm::SLH_DSA_128S, &random_data)
+            .expect("Failed to generate SLH-DSA-128S keypair");
+    UnifiedKeypair::new_slh_dsa(keypair)
+}
+
+fn get_random_bytes(size: usize) -> Vec<u8> {
+    let mut bytes = vec![0u8; size];
+    rng().fill_bytes(&mut bytes);
+    bytes
 }
