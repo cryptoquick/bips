@@ -2,13 +2,16 @@
 
 # Invokes mining simulator a configurable number of times
 
-
+if [ -z "${P2TSH_ADDR}" ]; then
+    echo "Error: Environment variable P2TSH_ADDR needs to be set"
+    exit 1
+fi
 
 
 BITCOIN_SOURCE_DIR=${BITCOIN_SOURCE_DIR:-$HOME/bitcoin}
 
 # path to bitcoin.conf for signet
-BITCOIN_CONF_FILE_PATH=${BITCOIN_CONF_FILE_PATH:-$HOME/configs/bitcoin.conf.signet}
+BITCOIN_CONF_FILE_PATH=${BITCOIN_CONF_FILE_PATH:-$HOME/anduro-360/configs/bitcoin.conf.signet}
 
 # Set default LOOP_COUNT to 110 if not set
 LOOP_COUNT=${LOOP_COUNT:-110}
@@ -32,6 +35,6 @@ do
     $BITCOIN_SOURCE_DIR/contrib/signet/miner --cli "bitcoin-cli -conf=$BITCOIN_CONF_FILE_PATH" generate \
         --address $P2TSH_ADDR \
         --grind-cmd "$BITCOIN_SOURCE_DIR/build/bin/bitcoin-util grind" \
-        --poolid $POOL_ID \
+        --poolid "$POOL_ID" \
         --min-nbits --set-block-time $(date +%s)
 done

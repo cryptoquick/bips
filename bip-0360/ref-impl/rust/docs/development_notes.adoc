@@ -1,4 +1,12 @@
-*P2QRH specific changes to rust-bitcoin*
+
+== bitcoin core
+
+=== Two Different Size Limits:
+
+* *MAX_SCRIPT_ELEMENT_SIZE* (in interpreter.cpp line 1882) - This is a consensus rule that limits individual stack elements to 520 bytes. This is what's currently blocking your SLH-DSA signature.
+* *MAX_STANDARD_P2TSH_STACK_ITEM_SIZE* (in policy.h) - This is a policy rule that limits P2TSH stack items to 80 bytes (or 8000 bytes with your change) for standardness.
+
+== P2TSH changes to rust-bitcoin
 
 # 1. p2qrh module
 

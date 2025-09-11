@@ -69,7 +69,7 @@ fn create_huffman_tree(use_pqc: bool) -> (Vec<(u32, ScriptBuf)>, UnifiedKeypair,
             op_code = 0xac;
         } else {
             keypair = acquire_slh_dsa_keypair();
-            op_code = 0x50;
+            op_code = 0x7f; // OP_SUBSTR
         }
         let pubkey_bytes = keypair.public_key_bytes();
             

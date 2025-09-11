@@ -143,7 +143,7 @@ $ b-cli decodescript $LEAF_SCRIPT_HEX | jq -r '.asm'
 -----
 +
 NOTE:  If not using PQC, notice that this script commits to a Schnorr 32-byte x-only public key.
-If using PQC, this script commits to a Schnorr 32-byte SLH-DSA pub key and a OP_SUCCESS80 (represented as `OP_RESERVED`)
+If using PQC, this script commits to a Schnorr 32-byte SLH-DSA pub key and a OP_SUCCESS127 (represented as `OP_SUBSTR`)
 
 
 . fund this P2TSH address with the coinbase reward of a newly generated block:
@@ -292,9 +292,6 @@ $ b-cli -generate 1
 -----
 
 .. signet:
-+
------
-.. Signet
 +
 If on `signet` network, then execute the following:
 +
