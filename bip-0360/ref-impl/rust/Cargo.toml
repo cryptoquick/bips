@@ -6,10 +6,10 @@ edition = "2024"
 [dependencies]
 
 # Dev version of miniscript crate re-exports bitcoin 0.32.6
-miniscript = "13.0.0"
+miniscript = { version="13.0.0", registry="kellnr-denver-space" }
 
 # During local dev, ensure version used here matches the version of the forked local library (referenced in:  patch.crates-io)
-bitcoin = { version="0.32.6", features = ["rand-std", "serde"] }
+bitcoin = { version="0.32.6", features = ["rand-std", "serde"], registry = "kellnr-denver-space" }
 
 bitcoinpqc = { version="0.2.0", features = ["serde"] }
 
@@ -30,9 +30,9 @@ rand = "0.9"
 # Verify:
 #  cargo update
 #  cargo tree -p bitcoin | more
-bitcoin = { path = "./rust-bitcoin/bitcoin" }
+# bitcoin = { path = "./rust-bitcoin/bitcoin" }
 
 #  cargo tree -p miniscript | more
-miniscript = { path = "./rust-miniscript" }
+#miniscript = { path = "./rust-miniscript" }
 
-bitcoinpqc = { path = "./libbitcoinpqc"  }
+# bitcoinpqc = { path = "./libbitcoinpqc"  }

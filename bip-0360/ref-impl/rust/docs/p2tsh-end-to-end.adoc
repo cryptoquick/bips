@@ -92,9 +92,7 @@ $ export W_NAME=anduro
 $ b-cli -named createwallet \
     wallet_name=$W_NAME \ 
     descriptors=true \
-    load_on_startup=true \
-    blank=true
-
+    load_on_startup=true
 -----
 
 == Fund P2TSH UTXO
