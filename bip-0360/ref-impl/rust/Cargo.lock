@@ -3,6 +3,18 @@
 version = 4
 
 [[package]]
+name = "ahash"
+version = "0.8.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5a15f179cd60c4584b8a8c596927aadc462e27f2ca70c04e0071964a73ba7a75"
+dependencies = [
+ "cfg-if",
+ "once_cell",
+ "version_check",
+ "zerocopy",
+]
+
+[[package]]
 name = "aho-corasick"
 version = "1.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -84,6 +96,50 @@ dependencies = [
 ]
 
 [[package]]
+name = "base64"
+version = "0.21.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9d297deb1925b89f2ccc13d7635fa0714f12c87adce1c75356b39ca9b7178567"
+
+[[package]]
+name = "bdk_chain"
+version = "0.23.2"
+source = "sparse+https://crates.denver.space/api/v1/crates/"
+checksum = "0c3b6dc7f800ba667d58729f0fbccf55cd6df9b031a39685fc42ebb00afe0c55"
+dependencies = [
+ "bdk_core",
+ "bitcoin",
+ "miniscript",
+ "serde",
+]
+
+[[package]]
+name = "bdk_core"
+version = "0.6.2"
+source = "sparse+https://crates.denver.space/api/v1/crates/"
+checksum = "a31fd2c38b90b16d97da383ff281f3f5ae636a7767cb067af6c0d90364c30fb6"
+dependencies = [
+ "bitcoin",
+ "hashbrown",
+ "serde",
+]
+
+[[package]]
+name = "bdk_wallet"
+version = "3.0.0-alpha.0-p2tsh-0"
+source = "sparse+https://crates.denver.space/api/v1/crates/"
+checksum = "791cded5cd02d230ea775e1e2c6eb62baf79e335863f9c25332d18e956fbc998"
+dependencies = [
+ "bdk_chain",
+ "bitcoin",
+ "bitcoinpqc",
+ "miniscript",
+ "rand_core 0.6.4",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "bech32"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -116,6 +172,7 @@ source = "sparse+https://crates.denver.space/api/v1/crates/"
 checksum = "b1831b23596c0d9d0d3cb01b059027718add9748f4c1167455c748d632124379"
 dependencies = [
  "base58ck",
+ "base64",
  "bech32",
  "bitcoin-internals",
  "bitcoin-io",
@@ -310,6 +367,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0cc23270f6e1808e30a928bdc84dea0b9b4136a8bc82338574f23baf47bbd280"
 
 [[package]]
+name = "hashbrown"
+version = "0.14.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e5274423e17b7c9fc20b6e7e208532f9b19825d82dfd615708b70edd83df41f1"
+dependencies = [
+ "ahash",
+ "serde",
+]
+
+[[package]]
 name = "hex"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -417,6 +484,7 @@ checksum = "babfe2517c5b56123c43a10843ddc8ea85773d4fc04611d81f6a634c270b386e"
 dependencies = [
  "bech32",
  "bitcoin",
+ "serde",
 ]
 
 [[package]]
@@ -446,6 +514,7 @@ name = "p2tsh-ref"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "bdk_wallet",
  "bitcoin",
  "bitcoinpqc",
  "env_logger",
@@ -750,6 +819,12 @@ name = "utf8parse"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "06abde3611657adf66d383f00b093d7faecc7fa57071cce2578660c9f1010821"
+
+[[package]]
+name = "version_check"
+version = "0.9.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 
 [[package]]
 name = "wasi"

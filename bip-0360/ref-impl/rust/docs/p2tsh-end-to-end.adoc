@@ -7,100 +7,63 @@
 
 :numbered:
 
-This tutorial is inspired from the link:https://learnmeabitcoin.com/technical/upgrades/taproot/#example-3-script-path-spend-signature[script-path-spend-signature] example of the _learnmeabitcoin_ tutorial.
+This tutorial is inspired by the link:https://learnmeabitcoin.com/technical/upgrades/taproot/#example-3-script-path-spend-signature[script-path-spend-signature] example of the _learnmeabitcoin_ tutorial.
 
 It is customized to create, fund and spend from a P2TSH UTXO to a P2WPKH address.
 
+In addition, this tutorial allows for the (un)locking mechanism of the script to optionally use _Post Quantum Cryptography_ (PQC).
+
+The purpose of this tutorial is to demonstrate construction and spending of a link:https://github.com/cryptoquick/bips/blob/p2qrh/bip-0360.mediawiki[bip-360] `p2tsh` UTXO (optionally using _Post-Quantum Cryptography_).
+
+The steps outlined in this tutorial are executed using a custom Bitcoin Core instance running either in `regtest` or `signet`.
 
 == Pre-reqs
 
 === Bitcoin Core
 
-The link:https://github.com/jbride/bitcoin/tree/p2tsh[p2tsh branch] of bitcoin core is needed.
+If participating in a workshop, your instructor will provide a bitcoin environment.
+Related: your instructor should also provide you with a wallet.
 
-Build instructions for the `p2tsh` branch are the same as `master` and is documented link:https://github.com/bitcoin/bitcoin/blob/master/doc/build-unix.md[here].
+Otherwise, if running this tutorial on your own, follow the instructions in the appendix of this doc:  <<build_p2tsh>>.
 
-As such, the following is an example series of steps (on a Fedora 42 host) to compile and run the `p2tsh` branch of bitcoin core:
-
-. Set BITCOIN_SOURCE_DIR
-+
------
-$ export BITCOIN_SOURCE_DIR=/path/to/root/dir/of/cloned/bitcoin/source
------
-
-. build
-+
------
-$ cmake -B build \
-        -DWITH_ZMQ=ON \
-        -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-        -DBUILD_BENCH=ON \
-        -DBUILD_DAEMON=ON \
-        -DSANITIZERS=address,undefined
-
-$ cmake --build build -j$(nproc)
------
-
-. run in either `regtest` or `signet` mode:
-
-.. regtest:
-+
------
-$ ./build/bin/bitcoind -daemon=0 -regtest=1 -txindex -prune=0
------
-
-.. signet:
-+
------
-$ ./build/bin/bitcoind -daemon=0 -signet=1 -txindex -prune=0
------
-+
-NOTE: If running in `signet`, your bitcoin core will need to be configured with the `signetchallenge` property.
-link:https://edil.com.br/blog/creating-a-custom-bitcoin-signet[This tutorial] provides a nice overview of the topic.
 
 === Shell Environment
 
-. *b-cli* command line alias:
+. *docker / podman*
 +
-Configure an alias to the `bitcoin-cli` command that connects to your customized bitcoin-core node.
+NOTE:  If you have built the custom `p2tsh` enabled Bitcoin Core, you do not need docker (nor podman) installed.  Skip this section.
 +
-ie: for signet
+This tutorial makes use of a `p2tsh` enabled _bitcoin-cli_ utility.
+This utility is made available as a docker (or podman) container.
+Ensure your host machine has either docker or podman installed.
+
+. *bitcoin-cli* command line utility:
++
+NOTE: If you have built the custom `p2tsh` enabled Bitcoin Core, you can simply use the `bitcoin-cli` utility found in the `build/bin/` directory.  No need to use the _dockerized_ utility described below.
+
+.. You will need a `bitcoin-cli` binary that is `p2tsh` enabled.
+For this purpose, a docker container with this `bitcoin-cli` utility is provided:
 +
 -----
-$ alias b-cli=bitcoin-cli -conf=$HOME/configs/bitcoin.conf.signet
+$ docker pull quay.io/jbride2000/bitcoin-cli:p2tsh-pqc-0.0.1
 -----
 
-. *jq*: ensure json parsing utility is installed and available via your $PATH.
+.. Configure an alias to the `bitcoin-cli` command that connects to your customized bitcoin-core node.
++
+-----
+$ alias b-cli='docker run --rm  --network host bitcoin-cli:p2tsh-pqc-0.0.1 -rpcconnect=192.168.122.1 -rpcport=18443 -rpcuser=regtest -rpcpassword=regtest'
+-----
+
+. *jq*: ensure json parsing utility is link:https://jqlang.org/download/[installed] and available via your $PATH.
 . *awk* : standard utility for all Linux distros (often packaged as `gawk`).
+. *Rust* development environment with _cargo_ utility.  Use link:https://rustup[Rustup] to install.
 
-=== Bitcoin Core Wallet
-
-This tutorial assumes that a bitcoin core wallet is available.
-
-. Set an environment variable specific to your Bitcoin network environment (regtest, signet, etc)
-+
------
-$ export BITCOIN_NETWORK=regtest
------
-
-For example, the following would be sufficient:
-
------
-
-$ export W_NAME=anduro
-
-$ b-cli -named createwallet \
-    wallet_name=$W_NAME \ 
-    descriptors=true \
-    load_on_startup=true
------
-
-== Fund P2TSH UTXO
+== Create & Fund P2TSH UTXO
 
 . OPTIONAL: Indicate whether you prefer to use _Post Quantum Cryptography_ (in the form of _SLH-DSA_.  Default is the use of `Schnorr` signatures ).
 +
 -----
-$ export USE_PQC=false
+$ export USE_PQC=true
 -----
 
 . OPTIONAL: Define number of leaves in tap tree as well as the tap leaf to later use as the unlocking script:
@@ -121,12 +84,27 @@ $ export BITCOIN_ADDRESS_INFO=$( cargo run --example p2tsh_construction ) \
 +
 NOTE:  In `regtest`, you can expect a P2TSH address that starts with: `bcrt1z` .
 +
-NOTE: In the context of P2TSH, the _tree_root_hex_ from the response is in reference to the _quantum_root_ used in this tutorial.
+[subs=+quotes]
+++++
+<details>
+<summary><b>What just happened?</b></summary>
+The Rust based reference implementation for BIP-0360 is leveraged to construct a transaction with a `p2tsh` UTXO as follows:
+
+<ul>
+  <li>A configurable number of leaves are generated each with their own locking script.</li>
+  <li>Each of these leaves are added to a Huffman tree that sorts the leaves by weight.</li>
+  <li>The merkle root of the tree is calculated and subsequently used to generate the p2tsh witness program and BIP0350 address.</li>
+</ul>
+</p>
+The source code for the above logic is found in this project:  src/lib.rs
+
+</details>
+++++
 
 . Set some env vars (for use in later steps in this tutorial) based on previous result:
 +
 -----
-$ export QUANTUM_ROOT=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.taptree_return.tree_root_hex' ) \
+$ export MERKLE_ROOT=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.taptree_return.tree_root_hex' ) \
     && export LEAF_SCRIPT_PRIV_KEY_HEX=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.taptree_return.leaf_script_priv_key_hex' ) \
     && export LEAF_SCRIPT_HEX=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.taptree_return.leaf_script_hex' ) \
     && export CONTROL_BLOCK_HEX=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.taptree_return.control_block_hex' ) \
@@ -141,13 +119,11 @@ $ b-cli decodescript $LEAF_SCRIPT_HEX | jq -r '.asm'
 -----
 +
 NOTE:  If not using PQC, notice that this script commits to a Schnorr 32-byte x-only public key.
-If using PQC, this script commits to a Schnorr 32-byte SLH-DSA pub key and a OP_SUCCESS127 (represented as `OP_SUBSTR`)
+If using PQC, this script commits to a Schnorr 32-byte SLH-DSA pub key and a OP_SUCCESS127 (represented as `OP_SUBSTR`) opcode.
 
-
-. fund this P2TSH address with the coinbase reward of a newly generated block:
+. Fund this P2TSH address with the coinbase reward of a newly generated block:
 +
 Choose from one of the following networks:
-
 
 .. Regtest
 +
@@ -202,10 +178,19 @@ $ export FUNDING_UTXO=$( b-cli getrawtransaction $FUNDING_TX_ID 1 | jq -r '.vout
 +
 NOTE:  the above only works when Bitcoin Core is started with the following arg:  -txindex
 
+
 == Spend P2TSH UTXO
 
+In the previous section, you created and funded a P2TSH UTXO.
+That UTXO includes a leaf script locked with a key-pair (optionally based on PQC) known to you.
 
-. Determine value (in sats) of funding utxo:
+In this section, you spend from that P2TSH UTXO.
+Specifically, you will generate an appropriate _SigHash_ and sign it (to create a signature) using the known private key that unlocks the known leaf script of the P2TSH UTXO.
+
+For the purpose of this tutorial, you will spend funds to a new P2WPKH utxo.  (there is nothing novel about this P2WPKH utxo).
+
+
+. Determine value (in sats) of the funding P2TSH utxo:
 +
 -----
 $ export FUNDING_UTXO_AMOUNT_SATS=$(echo $FUNDING_UTXO | jq -r '.value' | awk '{printf "%.0f", $1 * 100000000}') \
@@ -245,6 +230,23 @@ $ export RAW_P2TSH_SPEND_TX=$( echo $SPEND_DETAILS | jq -r '.tx_hex' ) \
     && export SIG_BYTES=$( echo $SPEND_DETAILS | jq -r '.sig_bytes' ) \
         && echo "SIG_BYTES = $SIG_BYTES"
 -----
++
+[subs=+quotes]
+++++
+<details>
+<summary><b>What just happened?</b></summary>
+The Rust based reference implementation for BIP-0360 is leveraged to construct a transaction that spends from the `p2tsh` UTXO as follows:
+
+<ul>
+  <li>Create a transaction template (aka: SigHash) that serves as the message to be signed.</li>
+  <li>Using the known private key and the SigHash, create a signature that is capable of unlocking one of the leaf scripts of the P2TSH tree.</li>
+  <li>Add this signature to the witness section of the transaction.</li>
+</ul>
+</p>
+The source code for the above logic is found in this project:  src/lib.rs
+
+</details>
+++++
 
 . Inspect the spending tx:
 +
@@ -314,23 +316,101 @@ $ export BLOCK_HASH=$( b-cli getrawtransaction $P2TSH_SPENDING_TX_ID 1 | jq -r '
 $ b-cli getblock $BLOCK_HASH | jq -r .tx
 -----
 
-== TO-DO
+== Appendix
 
-=== Import P2TSH address into wallet
+[[build_p2tsh]]
+=== Build P2TSH / PQC Enabled Bitcoin Core
 
-NOTE:  currently fails with:   "message": "Cannot import descriptor without private keys to a wallet with private keys enabled"
+The link:https://github.com/jbride/bitcoin/tree/p2tsh[p2tsh branch] of bitcoin core is needed.
+
+Build instructions for the `p2tsh` branch are the same as `master` and is documented link:https://github.com/bitcoin/bitcoin/blob/master/doc/build-unix.md[here].
+
+As such, the following is an example series of steps (on a Fedora 42 host) to compile and run the `p2tsh` branch of bitcoin core:
+
+. Set BITCOIN_SOURCE_DIR
++
+-----
+$ export BITCOIN_SOURCE_DIR=/path/to/root/dir/of/cloned/bitcoin/source
+-----
+
+. build
++
+-----
+$ cmake -B build \
+        -DWITH_ZMQ=ON \
+        -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+        -DBUILD_BENCH=ON \
+        -DBUILD_DAEMON=ON \
+        -DSANITIZERS=address,undefined
+
+$ cmake --build build -j$(nproc)
+-----
+
+. run in either `regtest` or `signet` mode:
+
+.. regtest:
++
+-----
+$ ./build/bin/bitcoind -daemon=0 -regtest=1 -txindex -prune=0
+-----
+
+.. signet:
++
+-----
+$ ./build/bin/bitcoind -daemon=0 -signet=1 -txindex -prune=0
+-----
++
+NOTE: If running in `signet`, your bitcoin core will need to be configured with the `signetchallenge` property.
+link:https://edil.com.br/blog/creating-a-custom-bitcoin-signet[This tutorial] provides a nice overview of the topic.
+
+=== libbitcoinpqc build
+
+The `p2tsh-pqc` branch of this project includes a dependency on the link:https://crates.io/crates/libbitcoinpqc[libbitcoinpqc crate].
+libbitcoinpqc contains native code (C/C++/ASM) and is made available to Rust projects via Rust bindings.
+This C/C++/ASM code is provided in the libbitcoinpqc crate as source code (not prebuilt binaries).
+
+Subsequently, the `Cargo` utility needs to build this libbitcoinpqc C native code on your local machine.
+You will need to have C development related libraries installed on your local machine.
+
+Every developer or CI machine building `p2tsh-ref` must have cmake and a C toolchain installed locally.
+
+==== Linux
+
+. Debian / Ubuntu
++
+-----
+$ sudo apt update
+$ sudo apt install cmake build-essential clang libclang-dev
+-----
+
+. Fedora / RHEL
++
+-----
+$ sudo dnf5 update
+$ sudo dnf5 install cmake make gcc gcc-c++ clang clang-libs llvm-devel
+-----
+
+==== OSX
+
+[[bitcoin_core_wallet]]
+=== Bitcoin Core Wallet
+
+This tutorial assumes that a bitcoin core wallet is available.
+
+. Set an environment variable specific to your Bitcoin network environment (regtest, signet, etc)
++
+-----
+$ export BITCOIN_NETWORK=regtest
+-----
+
+For example, the following would be sufficient:
 
 -----
-$ b-cli -rpcwallet=$W_NAME walletpassphrase $WPASS 120
-$ echo $P2TSH_ADDR
-$ export P2TSH_DESC=$( b-cli getdescriptorinfo "addr($P2TSH_ADDR)" | jq -r '.descriptor' ) \
-    && echo $P2TSH_DESC
 
-# Set as non-active address (because can't generate subsequent p2tsh addresses yet)
-$ b-cli importdescriptors '[{
-  "desc": "'''$P2TSH_DESC'''",
-  "timestamp": "now",
-  "active": false,
-  "label": "p2tsh"
-}]'
+$ export W_NAME=anduro
+
+$ b-cli -named createwallet \
+    wallet_name=$W_NAME \ 
+    descriptors=true \
+    load_on_startup=true
 -----

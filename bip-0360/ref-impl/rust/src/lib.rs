@@ -99,7 +99,7 @@ pub fn create_p2tsh_multi_leaf_taptree(use_pqc: bool) -> TaptreeReturn {
 
 
     let p2tsh_spend_info: P2tshSpendInfo = p2tsh_builder.clone().finalize().unwrap();
-    let quantum_root:TapNodeHash = p2tsh_spend_info.merkle_root.unwrap();
+    let merkle_root:TapNodeHash = p2tsh_spend_info.merkle_root.unwrap();
 
     
     let tap_tree: TapTree = p2tsh_builder.clone().into_inner().try_into_taptree().unwrap();
@@ -117,10 +117,10 @@ pub fn create_p2tsh_multi_leaf_taptree(use_pqc: bool) -> TaptreeReturn {
     let mut leaf_hash_bytes = leaf_hash.as_raw_hash().to_byte_array().to_vec();
     leaf_hash_bytes.reverse();
 
-    info!("leaf_hash: {}, merkle_root: {}, quantum_root: {}",
+    info!("leaf_hash: {}, merkle_root: {}, merkle_root: {}",
         hex::encode(leaf_hash_bytes),
         merkle_root,
-        quantum_root);
+        merkle_root);
 
     let leaf_script = script_leaf.script();
     let merkle_branch: &TaprootMerkleBranch = script_leaf.merkle_branch();
@@ -131,7 +131,7 @@ pub fn create_p2tsh_multi_leaf_taptree(use_pqc: bool) -> TaptreeReturn {
         merkle_branch: merkle_branch.clone(),
     };
 
-    // Not a requirement but useful to demonstrate what Bitcoin Core does as the verifier when spending from a p2tsh UTXO   
+    // Not a requirement here but useful to demonstrate what Bitcoin Core does as the verifier when spending from a p2tsh UTXO   
     control_block.verify_script_in_merkle_root_path(leaf_script, merkle_root);
 
     let control_block_hex: String = hex::encode(control_block.serialize());
@@ -140,7 +140,7 @@ pub fn create_p2tsh_multi_leaf_taptree(use_pqc: bool) -> TaptreeReturn {
         leaf_script_priv_key_hex: hex::encode(keypair_of_interest.secret_key_bytes()),
         leaf_script_hex: leaf_script.to_hex_string(),
 
-        tree_root_hex: hex::encode(quantum_root.to_byte_array()),
+        tree_root_hex: hex::encode(merkle_root.to_byte_array()),
         control_block_hex: control_block_hex,
     };
 }
@@ -198,15 +198,15 @@ pub fn create_p2tr_multi_leaf_taptree(p2tr_internal_pubkey_hex: String) -> Taptr
     };
 }
 
-pub fn create_p2tsh_utxo(quantum_root_hex: String) -> UtxoReturn {
+pub fn create_p2tsh_utxo(merkle_root_hex: String) -> UtxoReturn {
 
-    let quantum_root_bytes= hex::decode(quantum_root_hex.clone()).unwrap();
-    let quantum_root: TapNodeHash = TapNodeHash::from_byte_array(quantum_root_bytes.try_into().unwrap());
+    let merkle_root_bytes= hex::decode(merkle_root_hex.clone()).unwrap();
+    let merkle_root: TapNodeHash = TapNodeHash::from_byte_array(merkle_root_bytes.try_into().unwrap());
     
     /* commit (in scriptPubKey) to the merkle root of all the script path leaves. ie:
         This output key is what gets committed to in the final P2TSH address (ie: scriptPubKey)
     */
-    let script_buf: P2tshScriptBuf = P2tshScriptBuf::new_p2tsh(quantum_root);
+    let script_buf: P2tshScriptBuf = P2tshScriptBuf::new_p2tsh(merkle_root);
     let script: &Script = script_buf.as_script();
     let script_pubkey = script.to_hex_string();
 
@@ -225,9 +225,9 @@ pub fn create_p2tsh_utxo(quantum_root_hex: String) -> UtxoReturn {
         };
     }
     
-    // 4)  derive bech32m address and verify against test vector
-    //     p2tsh address is comprised of network HRP + WitnessProgram (version + program)
-    let bech32m_address = Address::p2tsh(Some(quantum_root), bitcoin_network);
+    // derive bech32m address and verify against test vector
+    // p2tsh address is comprised of network HRP + WitnessProgram (version + program)
+    let bech32m_address = Address::p2tsh(Some(merkle_root), bitcoin_network);
 
     return UtxoReturn {
         script_pubkey_hex: script_pubkey,
