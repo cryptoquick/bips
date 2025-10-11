@@ -8,13 +8,13 @@ edition = "2024"
 # Dev version of miniscript crate re-exports bitcoin 0.32.6
 # view configuration for "kellnr-denver-space":
 #   cat .cargo/config.toml
-miniscript = { version="13.0.0", registry="kellnr-denver-space" }
+miniscript = { version="=13.0.0-pqc-0.2", registry="kellnr-denver-space" }
 bitcoin = { version="0.32.6", features = ["rand-std", "serde", "base64"], registry = "kellnr-denver-space" }
 
 bitcoinpqc = { version="0.2.0", features = ["serde"] }
 
 # BDK Wallet with P2TSH support
-bdk_wallet = { version = "3.0.0-alpha.0-p2tsh-0", registry = "kellnr-denver-space" }
+bdk_wallet = { version = "=3.0.0-alpha.0-pqc-0.1", registry = "kellnr-denver-space" }
 
 env_logger = "0.11.5"
 log = "0.4.22"
