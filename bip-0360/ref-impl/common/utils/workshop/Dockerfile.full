@@ -1,0 +1,82 @@
+# podman build -f Dockerfile.full -t quay.io/jbride/p2tsh_demo:0.1 .
+
+FROM rust:1-slim-bookworm AS builder
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    cmake \
+    git \
+    autoconf \
+    automake \
+    libtool \
+    pkg-config \
+    zlib1g-dev \
+    libevent-dev \
+    libboost-dev \
+    libzmq3-dev \
+    bash \
+    python3 \
+    python3-pip \
+    libclang-dev \
+    clang \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /bitcoin
+
+# Copy Bitcoin Core source (or clone)
+# COPY . /bitcoin
+RUN git clone --branch p2tsh-pqc --single-branch https://github.com/jbride/bitcoin.git
+
+# Environment variables for musl
+ENV CC=gcc
+ENV CXX=g++
+
+# Build Bitcoin Core
+WORKDIR bitcoin
+
+RUN apt-get update && apt-get install -y libsqlite3-dev && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir build && cd build && \
+    cmake .. \
+        -DWITH_ZMQ=ON \
+        -DBUILD_BENCH=ON \
+        -DBUILD_DAEMON=ON && \
+    make -j$(nproc) bitcoin-cli
+
+# Clone the BIPs repository (p2tsh-pqc branch, bip-360/ref-impl/rust directory)
+WORKDIR /
+RUN git clone --no-checkout --depth 1 --branch p2tsh-pqc \
+   --single-branch https://github.com/jbride/bips.git bips && \
+   cd bips && \
+   git sparse-checkout init --cone && \
+   git sparse-checkout set bip-0360 && \
+   git checkout && \
+   cd bip-0360/ref-impl/rust && \
+   cargo build && \
+   rm -rf target
+
+
+# Create non-root user and set permissions
+RUN groupadd bip360 && \
+    useradd -g bip360 -s /bin/bash -m bip360 && \
+    chown -R bip360:bip360 /bips && \
+    chmod +x /bitcoin/bitcoin/build/bin/bitcoin-cli && \
+    ln -s /bitcoin/bitcoin/build/bin/bitcoin-cli /usr/local/bin/b-cli && \
+    echo 'b-cli() { /usr/local/bin/b-cli -rpcconnect=${RPC_CONNECT:-192.168.122.1} -rpcport=${RPC_PORT:-38332} -rpcuser=${RPC_USER:-signet} -rpcpassword=${RPC_PASSWORD:-signet} "$@"; }' >> /home/bip360/.bashrc
+
+# Set default environment variables (can be overridden at runtime)
+ENV RPC_CONNECT=192.168.122.1 \
+    RPC_PORT=18443 \
+    RPC_USER=regtest \
+    RPC_PASSWORD=regtest \
+    SIGNET_CHALLENGE=1
+
+# Switch to non-root user
+USER bip360
+
+WORKDIR /bips/bip-0360/ref-impl/rust
+
+ENTRYPOINT ["/usr/local/bin/b-cli"]
+
