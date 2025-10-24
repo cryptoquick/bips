@@ -60,14 +60,28 @@ $ alias b-cli='docker run --rm  --network host bitcoin-cli:p2tsh-pqc-0.0.1 -rpcc
 
 == Create & Fund P2TSH UTXO
 
-. OPTIONAL: Indicate whether you prefer to use _Post Quantum Cryptography_ (in the form of _SLH-DSA_.  Default is the use of `Schnorr` signatures ).
+. Set an environment variable specific to your Bitcoin network environment (regtest, signet, etc)
 +
+[source,bash]
 -----
-$ export USE_PQC=true
+$ export BITCOIN_NETWORK=regtest
+-----
++
+Doing so influences the P2TSH address that you'll create later in this tutorial.
+
+
+. OPTIONAL: Indicate what type of cryptography to use in the locking scripts of your TapTree leaves.
+Valid options are: `SLH_DSA_ONLY`, `SCHNORR_ONLY`, `SCHNORR_AND_SLH_DSA`.
+Default is `SCHNORR_ONLY`.
++
+[source,bash]
+-----
+$ export LEAF_SCRIPT_TYPE=SLH_DSA_ONLY
 -----
 
 . OPTIONAL: Define number of leaves in tap tree as well as the tap leaf to later use as the unlocking script:
 +
+[source,bash]
 -----
 $ export TOTAL_LEAF_COUNT=5 \
     && export LEAF_OF_INTEREST=4
@@ -77,6 +91,7 @@ NOTE: Defaults are 4 leaves with the first leaf (leaf 0 ) as the script to later
 
 . Generate a P2TSH scripPubKey with multi-leaf taptree:
 +
+[source,bash]
 -----
 $ export BITCOIN_ADDRESS_INFO=$( cargo run --example p2tsh_construction ) \
     && echo $BITCOIN_ADDRESS_INFO | jq -r .
@@ -103,9 +118,10 @@ The source code for the above logic is found in this project:  src/lib.rs
 
 . Set some env vars (for use in later steps in this tutorial) based on previous result:
 +
+[source,bash]
 -----
 $ export MERKLE_ROOT=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.taptree_return.tree_root_hex' ) \
-    && export LEAF_SCRIPT_PRIV_KEY_HEX=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.taptree_return.leaf_script_priv_key_hex' ) \
+    && export LEAF_SCRIPT_PRIV_KEYS_HEX=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.taptree_return.leaf_script_priv_keys_hex' ) \
     && export LEAF_SCRIPT_HEX=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.taptree_return.leaf_script_hex' ) \
     && export CONTROL_BLOCK_HEX=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.taptree_return.control_block_hex' ) \
     && export FUNDING_SCRIPT_PUBKEY=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.utxo_return.script_pubkey_hex' ) \
@@ -114,6 +130,7 @@ $ export MERKLE_ROOT=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.taptree_return.tree
 
 . View tapscript used in target leaf of taptree:
 +
+[source,bash]
 -----
 $ b-cli decodescript $LEAF_SCRIPT_HEX | jq -r '.asm'
 -----
@@ -127,10 +144,11 @@ Choose from one of the following networks:
 
 .. Regtest
 +
-If on `regtest` network, then execute the following:
+If on `regtest` network, execute the following:
 +
+[source,bash]
 -----
-$ export COINBASE_REWARD_TX_ID=$( b-cli -named generatetoaddress 1 $P2TSH_ADDR 5 | jq -r '.[]' ) \
+$ export COINBASE_REWARD_TX_ID=$( b-cli -regtest -named generatetoaddress nblocks=1 address="$P2TSH_ADDR" maxtries=5  | jq -r '.[]' ) \
     && echo $COINBASE_REWARD_TX_ID
 -----
 +
@@ -140,6 +158,7 @@ NOTE:  Sometimes Bitcoin Core may not hit a block (even on regtest).  If so, jus
 +
 If on `signet` network, then execute the following:
 +
+[source,bash]
 -----
 $ $BITCOIN_SOURCE_DIR/contrib/signet/miner --cli "bitcoin-cli -conf=$HOME/anduro-360/configs/bitcoin.conf.signet" generate \
     --address $P2TSH_ADDR \
@@ -150,6 +169,7 @@ $ $BITCOIN_SOURCE_DIR/contrib/signet/miner --cli "bitcoin-cli -conf=$HOME/anduro
 
 . view summary of all txs that have funded P2TSH address
 +
+[source,bash]
 -----
 $ export P2TSH_DESC=$( b-cli getdescriptorinfo "addr($P2TSH_ADDR)" | jq -r '.descriptor' ) \
     && echo $P2TSH_DESC \
@@ -158,6 +178,7 @@ $ export P2TSH_DESC=$( b-cli getdescriptorinfo "addr($P2TSH_ADDR)" | jq -r '.des
 
 . grab txid of first tx with unspent funds:
 +
+[source,bash]
 -----
 $ export FUNDING_TX_ID=$( b-cli scantxoutset start '[{"desc": "'''$P2TSH_DESC'''"}]' | jq -r '.unspents[0].txid' ) \
     && echo $FUNDING_TX_ID
@@ -165,12 +186,14 @@ $ export FUNDING_TX_ID=$( b-cli scantxoutset start '[{"desc": "'''$P2TSH_DESC'''
 
 . Set FUNDING_UTXO_INDEX env var (used later to correctly identify funding UTXO when generating the spending tx)
 +
+[source,bash]
 -----
 $ export FUNDING_UTXO_INDEX=0
 -----
 
 . view details of funding UTXO to the P2TSH address:
 +
+[source,bash]
 -----
 $ export FUNDING_UTXO=$( b-cli getrawtransaction $FUNDING_TX_ID 1 | jq -r '.vout['''$FUNDING_UTXO_INDEX''']' ) \
     && echo $FUNDING_UTXO | jq -r .
@@ -192,6 +215,7 @@ For the purpose of this tutorial, you will spend funds to a new P2WPKH utxo.  (t
 
 . Determine value (in sats) of the funding P2TSH utxo:
 +
+[source,bash]
 -----
 $ export FUNDING_UTXO_AMOUNT_SATS=$(echo $FUNDING_UTXO | jq -r '.value' | awk '{printf "%.0f", $1 * 100000000}') \
     && echo $FUNDING_UTXO_AMOUNT_SATS
@@ -207,6 +231,7 @@ _bad-txns-premature-spend-of-coinbase, tried to spend coinbase at depth 1_
 
 .. regtest
 +
+[source,bash]
 -----
 $ b-cli -generate 110
 -----
@@ -220,6 +245,7 @@ The `common/utils` directory of this project provides a script called: link:../.
 
 . Referencing the funding tx (via $FUNDING_TX_ID and $FUNDING_UTXO_INDEX), create the spending tx:
 +
+[source,bash]
 -----
 $ export SPEND_DETAILS=$( cargo run --example p2tsh_spend )
 
@@ -250,6 +276,7 @@ The source code for the above logic is found in this project:  src/lib.rs
 
 . Inspect the spending tx:
 +
+[source,bash]
 -----
 $ b-cli decoderawtransaction $RAW_P2TSH_SPEND_TX
 -----
@@ -260,12 +287,14 @@ What do you observe as the first byte of the `control block` element ?
 
 . Test standardness of the spending tx by sending to local mempool of p2tsh enabled Bitcoin Core:
 +
+[source,bash]
 -----
 $ b-cli testmempoolaccept '["'''$RAW_P2TSH_SPEND_TX'''"]'
 -----
 
 . Submit tx:
 +
+[source,bash]
 -----
 $ export P2TSH_SPENDING_TX_ID=$( b-cli sendrawtransaction $RAW_P2TSH_SPEND_TX ) \
     && echo $P2TSH_SPENDING_TX_ID
@@ -277,6 +306,7 @@ NOTE:  Should return same tx id as was included in $RAW_P2TSH_SPEND_TX
 
 . View tx in mempool:
 +
+[source,bash]
 -----
 $ b-cli getrawtransaction $P2TSH_SPENDING_TX_ID 1
 -----
@@ -287,6 +317,7 @@ NOTE:  There will not yet be a field `blockhash` in the response.
 
 .. regtest:
 +
+[source,bash]
 -----
 $ b-cli -generate 1
 -----
@@ -295,6 +326,7 @@ $ b-cli -generate 1
 +
 If on `signet` network, then execute the following:
 +
+[source,bash]
 -----
 $ $BITCOIN_SOURCE_DIR/contrib/signet/miner --cli "bitcoin-cli -conf=$HOME/anduro-360/configs/bitcoin.conf.signet" generate \
     --address $P2TSH_ADDR \
@@ -305,6 +337,7 @@ $ $BITCOIN_SOURCE_DIR/contrib/signet/miner --cli "bitcoin-cli -conf=$HOME/anduro
 
 . Obtain `blockhash` field of mined tx:
 +
+[source,bash]
 -----
 $ export BLOCK_HASH=$( b-cli getrawtransaction $P2TSH_SPENDING_TX_ID 1 | jq -r '.blockhash' ) \
     && echo $BLOCK_HASH
@@ -312,6 +345,7 @@ $ export BLOCK_HASH=$( b-cli getrawtransaction $P2TSH_SPENDING_TX_ID 1 | jq -r '
 
 . View tx in block:
 +
+[source,bash]
 -----
 $ b-cli getblock $BLOCK_HASH | jq -r .tx
 -----
@@ -397,14 +431,8 @@ $ sudo dnf5 install cmake make gcc gcc-c++ clang clang-libs llvm-devel
 
 This tutorial assumes that a bitcoin core wallet is available.
 
-. Set an environment variable specific to your Bitcoin network environment (regtest, signet, etc)
+. For example, the following would be sufficient:
 +
------
-$ export BITCOIN_NETWORK=regtest
------
-
-For example, the following would be sufficient:
-
 -----
 
 $ export W_NAME=anduro
@@ -414,3 +442,27 @@ $ b-cli -named createwallet \
     descriptors=true \
     load_on_startup=true
 -----
+
+=== Schnorr + SLH-DSA
+
+-----
+<SCHNORR Pub Key> OP_CHECKSIG <SLH-DSA pub key> OP_SUBSTR OP_BOOLAND OP_VERIFY
+-----
+
+
+The logic flow is:
+
+. <SCHNORR Pub Key> OP_CHECKSIG: Verify Schnorr signature against Schnorr pubkey
+. <SLH-DSA pub key> OP_SUBSTR: Verify SLH-DSA signature against SLH-DSA pubkey (using OP_SUBSTR for the SLH-DSA verification)
+. OP_BOOLAND: Ensure both signature verifications succeeded
+. OP_VERIFY: Final verification that the script execution succeeded
+. This creates a "both signatures required" locking condition, which is exactly what you want for SCHNORR_AND_SLH_DSA scripts.
+
+
+===== Sighash bytes
+
+Sighash bytes are appended to each signature, instead of being separate witness elements:
+
+. SlhDsaOnly: SLH-DSA signature + sighash byte appended
+. SchnorrOnly: Schnorr signature + sighash byte appended
+. SchnorrAndSlhDsa: Schnorr signature (no sighash) + SLH-DSA signature + sighash byte appended to the last signature

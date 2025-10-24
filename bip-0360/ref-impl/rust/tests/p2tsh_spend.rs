@@ -3,7 +3,7 @@ use bitcoin::blockdata::witness::Witness;
 
 use p2tsh_ref::{ pay_to_p2wpkh_tx, serialize_script };
 
-use p2tsh_ref::data_structures::SpendDetails;
+use p2tsh_ref::data_structures::{SpendDetails, LeafScriptType};
 
 /*  The rust-bitcoin crate does not provide a single high-level API that builds the full Taproot script-path witness stack for you.
    It does expose all the necessary types and primitives to build it manually and correctly.
@@ -65,6 +65,9 @@ fn test_script_path_spend_signatures() {
         hex::decode("5120f3778defe5173a9bf7169575116224f961c03c725c0e98b8da8f15df29194b80")
             .unwrap();
     let input_script_priv_key_bytes: Vec<u8> = hex::decode("9b8de5d7f20a8ebb026a82babac3aa47a008debbfde5348962b2c46520bd5189").unwrap();
+    
+    // Convert to Vec<Vec<u8>> format expected by the function
+    let input_script_priv_keys_bytes: Vec<Vec<u8>> = vec![input_script_priv_key_bytes];
 
 
     // https://learnmeabitcoin.com/explorer/tx/797505b104b5fb840931c115ea35d445eb1f64c9279bf23aa5bb4c3d779da0c2#outputs
@@ -85,10 +88,10 @@ fn test_script_path_spend_signatures() {
         input_script_pubkey_bytes,
         input_control_block_bytes,
         input_leaf_script_bytes,
-        input_script_priv_key_bytes,
+        input_script_priv_keys_bytes,  // Now passing Vec<Vec<u8>> format
         spend_output_pubkey_bytes,
         spend_output_amount_sats,
-        false
+        LeafScriptType::SchnorrOnly  // This test uses a Schnorr signature
     );
 
     assert_eq!(result.sighash.as_slice(), test_sighash_bytes.as_slice(), "sighash mismatch");

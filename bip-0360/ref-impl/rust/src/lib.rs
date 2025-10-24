@@ -24,7 +24,7 @@ use bitcoinpqc::{
     generate_keypair, public_key_size, secret_key_size, Algorithm, KeyPair, sign, verify,
 };
 
-use data_structures::{SpendDetails, UtxoReturn, TaptreeReturn, UnifiedKeypair};
+use data_structures::{SpendDetails, UtxoReturn, TaptreeReturn, UnifiedKeypair, MultiKeypair, LeafScriptType};
 
 /* Secp256k1 implements the Signing trait when it's initialized in signing mode.
    It's important to note that Secp256k1 has different capabilities depending on how it's constructed:
@@ -34,7 +34,7 @@ use data_structures::{SpendDetails, UtxoReturn, TaptreeReturn, UnifiedKeypair};
 */
 static SECP: Lazy<Secp256k1<bitcoin::secp256k1::All>> = Lazy::new(Secp256k1::new);
 
-fn create_huffman_tree(use_pqc: bool) -> (Vec<(u32, ScriptBuf)>, UnifiedKeypair, ScriptBuf) {
+fn create_huffman_tree(leaf_script_type: LeafScriptType) -> (Vec<(u32, ScriptBuf)>, MultiKeypair, ScriptBuf) {
 
     let mut total_leaf_count: u32 = 1;
     if let Ok(env_value) = env::var("TOTAL_LEAF_COUNT") {
@@ -59,42 +59,95 @@ fn create_huffman_tree(use_pqc: bool) -> (Vec<(u32, ScriptBuf)>, UnifiedKeypair,
 
     debug!("Creating multi-leaf taptree with total_leaf_count: {}, leaf_of_interest: {}", total_leaf_count, leaf_of_interest);
     let mut huffman_entries: Vec<(u32, ScriptBuf)> = vec![];
-    let mut keypair_of_interest: Option<UnifiedKeypair> = None;
+    let mut keypairs_of_interest: Option<MultiKeypair> = None;
     let mut script_buf_of_interest: Option<ScriptBuf> = None;
     for leaf_index in 0..total_leaf_count {
-        let keypair: UnifiedKeypair;
-        let op_code: u8;
-        if !use_pqc {
-            keypair = acquire_schnorr_keypair();
-            op_code = 0xac;
-        } else {
-            keypair = acquire_slh_dsa_keypair();
-            op_code = 0x7f; // OP_SUBSTR
+        let keypairs: MultiKeypair;
+        let script_buf: ScriptBuf;
+        
+        match leaf_script_type {
+            LeafScriptType::SchnorrOnly => {
+                let schnorr_keypair = acquire_schnorr_keypair();
+                keypairs = MultiKeypair::new_schnorr_only(schnorr_keypair);
+                let pubkey_bytes = keypairs.schnorr_keypair().unwrap().public_key_bytes();
+                // OP_PUSHBYTES_32 <32-byte xonly pubkey> OP_CHECKSIG
+                let mut script_buf_bytes = vec![0x20];
+                script_buf_bytes.extend_from_slice(&pubkey_bytes);
+                script_buf_bytes.push(0xac); // OP_CHECKSIG
+                script_buf = ScriptBuf::from_bytes(script_buf_bytes);
+            },
+            LeafScriptType::SlhDsaOnly => {
+                let slh_dsa_keypair = acquire_slh_dsa_keypair();
+                keypairs = MultiKeypair::new_slh_dsa_only(slh_dsa_keypair);
+                let pubkey_bytes = keypairs.slh_dsa_keypair().unwrap().public_key_bytes();
+                // OP_PUSHBYTES_32 <32-byte pubkey> OP_SUBSTR
+                let mut script_buf_bytes = vec![0x20];
+                script_buf_bytes.extend_from_slice(&pubkey_bytes);
+                script_buf_bytes.push(0x7f); // OP_SUBSTR
+                script_buf = ScriptBuf::from_bytes(script_buf_bytes);
+            },
+            LeafScriptType::SchnorrAndSlhDsa => {
+                // For combined scripts, we need both keypairs
+                let schnorr_keypair = acquire_schnorr_keypair();
+                let slh_dsa_keypair = acquire_slh_dsa_keypair();
+                keypairs = MultiKeypair::new_combined(schnorr_keypair, slh_dsa_keypair);
+                
+                let schnorr_pubkey = keypairs.schnorr_keypair().unwrap().public_key_bytes();
+                let slh_dsa_pubkey = keypairs.slh_dsa_keypair().unwrap().public_key_bytes();
+                
+                // Debug: Print the private key used for script construction
+                info!("SLH-DSA DEBUG: Script construction using private key: {}", hex::encode(keypairs.slh_dsa_keypair().unwrap().secret_key_bytes()));
+                info!("SLH-DSA DEBUG: Script construction using public key: {}", hex::encode(&slh_dsa_pubkey));
+                
+                // Combined script: <Schnorr_PubKey> OP_CHECKSIG <SLH_DSA_PubKey> OP_SUBSTR OP_BOOLAND OP_VERIFY
+                let mut script_buf_bytes = vec![0x20]; // OP_PUSHBYTES_32
+                script_buf_bytes.extend_from_slice(&schnorr_pubkey);
+                script_buf_bytes.push(0xac); // OP_CHECKSIG
+                script_buf_bytes.push(0x20); // OP_PUSHBYTES_32
+                script_buf_bytes.extend_from_slice(&slh_dsa_pubkey);
+                script_buf_bytes.push(0x7f); // OP_SUBSTR
+                script_buf_bytes.push(0x9a); // OP_BOOLAND
+                script_buf_bytes.push(0x69); // OP_VERIFY
+                script_buf = ScriptBuf::from_bytes(script_buf_bytes);
+            }
+            LeafScriptType::NotApplicable => {
+                panic!("LeafScriptType::NotApplicable is not applicable");
+            }
         }
-        let pubkey_bytes = keypair.public_key_bytes();
-            
-        // OP_PUSHBYTES_32 <32-byte xonly pubkey> OP_CHECKSIG
-        let mut script_buf_bytes = vec![0x20];
-        script_buf_bytes.extend_from_slice(&pubkey_bytes);
-        script_buf_bytes.push(op_code);
-            let script_buf: ScriptBuf = ScriptBuf::from_bytes(script_buf_bytes.clone());
             
             let random_weight = thread_rng().gen_range(0..total_leaf_count);
             
             let huffman_entry = (random_weight, script_buf.clone());
             huffman_entries.push(huffman_entry);
             if leaf_index == leaf_of_interest {
-                keypair_of_interest = Some(keypair);
+                keypairs_of_interest = Some(keypairs);
                 script_buf_of_interest = Some(script_buf.clone());
-                debug!("Selected leaf:  weight: {}, script: {:?}", random_weight, script_buf);
+                debug!("Selected leaf: weight: {}, script: {:?}", random_weight, script_buf);
             }
     }
-    return (huffman_entries, keypair_of_interest.unwrap(), script_buf_of_interest.unwrap());
+    return (huffman_entries, keypairs_of_interest.unwrap(), script_buf_of_interest.unwrap());
 }
 
-pub fn create_p2tsh_multi_leaf_taptree(use_pqc: bool) -> TaptreeReturn {
+/// Parses the LEAF_SCRIPT_TYPE environment variable and returns the corresponding LeafScriptType.
+/// Defaults to LeafScriptType::SchnorrOnly if the environment variable is not set or has an invalid value.
+pub fn parse_leaf_script_type() -> LeafScriptType {
+    match env::var("LEAF_SCRIPT_TYPE")
+        .unwrap_or_else(|_| "SCHNORR_ONLY".to_string())
+        .as_str() {
+        "SLH_DSA_ONLY" => LeafScriptType::SlhDsaOnly,
+        "SCHNORR_ONLY" => LeafScriptType::SchnorrOnly,
+        "SCHNORR_AND_SLH_DSA" => LeafScriptType::SchnorrAndSlhDsa,
+        _ => {
+            error!("Invalid LEAF_SCRIPT_TYPE. Must be one of: SLH_DSA_ONLY, SCHNORR_ONLY, SCHNORR_AND_SLH_DSA");
+            LeafScriptType::SchnorrOnly
+        }
+    }
+}
+
+pub fn create_p2tsh_multi_leaf_taptree() -> TaptreeReturn {
+    let leaf_script_type = parse_leaf_script_type();
     
-    let (huffman_entries, keypair_of_interest, script_buf_of_interest) = create_huffman_tree(use_pqc);
+    let (huffman_entries, keypairs_of_interest, script_buf_of_interest) = create_huffman_tree(leaf_script_type);
     let p2tsh_builder: P2tshBuilder = P2tshBuilder::with_huffman_tree(huffman_entries).unwrap();
 
 
@@ -137,9 +190,11 @@ pub fn create_p2tsh_multi_leaf_taptree(use_pqc: bool) -> TaptreeReturn {
     let control_block_hex: String = hex::encode(control_block.serialize());
 
     return TaptreeReturn {
-        leaf_script_priv_key_hex: hex::encode(keypair_of_interest.secret_key_bytes()),
+        leaf_script_priv_keys_hex: keypairs_of_interest.secret_key_bytes()
+            .into_iter()
+            .map(|bytes| hex::encode(bytes))
+            .collect(),
         leaf_script_hex: leaf_script.to_hex_string(),
-
         tree_root_hex: hex::encode(merkle_root.to_byte_array()),
         control_block_hex: control_block_hex,
     };
@@ -147,7 +202,7 @@ pub fn create_p2tsh_multi_leaf_taptree(use_pqc: bool) -> TaptreeReturn {
 
 pub fn create_p2tr_multi_leaf_taptree(p2tr_internal_pubkey_hex: String) -> TaptreeReturn {
 
-    let (huffman_entries, keypair_of_interest, script_buf_of_interest) = create_huffman_tree(false);
+    let (huffman_entries, keypairs_of_interest, script_buf_of_interest) = create_huffman_tree(LeafScriptType::SchnorrOnly);
 
     let pub_key_string = format!("02{}", p2tr_internal_pubkey_hex);
     let internal_pubkey: PublicKey = pub_key_string.parse::<PublicKey>().unwrap();
@@ -164,9 +219,9 @@ pub fn create_p2tr_multi_leaf_taptree(p2tr_internal_pubkey_hex: String) -> Taptr
     let output_key_parity: Parity = p2tr_spend_info.output_key_parity();
     let output_key: XOnlyPublicKey = p2tr_spend_info.output_key().into();
 
-    info!("keypair_of_interest: \n\tsecret_bytes: {} \n\tpubkey: {} \n\tmerkle_root: {}",
-        hex::encode(keypair_of_interest.secret_key_bytes()),  // secret_bytes returns big endian
-        hex::encode(keypair_of_interest.public_key_bytes()),  // serialize returns little endian
+    info!("keypairs_of_interest: \n\tsecret_bytes: {:?} \n\tpubkeys: {:?} \n\tmerkle_root: {}",
+        keypairs_of_interest.secret_key_bytes().iter().map(|bytes| hex::encode(bytes)).collect::<Vec<_>>(),  // secret_bytes returns big endian
+        keypairs_of_interest.public_key_bytes().iter().map(|bytes| hex::encode(bytes)).collect::<Vec<_>>(),  // serialize returns little endian
         merkle_root);
 
     let tap_tree: TapTree = p2tr_builder.clone().try_into_taptree().unwrap();
@@ -191,11 +246,35 @@ pub fn create_p2tr_multi_leaf_taptree(p2tr_internal_pubkey_hex: String) -> Taptr
     info!("verify_taproot_commitment: {}", verify);
 
     return TaptreeReturn {
-        leaf_script_priv_key_hex: hex::encode(keypair_of_interest.secret_key_bytes()),
+        leaf_script_priv_keys_hex: keypairs_of_interest.secret_key_bytes()
+            .into_iter()
+            .map(|bytes| hex::encode(bytes))
+            .collect(),
         leaf_script_hex: leaf_script,
         tree_root_hex: hex::encode(merkle_root.to_byte_array()),
         control_block_hex: control_block_hex,
     };
+}
+
+/// Parses the BITCOIN_NETWORK environment variable and returns the corresponding Network.
+/// Defaults to Network::Regtest if the environment variable is not set or has an invalid value.
+pub fn get_bitcoin_network() -> Network {
+    let mut bitcoin_network: Network = Network::Regtest;
+
+    // Check for BITCOIN_NETWORK environment variable and override if set
+    if let Ok(network_str) = std::env::var("BITCOIN_NETWORK") {
+        bitcoin_network = match network_str.to_lowercase().as_str() {
+            "regtest" => Network::Regtest,
+            "testnet" => Network::Testnet,
+            "signet" => Network::Signet,
+            _ => {
+                debug!("Invalid BITCOIN_NETWORK value '{}', using default Regtest network", network_str);
+                Network::Regtest
+            }
+        };
+    }
+    
+    bitcoin_network
 }
 
 pub fn create_p2tsh_utxo(merkle_root_hex: String) -> UtxoReturn {
@@ -210,20 +289,7 @@ pub fn create_p2tsh_utxo(merkle_root_hex: String) -> UtxoReturn {
     let script: &Script = script_buf.as_script();
     let script_pubkey = script.to_hex_string();
 
-    let mut bitcoin_network: Network = Network::Bitcoin;
-
-    // Check for BITCOIN_NETWORK environment variable and override if set
-    if let Ok(network_str) = std::env::var("BITCOIN_NETWORK") {
-        bitcoin_network = match network_str.to_lowercase().as_str() {
-            "regtest" => Network::Regtest,
-            "testnet" => Network::Testnet,
-            "signet" => Network::Signet,
-            _ => {
-                debug!("Invalid BITCOIN_NETWORK value '{}', using default Bitcoin network", network_str);
-                Network::Bitcoin
-            }
-        };
-    }
+    let bitcoin_network = get_bitcoin_network();
     
     // derive bech32m address and verify against test vector
     // p2tsh address is comprised of network HRP + WitnessProgram (version + program)
@@ -245,10 +311,10 @@ pub fn pay_to_p2wpkh_tx(
     funding_script_pubkey_bytes: Vec<u8>,
     control_block_bytes: Vec<u8>,
     leaf_script_bytes: Vec<u8>,
-    leaf_script_priv_key_bytes: Vec<u8>,
+    leaf_script_priv_keys_bytes: Vec<Vec<u8>>, // Changed to support multiple private keys
     spend_output_pubkey_hash_bytes: Vec<u8>,
     spend_output_amount_sats: u64,
-    use_pqc: bool
+    leaf_script_type: LeafScriptType
 ) -> SpendDetails {
 
     let mut txid_little_endian = funding_tx_id_bytes.clone();  // initially in big endian format
@@ -312,31 +378,85 @@ pub fn pay_to_p2wpkh_tx(
 
     let spend_msg = Message::from(tapscript_sighash);
 
-    let mut sig_bytes: Vec<u8>;
-    if use_pqc {
-        let secret_key: bitcoinpqc::SecretKey = bitcoinpqc::SecretKey::try_from_slice(
-            Algorithm::SLH_DSA_128S, &leaf_script_priv_key_bytes).unwrap();
-        let signature = sign(&secret_key, spend_msg.as_ref()).expect("Failed to sign with SLH-DSA-128S");
-        sig_bytes = signature.bytes;
-    } else {
-        // assumes bytes are in big endian format
-        let secret_key = SecretKey::from_slice(&leaf_script_priv_key_bytes).unwrap();
-    
-        // Spending a p2tr UTXO thus using Schnorr signature
-        // The aux_rand parameter ensures that signing the same message with the same key produces the same signature
-        // Otherwise (without providing aux_rand), the secp256k1 library internally generates a random nonce for each signature 
-        let signature: bitcoin::secp256k1::schnorr::Signature = SECP.sign_schnorr_with_aux_rand(
-            &spend_msg,
-            &secret_key.keypair(&SECP),
-            &[0u8; 32] // 32 zero bytes of auxiliary random data
-        );
-        sig_bytes = signature.serialize().to_vec();
-    }
-
-    sig_bytes.push(TapSighashType::All as u8);
-
     let mut derived_witness: Witness = Witness::new();
-    derived_witness.push(&sig_bytes);
+    let mut sig_bytes = Vec::new();
+    match leaf_script_type {
+        LeafScriptType::SlhDsaOnly => {
+            if leaf_script_priv_keys_bytes.len() != 1 {
+                panic!("SlhDsaOnly requires exactly one private key");
+            }
+            let secret_key: bitcoinpqc::SecretKey = bitcoinpqc::SecretKey::try_from_slice(
+                Algorithm::SLH_DSA_128S, &leaf_script_priv_keys_bytes[0]).unwrap();
+            let signature = sign(&secret_key, spend_msg.as_ref()).expect("Failed to sign with SLH-DSA-128S");
+            debug!("SlhDsaOnly signature.bytes: {:?}", signature.bytes.len());
+            let mut sig_bytes_with_sighash = signature.bytes.clone();
+            sig_bytes_with_sighash.push(TapSighashType::All as u8);
+            derived_witness.push(&sig_bytes_with_sighash);
+            sig_bytes = signature.bytes;
+        },
+        LeafScriptType::SchnorrOnly => {
+            if leaf_script_priv_keys_bytes.len() != 1 {
+                panic!("SchnorrOnly requires exactly one private key");
+            }
+            // assumes bytes are in big endian format
+            let secret_key = SecretKey::from_slice(&leaf_script_priv_keys_bytes[0]).unwrap();
+        
+            // Spending a p2tr UTXO thus using Schnorr signature
+            // The aux_rand parameter ensures that signing the same message with the same key produces the same signature
+            // Otherwise (without providing aux_rand), the secp256k1 library internally generates a random nonce for each signature 
+            let signature: bitcoin::secp256k1::schnorr::Signature = SECP.sign_schnorr_with_aux_rand(
+                &spend_msg,
+                &secret_key.keypair(&SECP),
+                &[0u8; 32] // 32 zero bytes of auxiliary random data
+            );
+            sig_bytes = signature.serialize().to_vec();
+            let mut sig_bytes_with_sighash = sig_bytes.clone();
+            sig_bytes_with_sighash.push(TapSighashType::All as u8);
+            derived_witness.push(&sig_bytes_with_sighash);
+            debug!("SchnorrOnly signature bytes: {:?}", sig_bytes.len());
+        },
+        LeafScriptType::SchnorrAndSlhDsa => {
+            if leaf_script_priv_keys_bytes.len() != 2 {
+                panic!("SchnorrAndSlhDsa requires exactly two private keys (Schnorr first, then SLH-DSA)");
+            }
+            
+            // Generate Schnorr signature (first key)
+            let schnorr_secret_key = SecretKey::from_slice(&leaf_script_priv_keys_bytes[0]).unwrap();
+            let schnorr_signature: bitcoin::secp256k1::schnorr::Signature = SECP.sign_schnorr_with_aux_rand(
+                &spend_msg,
+                &schnorr_secret_key.keypair(&SECP),
+                &[0u8; 32] // 32 zero bytes of auxiliary random data
+            );
+            // Build combined signature for return value (without sighash bytes)
+            let mut combined_sig_bytes = schnorr_signature.serialize().to_vec();
+            debug!("SchnorrAndSlhDsa schnorr_sig_bytes: {:?}", combined_sig_bytes.len());
+            
+            // Generate SLH-DSA signature (second key)
+            let slh_dsa_secret_key: bitcoinpqc::SecretKey = bitcoinpqc::SecretKey::try_from_slice(
+                Algorithm::SLH_DSA_128S, &leaf_script_priv_keys_bytes[1]).unwrap();
+            
+            // Debug: Print the private key being used for signature creation
+            info!("SLH-DSA DEBUG: Using private key for signature creation: {}", hex::encode(&leaf_script_priv_keys_bytes[1]));
+            
+            let slh_dsa_signature = sign(&slh_dsa_secret_key, spend_msg.as_ref()).expect("Failed to sign with SLH-DSA-128S");
+            debug!("SchnorrAndSlhDsa slh_dsa_signature.bytes: {:?}", slh_dsa_signature.bytes.len());
+            
+            // Add SLH-DSA signature to combined signature for return value
+            combined_sig_bytes.extend_from_slice(&slh_dsa_signature.bytes);
+            sig_bytes = combined_sig_bytes;
+            
+            // Build witness with sighash bytes
+            let mut witness_sig_bytes = schnorr_signature.serialize().to_vec();
+            witness_sig_bytes.push(TapSighashType::All as u8);
+            witness_sig_bytes.extend_from_slice(&slh_dsa_signature.bytes);
+            witness_sig_bytes.push(TapSighashType::All as u8);
+            derived_witness.push(&witness_sig_bytes);
+        }
+        LeafScriptType::NotApplicable => {
+            panic!("LeafScriptType::NotApplicable is not applicable");
+        }
+    }
+    // Note: sighash byte is now appended to signatures, not as separate witness element
     derived_witness.push(&leaf_script_bytes);
     derived_witness.push(&control_block_bytes);
 
@@ -353,7 +473,7 @@ pub fn pay_to_p2wpkh_tx(
     return SpendDetails {
         tx_hex,
         sighash: tapscript_sighash.as_byte_array().to_vec(),
-        sig_bytes,
+        sig_bytes: sig_bytes,
         derived_witness_vec: derived_witness_vec,
     };
 }
@@ -373,20 +493,7 @@ pub fn create_p2tr_utxo(merkle_root_hex: String, internal_pubkey_hex: String) ->
     let script: &Script = script_buf.as_script();
     let script_pubkey = script.to_hex_string();
 
-    let mut bitcoin_network: Network = Network::Bitcoin;
-
-    // Check for BITCOIN_NETWORK environment variable and override if set
-    if let Ok(network_str) = std::env::var("BITCOIN_NETWORK") {
-        bitcoin_network = match network_str.to_lowercase().as_str() {
-            "regtest" => Network::Regtest,
-            "testnet" => Network::Testnet,
-            "signet" => Network::Signet,
-            _ => {
-                debug!("Invalid BITCOIN_NETWORK value '{}', using default Bitcoin network", network_str);
-                Network::Bitcoin
-            }
-        };
-    }
+    let bitcoin_network = get_bitcoin_network();
 
     // 4)  derive bech32m address and verify against test vector
     //     p2tsh address is comprised of network HRP + WitnessProgram (version + program)

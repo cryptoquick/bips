@@ -147,24 +147,28 @@ image::images/p2tsh_construction.png[]
 A P2TSH address is created by adding locking scripts to leaves of a _TapTree_.
 The locking scripts can use either _Schnorr_ (as per BIP-360) or _SLH-DSA_ (defined in a future BIP) cryptography.
 
-. In your container image, indicate whether you prefer to use _Post Quantum Cryptography_ (in the form of _SLH-DSA_ PQC.  Default is the use of non-PQC `Schnorr` signatures ).
+. OPTIONAL: In your container image, indicate what type of cryptography to use in the locking scripts of your TapTree leaves.
+Valid options are: `SLH_DSA_ONLY`, `SCHNORR_ONLY`, `SCHNORR_AND_SLH_DSA`.
+Default is `SCHNORR_ONLY`.
 +
 [source,bash]
 -----
-export USE_PQC=true
+$ export LEAF_SCRIPT_TYPE=SLH_DSA_ONLY
 -----
 
-.. If you set _USE_PQC=false_, then the locking scripts of your TapTree leaves will utilize _Schnorr_ cryptography.
+.. If you set _LEAF_SCRIPT_TYPE=SCHNORR_ONLY_, then the locking script of your TapTree leaves will utilize _Schnorr_ cryptography.
 +
 Schnorr is not quantum-resistant.  However, its signature size is relatively small: 64 bytes.
 
-.. If you set _USE_PQC=true_, then the locking scripts of your TapTree leaves will utilize _SLH-DSA_ cryptography.
+.. If you set _LEAF_SCRIPT_TYPE=SLH_DSA_ONLY_, then the locking script of your TapTree leaves will utilize _SLH-DSA_ cryptography.
 +
 SLH_DSA is quantum-resistant.  However, the trade-off is the much larger signature size 7,856 bytes when spending.
 +
 image::images/crypto_key_characteristics.png[]
 +
 NOTE: PQC cryptography is made available to this BIP-360 reference implementation via the link:https://crates.io/crates/bitcoinpqc[libbitcoinpqc Rust bindings].
+
+.. If you set _LEAF_SCRIPT_TYPE=SCHNORR_AND_SLH_DSA_, then the locking script of your TapTree leaves will be secured using both SCHNORR and SLH-DSA cryptography.
 
 . Define number of total leaves in tap tree :
 +
@@ -244,7 +248,7 @@ image::images/mempool_next_block.png[]
 [source,bash]
 -----
 export MERKLE_ROOT=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.taptree_return.tree_root_hex' ) \
-    && export LEAF_SCRIPT_PRIV_KEY_HEX=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.taptree_return.leaf_script_priv_key_hex' ) \
+    && export LEAF_SCRIPT_PRIV_KEYS_HEX=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.taptree_return.leaf_script_priv_keys_hex' ) \
     && export LEAF_SCRIPT_HEX=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.taptree_return.leaf_script_hex' ) \
     && export CONTROL_BLOCK_HEX=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.taptree_return.control_block_hex' ) \
     && export FUNDING_SCRIPT_PUBKEY=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.utxo_return.script_pubkey_hex' ) \
@@ -258,8 +262,13 @@ export MERKLE_ROOT=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.taptree_return.tree_r
 b-cli decodescript $LEAF_SCRIPT_HEX | jq -r '.asm'
 -----
 +
-NOTE:  If not using PQC, notice that this script commits to a Schnorr 32-byte x-only public key.
-If using PQC, this script commits to a 32-byte SLH-DSA pub key and a OP_SUCCESS127 (represented as `OP_SUBSTR`) opcode.
+NOTE:  If not using Schnorr crypto, this script commits to a Schnorr 32-byte x-only public key.
+If using SLH_DSA, this script commits to a 32-byte SLH-DSA pub key and a OP_SUCCESS127 (represented as `OP_SUBSTR`) opcode.,
+If using SCHNORR + SLH_DSA, then you should see a locking script in the leaf similar to the following:
++
+-----
+886fc1edb7a8a364da65aef57343de451c1449d8a6c5b766fe150667d50d3e80 OP_CHECKSIG 479f93fbd251863c3e3e72da6e26ea82f87313da13090de10e57eca1f8b5e0f3 OP_SUBSTR OP_BOOLAND OP_VERIFY
+-----
 
 . view summary of all txs that have funded P2TSH address
 +
