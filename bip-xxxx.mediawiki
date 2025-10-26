@@ -1,0 +1,224 @@
+<pre>
+  BIP: PQSIG
+  Title: Post-Quantum Signatures algorithms
+  Author: Hunter Beast <hunter@surmount.systems>
+          Ethan Heilman <ethan.r.heilman@gmail.com>
+  Comments-Summary: No comments yet.
+  Comments-URI: https://github.com/bitcoin/bips/wiki/Comments:BIP-???
+  Status: Draft
+  Type: Standards Track
+  Created: 2025-6-21
+  License: BSD-3-Clause
+</pre>
+
+== Introduction ==
+
+=== Abstract ===
+
+This document proposes add support for two PQ (Post-Quantum) signature algorithms, SLH-DSA (SPHINCS+) and ML-DSA (CRYSTALS-Dilithium) via the addition of four Tapscript opcodes.
+These signature algorithms when used with P2TSH (Pay-to-Tapscript-Hash)  [https://github.com/bitcoin/bips/blob/master/bip-0360.mediawiki BIP 0360], would enable the creation and spending of signed Bitcoin transactions that are fully secure against Cryptanalytically-Relevant Quantum Computers (CRQCs).
+
+To accomplish this in a soft fork we redefine the opcodes OP_SUCCESS127, OP_SUCCESS128, OP_SUCCESS129,  OP_SUCCESS130 to OP_CHECKSIG_SLH, OP_CHECKSIGADD_SLH, OP_CHECKSIG_ML and OP_CHECKSIGADD_ML.
+These new opcodes would only be available in Tapscript outputs.
+This soft fork would not alter pre-tapscript Bitcoin script.
+
+=== Copyright ===
+
+This document is licensed under the 3-clause BSD license.
+
+=== Motivation ===
+
+Motivation for making Bitcoin quantum resistant is given in [https://github.com/bitcoin/bips/blob/master/bip-0360.mediawiki BIP-360]
+
+=== Rationale ===
+
+Based on these design principles in [https://github.com/bitcoin/bips/blob/master/bip-0360.mediawiki BIP-0360]. In this BIP we enable tapscript programs to verify two Post-Quantum (PQ) signature algorithms, ML-DSA (CRYSTALS-Dilithium) and SLH-DSA (SPHINCS+).
+We choose to use the SHA-256 variant of SLH-DSA rather than the SHA-3 variant as dedicated SHA-256 instructions make it far more performant on mobile devices.
+
+The addition of PQ signatures to tapscript used in tandem with [https://github.com/bitcoin/bips/blob/master/bip-0360.mediawiki BIP-0360] provides Bitcoin 
+transactions that fully resist quantum attacks.
+Additionally PQ signature opcodes can be used in P2TR outputs.
+However PQ signature opcodes in P2TR outputs would only provide quantum resistance if the key-spend paths will be disabled in P2TR.
+
+Consider the P2QRH or P2TR output with three tapscripts:
+
+* Spend requires a Schnorr signature
+* Spend requires a ML-DSA signature
+* Spend requires a SLH-DSA signature
+
+One intent in supporting Schnorr, ML-DSA, and SLH-DSA in tapscript is to allow parties to construct outputs such that funds are still secure even if two of the three signature algorithms are completely broken.
+In the event that Schnorr signatures are broken, users can spend their coins using ML-DSA. 
+If both Schnorr and ML-DSA are broken, the user can still rely on SLH-DSA.
+This is motivated by the use case of securely storing Bitcoins in a cold wallet for very long periods of time (50 to 100 years).
+
+
+==== Algorithm Choice ====
+
+For PQ signatures we considered the NIST approved SLH-DSA (SPHINCS+), ML-DSA (CRYSTALS-Dilithium),  FN-DSA (FALCON).
+Of these three algorithms, SLH-DSA has the largest signature size, but is the most conservative choice from a security perspective because SLH-DSA is based on well studied and time-tested hash-based cryptography. 
+Both FN-DSA and ML-DSA signatures are significantly smaller than SLH-DSA signatures but are based on newer lattice-based cryptography.
+Since ML-DSA and FN-DSA are both similar lattice-based designs, we choose to only support one of them as the additional value in diversity of cryptographic assumptions would be marginal. It should be noted that ML-DSA and FN-DSA do rely on different lattice assumptions and it may be that case that a break in one algorithm's assumptions would not necessarily
+break the assumptions used by the other algorithm.
+
+We also considered SQIsign.
+While it outperforms the three other PQ signature algorithms by having the smallest signatures,
+it has the worst verification performance and requires a much more complex implementation. We may revisit SQIsign separately in the
+future as recent research shows massive performance improvements to SQIsign in version 2.0.<ref name="sqisign2"> "[SQIsign] signing is now nearly 20× faster, at 103.0 Mcycles, and verification is more than 6× faster, at 5.1 Mcycles" [https://csrc.nist.gov/csrc/media/Projects/pqc-dig-sig/documents/round-2/spec-files/sqisign-spec-round2-web.pdf SQIsign: Algorithm specifications and supporting documentation Version 2.0 (February 5 2025)]</ref>.
+
+ML-DSA is intended as the main PQ signature algorithm in Bitcoin. It provides a good balance of security, performance and signature size and is likely to be the most widely supported PQ signature algorithm on the internet.
+SLH-DSA has a radically different design and set of cryptographic assumptions than ML-DSA. As such SLH-DSA provides an effective hedge against an unexpected cryptanalytic breakthrough.
+
+P2TSH, ML-DSA, and SLH-DSA could be activated simultaneously in a single soft fork or P2TSH could be activated first and then ML-DSA and SLH-DSA could be independently activated.
+If at some future point another signature algorithm was desired it could follow this pattern.
+
+We consider two different paths for activating PQ signatures in Bitcoin. The first approach is to redefine OP_SUCCESSx opcodes for each signature algorithm.
+For ML-DSA this would give us OP_CHECKSIG_ML and OP_CHECKSIGADD_ML.
+The second approach is to use a new tapleaf version that changes the OP_CHECKSIG opcodes to support the new PQ signature algorithms.
+In both cases, we would need to include as part of the soft fork an increase in the tapscript stack element size to accommodate the larger signatures and public keys sizes of the PQ signature algorithms.
+
+The OP_SUCCESSx approach has the advantage of providing a straightforward path to add new signature algorithms in the future.
+Simply redefine a set of five OP_SUCCESSx opcodes for the new signature algorithm. This would allow us to activate a single PQ signature at a time, adding new ones as needed.
+Additionally this approach allows developers to be very explicit in the signature algorithm type that they wish to verify.
+The main disadvantage is that it uses two OP_SUCCESSx opcodes per signature algorithm. Supporting ML-DSA and SLH-DSA would require four new opcodes in total
+
+Adding PQ signatures via a tapleaf version increase does not introduce any new opcodes and allows previously written tapscript programs to be used with PQ signatures by simply using the new tapleaf version.
+Instead of developers explicitly specifying the intended signature algorithm through an opcode, the algorithm to use must be indicated within the public key or public key hash<ref>'''Why not have CHECKSIG infer the algorithm based on signature size?''' Each of the three signature algorithms, Schnorr, ML-DSA, and SLH-DSA, have unique signature sizes. The problem with using signature size to infer an algorithm is that spender specifies the signature. This would allow a public key which was intended to be verified by Schnorr to be verified using ML-DSA as the spender specified a ML-DSA signature. Signature algorithms are often not secure if you can mix and match public key and signature across algorithms.</ref>.
+The disadvantage of this approach is that it requires a new tapleaf version each time we want to add a new signature algorithm.
+
+Both approaches must raise the stack element size limit.
+In the OP_SUCCESSx case, the increased size limit would only be in effect for transaction outputs that use the new opcodes.
+Otherwise this stack element size limit increase would be a soft fork.
+If the tapleaf version is used, then the stack element size limit increase would apply to any tapscript program with the new tapleaf version.
+
+
+
+==== Raising tapscript's stack element size ====
+
+A problem faced by any attempt to add PQ signatures to tapscript is that the stack elements in tapscript can not be larger than 520 bytes because the MAX_SCRIPT_ELEMENT_SIZE=520. This is programmatic because PQ signature algorithms often have signatures and
+public keys in excess of 520 bytes.
+
+For instance:
+
+* ML-DSA public keys are 1,312 bytes and signatures are 2,420 bytes
+* SLH-DSA public keys are 32 bytes and signatures are 7,856 bytes
+
+We will first look at our approach to the problem of PQ signatures and then give our solution for public keys larger than 520 bytes.
+
+We propose a stack element size limit of 8,000 bytes. We arrive at 8,000 by rounding up from the needed 7,856 bytes.
+
+OP_DUP will duplicate any stack element. Thus, if we allowed OP_DUP to duplicate stack elements of size 8,000 bytes, it would be possible to write a tapscript which will duplicate stack elements until it reaches the maximum number of elements on stack, i.e. 1000 elements.
+An increase from 520 bytes to 8,000 bytes would increase the memory footprint from 520 KB to 8 MB.
+
+To prevent OP_DUP from creating an 8 MB stack by duplicating stack elements larger than 520 bytes we define OP_DUP to fail on stack elements larger than 520 bytes.
+Note this change to OP_DUP is not consensus critical and does not require any sort of fork. This is because currently there is no way to get a stack element larger than 520 bytes onto the stack so triggering this rule is currently impossible and would only matter if the stack element size limit was raised.
+
+As OP_DUP isn’t the only opcode which duplicates stack elements, we would also need to extend this to all opcodes that duplicate stack elements.
+The opcodes which must have a limitation added are: OP_DUP, OP_2DUP, OP_3DUP, OP_DUPIF, OP_TUCK and OP_OVER, OP_2OVER, OP_PICK, and OP_TUCK.
+
+
+==== Public keys larger than 520 bytes ====
+
+Turning our attention to public keys larger than 520 bytes.
+This is a different problem than signatures as public keys are typically pushed onto
+the stack by the tapleaf script (redeem script) to commit to public keys in output. The OP_PUSHDATA opcode in tapscript fails if asked to push
+more than 520 bytes onto the stack.
+
+Note: This is not a problem for SLH-DSA as its public key is only 32 bytes.
+
+To solve this issue, for signature schemes with public keys greater than 520 bytes, we use the hash of the public key in the tapleaf script.
+We then package the public key and signature together as the same stack element on the input stack.
+Since the hash of the public key is only 32 bytes, the tapleaf script can push it on the stack as it does today. Consider the following example with a 
+OP_CHECKSIG_ML opcode for ML-DSA:
+
+<source>
+stack = [pubkey||signature]
+tapscript = [OP_PUSHDATA HASH256(expected_pubkey), OP_CHECKSIG_ML]
+</source>
+
+1. OP_PUSHDATA HASH256(expected_pubkey) updates the stack to [HASH256(expected_pubkey), pubkey||signature]
+2. OP_CHECKMLSIGVERIFY pops HASH256(expected_pubkey) and pubkey||signature, checks HASH256(expected_pubkey) == pubkey and verifies signature against pubkey.
+
+This approach has four benefits: First, it does not necessitate altering OP_PUSHBYTES so that it can push objects larger than 520 bytes onto the stack.
+This allows us not to have to reason about any complex consequences of such a change. Second, it allows the large public keys used by ML-DSA to make use of the witness discount.
+The third benefit of this approach is that it keeps the tapscript size small when a public key is not required to be verified.
+
+To explain this third benefit, let's look at an example. Consider a 1-of-3 multisig with a ML-DSA public key of 520 bytes.
+If we commit to the entire public key in the tapscript, the script contains three 520 byte public keys despite only needing to verify one public key.
+If we commit only to the 32-byte hash of the public key, we would only need to include three 32-byte hashes, and then only include the single 520-byte public key in the witness input stack.
+
+==== Future considerations ====
+
+TBD
+
+== Specification ==
+
+We define the PQ signature op codes as follows:
+
+SLH_DSA opcodes:
+OP_CHECKSIG_SLH - OP_SUCCESS127 
+OP_CHECKSIGADD_SLH - OP_SUCCESS128
+
+ML_DSA
+OP_CHECKSIG_ML - OP_SUCCESS129
+OP_CHECKSIGADD_ML - OP_SUCCESS130
+
+
+In progress
+
+
+=== Compatibility with tapscript ===
+
+These op codes will be activated in tapscript. Any output that evaluates tapscript will be able to make use of them. 
+
+=== Security ===
+
+==== SHL-DSA ====
+
+Generating a SHL-DSA signature is 111,490 times slower than generating a EdDSA signature. This makes SLH-DSA a poor fit for low latency use cases such as Lightning Network payments. Long term hardware support could greatly reduce this cost. As signature generation only happens on the client this computational cost does not impact the Bitcoin network.
+
+Verification of SHL-DSA requires ~36 times slower than EdDSA. However, SHL-DSA signatures are 120x larger than Schnorr signatures so SHL-DSA verification uses less computation per vbyte.
+As such SHL-DSA verification  does not represent a performance issue for the Bitcoin network. IF we allowed OP_DUP to duplicate stack elements larger than 520 bytes, this would become problematic as a SHL-DSA signature could be duplicated and verified multiple times at the fee cost of only one signature.
+
+==== ML-DSA  ====
+
+Generating a ML-DSA signature is 8 times slower than generating a EdDSA signature. This is unlikely to constrain use cases that are still fast enough to not be noticeable to users.
+This much more expensive signature generation time for ML-DSA when compared with SHL-DSA suggests ML-DSA is better suited for low-latency use cases such as mobile phone based Lightning Network payments.
+
+Verification of ML-DSA is slightly faster than EdDSA and represents a modest performance improvement for  verifying ML-DSA signatures.
+Given that ML-DSA the compared public key + signatures are far larger than  Schnorr signatures, the computation per vbyte paid in fees makes ML-DSA much more efficient than 
+Schnorr signatures.
+This suggests that future witness discount could be introduced for ML-DSA signatures, without increasing the computational requirements of the Bitcoin network.
+
+==== Algorithm Selection ====
+
+Introducing two quantum-resistant algorithms to the Bitcoin ecosystem provides users with the option to select an appropriate algorithm for their use case, generally based on the amount of value they wish to secure.
+
+Developers can choose to implement support for multiple algorithms in wallets and on nodes to offer quantum-resistant options.
+
+==== Backward Compatibility ====
+
+Older wallets and nodes that have not been made compatible with op codes will treat them as OP_SUCCESSx opcodes.
+
+The op codes added here will be fully compatible with tapscript and will be available in all P2TR and P2QRH.
+
+== Security ==
+
+…
+
+== Test Vectors and Reference Code ==
+
+TBD
+
+== Related Work ==
+
+== References ==
+
+== Footnotes ==
+
+<references />
+
+== Changelog ==
+
+To help implementers understand updates to this BIP, we keep a list of substantial changes.
+
+* 2025-10-26 - Initial draft proposal
