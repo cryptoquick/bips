@@ -7,7 +7,7 @@
   Comments-URI: https://github.com/bitcoin/bips/wiki/Comments:BIP-???
   Status: Draft
   Type: Standards Track
-  Created: 2025-6-21
+  Created: 2025-10-26
   License: BSD-3-Clause
 </pre>
 
@@ -30,27 +30,33 @@ This document is licensed under the 3-clause BSD license.
 
 Motivation for making Bitcoin quantum resistant is given in [https://github.com/bitcoin/bips/blob/master/bip-0360.mediawiki BIP-360]
 
+=== Design ===
+
+In this BIP we enable tapscript programs to verify two Post-Quantum (PQ) signature algorithms, ML-DSA (CRYSTALS-Dilithium) and SLH-DSA (SPHINCS+) via the addition of four new opcodes.
+For each signature algorithm we define two new opcodes, an OP_CHECKSIG equivalent and an OP_CHECKSIGADD equivalent.
+These opcodes preserve the behavior of OP_CHECKSIG and OP_CHECKSIGADD opcodes applied to a new PQ signature algorithm.
+We define four new opcodes: OP_CHECKSIG_SLH, OP_CHECKSIGADD_SLH, OP_CHECKSIG_ML, and OP_CHECKSIGADD_ML.
+
+These opcodes will only be available in tapscript and can be used with P2TSH (Pay-to-Tapscript-Hash), P2TR (Pay-to-Taproot) and any future Tapscript supporting output types.
+When used in tandem with P2TSH (Pay-to-Tapscript-Hash) [https://github.com/bitcoin/bips/blob/master/bip-0360.mediawiki BIP-0360], this enables Bitcoin transactions that fully resist quantum attacks.
+This includes both short-exposure and long-exposure attacks.
+These opcodes can be used in P2TR outputs, however they would not provide quantum resistance due to P2TR key-spend paths being vulnerable to quantum attacks.
+If at some point in the future P2TR key-spend paths were to be disabled, then these opcodes enable P2TR to also provide quantum resistance.
+
 === Rationale ===
 
-Based on these design principles in [https://github.com/bitcoin/bips/blob/master/bip-0360.mediawiki BIP-0360]. In this BIP we enable tapscript programs to verify two Post-Quantum (PQ) signature algorithms, ML-DSA (CRYSTALS-Dilithium) and SLH-DSA (SPHINCS+).
-We choose to use the SHA-256 variant of SLH-DSA rather than the SHA-3 variant as dedicated SHA-256 instructions make it far more performant on mobile devices.
+We used the following principles to guide our rationale and design decisions:
 
-The addition of PQ signatures to tapscript used in tandem with [https://github.com/bitcoin/bips/blob/master/bip-0360.mediawiki BIP-0360] provides Bitcoin 
-transactions that fully resist quantum attacks.
-Additionally PQ signature opcodes can be used in P2TR outputs.
-However PQ signature opcodes in P2TR outputs would only provide quantum resistance if the key-spend paths will be disabled in P2TR.
+'''Minimize changes.''' We should reuse existing Bitcoin code and preserve existing software behavior, workflows, user expectations and compatibility whenever possible.
 
-Consider the P2QRH or P2TR output with three tapscripts:
+'''Use standardized post-quantum signature algorithms.'''  Standardized algorithms have undergone the most scrutiny and are likely to be most well supported and well studied going forward. The entire Bitcoin ecosystem will benefit
+from using the most popular post-quantum signature algorithms, including leveraging hardware acceleration instructions, commodity trusted hardware, software libraries and cryptography research.
 
-* Spend requires a Schnorr signature
-* Spend requires a ML-DSA signature
-* Spend requires a SLH-DSA signature
-
-One intent in supporting Schnorr, ML-DSA, and SLH-DSA in tapscript is to allow parties to construct outputs such that funds are still secure even if two of the three signature algorithms are completely broken.
-In the event that Schnorr signatures are broken, users can spend their coins using ML-DSA. 
-If both Schnorr and ML-DSA are broken, the user can still rely on SLH-DSA.
-This is motivated by the use case of securely storing Bitcoins in a cold wallet for very long periods of time (50 to 100 years).
-
+'''Provide security against unexpected cryptanalytic breakthroughs.''' Consider the risk if Bitcoin only supported one PQ signature algorithm, and then following the widespread rollout of CRQCs, a critical
+weakness is unexpectedly discovered in this signature algorithm.
+There would be no safe algorithm available.
+We believe that prudence dictates we take such risks seriously and ensure that Bitcoin always has at least two secure signature algorithms built on orthogonal cryptographic assumptions. In the event one algorithm is broken, an alternative will be available. An added benefit
+is that parties seeking to securely store Bitcoin over decades can lock their coins under multiple algorithms, ensuring their coins will not be stolen even in the face of a catastrophic break in one of those signature algorithms.
 
 ==== Algorithm Choice ====
 
@@ -59,6 +65,7 @@ Of these three algorithms, SLH-DSA has the largest signature size, but is the mo
 Both FN-DSA and ML-DSA signatures are significantly smaller than SLH-DSA signatures but are based on newer lattice-based cryptography.
 Since ML-DSA and FN-DSA are both similar lattice-based designs, we choose to only support one of them as the additional value in diversity of cryptographic assumptions would be marginal. It should be noted that ML-DSA and FN-DSA do rely on different lattice assumptions and it may be that case that a break in one algorithm's assumptions would not necessarily
 break the assumptions used by the other algorithm.
+We choose to use the SHA-256 variant of SLH-DSA rather than the SHA-3 variant as dedicated SHA-256 instructions make it far more performant on mobile devices.
 
 We also considered SQIsign.
 While it outperforms the three other PQ signature algorithms by having the smallest signatures,
@@ -70,6 +77,21 @@ SLH-DSA has a radically different design and set of cryptographic assumptions th
 
 P2TSH, ML-DSA, and SLH-DSA could be activated simultaneously in a single soft fork or P2TSH could be activated first and then ML-DSA and SLH-DSA could be independently activated.
 If at some future point another signature algorithm was desired it could follow this pattern.
+
+==== Multi-Algorithm Security ====
+
+Consider the P2TSH or P2TR output with three tapscripts:
+
+* Spend requires a Schnorr signature
+* Spend requires a ML-DSA signature
+* Spend requires a SLH-DSA signature
+
+One intent in supporting Schnorr, ML-DSA, and SLH-DSA in tapscript is to allow parties to construct outputs such that funds are still secure even if two of the three signature algorithms are completely broken.
+In the event that Schnorr signatures are broken, users can spend their coins using ML-DSA. 
+If both Schnorr and ML-DSA are broken, the user can still rely on SLH-DSA.
+This is motivated by the use case of securely storing Bitcoins in a cold wallet for very long periods of time (50 to 100 years).
+
+==== Activation ====
 
 We consider two different paths for activating PQ signatures in Bitcoin. The first approach is to redefine OP_SUCCESSx opcodes for each signature algorithm.
 For ML-DSA this would give us OP_CHECKSIG_ML and OP_CHECKSIGADD_ML.
@@ -89,8 +111,6 @@ Both approaches must raise the stack element size limit.
 In the OP_SUCCESSx case, the increased size limit would only be in effect for transaction outputs that use the new opcodes.
 Otherwise this stack element size limit increase would be a soft fork.
 If the tapleaf version is used, then the stack element size limit increase would apply to any tapscript program with the new tapleaf version.
-
-
 
 ==== Raising tapscript's stack element size ====
 
@@ -115,7 +135,6 @@ Note this change to OP_DUP is not consensus critical and does not require any so
 As OP_DUP isn’t the only opcode which duplicates stack elements, we would also need to extend this to all opcodes that duplicate stack elements.
 The opcodes which must have a limitation added are: OP_DUP, OP_2DUP, OP_3DUP, OP_DUPIF, OP_TUCK and OP_OVER, OP_2OVER, OP_PICK, and OP_TUCK.
 
-
 ==== Public keys larger than 520 bytes ====
 
 Turning our attention to public keys larger than 520 bytes.
@@ -136,7 +155,7 @@ tapscript = [OP_PUSHDATA HASH256(expected_pubkey), OP_CHECKSIG_ML]
 </source>
 
 1. OP_PUSHDATA HASH256(expected_pubkey) updates the stack to [HASH256(expected_pubkey), pubkey||signature]
-2. OP_CHECKMLSIGVERIFY pops HASH256(expected_pubkey) and pubkey||signature, checks HASH256(expected_pubkey) == pubkey and verifies signature against pubkey.
+2. OP_CHECKSIG_ML pops HASH256(expected_pubkey) and pubkey||signature, checks HASH256(expected_pubkey) == pubkey and verifies signature against pubkey.
 
 This approach has four benefits: First, it does not necessitate altering OP_PUSHBYTES so that it can push objects larger than 520 bytes onto the stack.
 This allows us not to have to reason about any complex consequences of such a change. Second, it allows the large public keys used by ML-DSA to make use of the witness discount.
@@ -146,13 +165,14 @@ To explain this third benefit, let's look at an example. Consider a 1-of-3 multi
 If we commit to the entire public key in the tapscript, the script contains three 520 byte public keys despite only needing to verify one public key.
 If we commit only to the 32-byte hash of the public key, we would only need to include three 32-byte hashes, and then only include the single 520-byte public key in the witness input stack.
 
+
 ==== Future considerations ====
 
 TBD
 
 == Specification ==
 
-We define the PQ signature op codes as follows:
+We define the PQ signature opcodes as follows:
 
 SLH_DSA opcodes:
 OP_CHECKSIG_SLH - OP_SUCCESS127 
@@ -163,14 +183,14 @@ OP_CHECKSIG_ML - OP_SUCCESS129
 OP_CHECKSIGADD_ML - OP_SUCCESS130
 
 
-In progress
+TBD
 
 
 === Compatibility with tapscript ===
 
-These op codes will be activated in tapscript. Any output that evaluates tapscript will be able to make use of them. 
+These opcodes will be activated in tapscript. Any output that evaluates tapscript will be able to make use of them. 
 
-=== Security ===
+== Security ==
 
 ==== SHL-DSA ====
 
@@ -197,13 +217,9 @@ Developers can choose to implement support for multiple algorithms in wallets an
 
 ==== Backward Compatibility ====
 
-Older wallets and nodes that have not been made compatible with op codes will treat them as OP_SUCCESSx opcodes.
+Older wallets and nodes that have not been made compatible with opcodes will treat them as OP_SUCCESSx opcodes.
 
-The op codes added here will be fully compatible with tapscript and will be available in all P2TR and P2QRH.
-
-== Security ==
-
-…
+The opcodes added here will be fully compatible with tapscript and will be available in all P2TR and P2TSH.
 
 == Test Vectors and Reference Code ==
 
