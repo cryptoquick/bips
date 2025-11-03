@@ -122,17 +122,9 @@ This output type is designed to offer taproot users protection against long-expo
 To construct a P2TSH output, we first follow the process outlined in [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP 341] to compute the Merkle root of a given taptree. Then, instead of computing a taproot from the sum of the internal public key and another point generated from the hash of the internal public key and the derived taptree root (i.e. H("TapTweak", internal_pubkey + merkle_root) * G) as is done in P2TR outputs, P2TSH outputs commit only to the Merkle root of the taptree.
 
 <syntaxhighlight>
-A = tagged_hash(“TapLeaf”, bytes([leaf_version_A]) + ser_script(script_A))
-B = tagged_hash(“TapLeaf”, bytes([leaf_version_B]) + ser_script(script_B))
-C = tagged_hash(“TapLeaf”, bytes([leaf_version_C]) + ser_script(script_C))
-D = tagged_hash(“TapLeaf”, bytes([leaf_version_D]) + ser_script(script_D))
-E = tagged_hash(“TapLeaf”, bytes([leaf_version_E]) + ser_script(script_E))
-
-AB = tagged_hash(“TapBranch”, A + B)
+D = tagged_hash(“TapLeaf”, bytes([leaf_version]) + ser_script(script))
 CD = tagged_hash(“TapBranch”, C + D)
-
 CDE = tagged_hash(“TapBranch”, CD + E)
-
 ABCDE = tagged_hash(“TapBranch”, AB + CDE)
 </syntaxhighlight>
 
