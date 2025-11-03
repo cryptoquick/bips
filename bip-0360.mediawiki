@@ -11,7 +11,9 @@ Type: Standards Track
 Created: 2024-12-18
 </pre>
 
-= Abstract =
+==Introduction==
+
+===Abstract===
 
 This document proposes a new output script type, Pay-to-Tapscript-Hash (P2TSH), via a soft fork. P2TSH outputs are modified Pay-to-Taproot (P2TR) outputs that disable the key-path spend functionality by omitting the internal keys and the taproot 'tweak' step. The script-path spend functionality is retained, thus making all spends of P2TSH outputs script-path spends.
 
@@ -26,7 +28,11 @@ Protection against more sophisticated quantum attacks - including protection aga
 
 This document defines long- and short-exposure attacks as specific quantum attack-vectors.
 
-= Motivation =
+===Copyright===
+
+This document is licensed under the 3-clause BSD license.
+
+===Motivation===
 
 The primary threat to Bitcoin from Cryptographically-Relevant Quantum Computers (CRQCs)<ref>A Cryptographically-Relevant Quantum Computer is an ''object'' which is only loosely defined by ''characteristics'' in quantum physics as of today. It could be understood in the context of this BIP and in Bitcoin that it’s a ''hardware-agnostic'' computer supposed to have the architecture to keep ''coherent'' a sufficient number of logical qubits to be able to run the Shor algorithm in an efficient fashion.</ref> is their potential to break the key cryptographic assumption which  the digital signatures used in Bitcoin. Specifically, [https://arxiv.org/pdf/quant-ph/0301141 Shor’s algorithm] enables a CRQC to solve the Discrete Logarithm Problem (DLP) exponentially faster than classical methods<ref>Shor’s algorithm is believed to need 10^8 operations to break a 256-bit elliptic curve public key.</ref>, allowing the recovery of private keys from public keys - a process referred to here as quantum key recovery.<ref>Meaning, deriving private keys from public keys via Shor’s algorithm</ref>
 
@@ -38,7 +44,7 @@ In the most optimistic case – wherein quantum computers never pose a significa
 
 As a conservative first step in this effort, we propose Pay-to-Tapscript-Hash (P2TSH) – a tapscript-native output type that can be used in a quantum-resistant manner.
 
-= Long-Exposure vs Short-Exposure Quantum Vulnerability =
+===Long-Exposure vs Short-Exposure Quantum Vulnerability===
 
 For clarity, this proposal specifically mitigates against the risk of long-exposure attacks on taproot outputs. While other (hashed) Bitcoin output types already mitigate against this risk, Taproot output types expose their public keys and so are currently vulnerable to long-exposure quantum attacks.
 
@@ -109,7 +115,7 @@ A complete list of outputs that are vulnerable to long-exposure attacks includes
 
 For further clarification on quantum attack vectors, please refer to the Glossary of Terms.
 
-= Design =
+==Design==
 
 Pay-to-Tapscript-Hash (P2TSH) is a proposed new output type that commits to the root of a tapscript tree. Functionally, it is a Pay-to-Taproot (P2TR) output with the quantum-vulnerable key-path spend disabled via omission of the internal keys and the 'tweak' step.
 
@@ -142,7 +148,7 @@ The initial stack elements provide the same functionality as they do in P2TR. Th
 
 The control block is a 1 + 32 * m byte array, where the first byte is the control byte and the next 32*m bytes are the Merkle path to the script. The control byte is the same as the control byte in a P2TR control block, including the 7 bits which are used to specify the tapleaf version. The parity bit of the control byte is always 1, since P2TSH does not have a key-path spend. Unlike P2TR, we omit the public key from the control block as it is not needed in P2TSH. We maintain support for the optional annex in the witness (see Specification section below for more details).
 
-= Rationale =
+==Rationale==
 
 In this proposal, we adopt a “prepared not scared” approach to the possible advancement of quantum computing – and offer Bitcoin users an option for increased protection if they so choose.
 
@@ -168,7 +174,7 @@ Design of the P2TSH output type is guided by the following intentions:
   </li>
 </ol>
 
-== P2TSH Trade-Offs ==
+=== P2TSH Trade-Offs ===
 
 While P2TR outputs (and ECC-based key-path spends) will remain an option for folks wishing to use them – we aim to be clear about the tradeoffs of using P2TSH outputs, which disable the key-path spend for the benefit of quantum protection.
 
@@ -178,13 +184,13 @@ Additionally, there is a privacy tradeoff when comparing P2TSH and P2TR, which i
 
 '''Note:''' P2TSH and P2TR both provide greater script privacy than P2SH [https://github.com/bitcoin/bips/blob/master/bip-0016.mediawiki (BIP 16 - Pay to Script Hash)].
 
-= Specification =
+==Specification==
 
 We define the Pay-to-Tapscript-Hash (P2TSH) output structure as follows:
 
 A P2TSH output is similar to a P2TR output that uses the root of a taptree (as defined in [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP 341]); however, unlike P2TR outputs, we disable the key-path spend for the benefit of quantum resistance by omitting the internal key and the tap tweak step. The root of the taptree is then set as the witness program, prepended with a SegWit version 2 byte, and committed to in the output scriptPubKey.
 
-== ScriptPubKey ==
+=== ScriptPubKey ===
 
 The scriptPubKey for a P2TSH output is:
 
@@ -196,7 +202,7 @@ Where:
 * OP_2 (0x52) indicates SegWit version 2.
 * <hash> is the 32-byte Merkle root of the taptree.
 
-== Address Format ==
+=== Address Format ===
 
 P2TSH outputs use SegWit version 2, resulting in mainnet addresses that start with 'bc1z', following [https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki#bech32 BIP 173]. Bech32m encoding maps version 2 to the prefix z.
 
@@ -208,7 +214,7 @@ bc1zzmv50jjgxxhww6ve4g5zpewrkjqhr06fyujpm20tuezdlxmfphcqfc80ve
 
 This is a Bech32m-encoded P2TSH scriptPubKey.
 
-== Script Validation ==
+=== Script Validation ===
 
 A P2TSH output is a native SegWit output (see [[bip-0141.mediawiki | BIP141]]) with version 2 and a 32-byte witness program. The witness program is the root of the tapscript tree. For the sake of comparison, we have - as much as possible - copied the language verbatim from the script validation section of [[bip-0341.mediawiki | BIP341]].
 
@@ -236,15 +242,15 @@ The steps above follow the script-path spend logic from [[bip-0341.mediawiki | B
 * We compute the tapleaf Merkle root r and compare it directly to the witness program q.
 * The control block is 1 + 32*m bytes, instead of 33 + 32*m bytes.
 
-== Common Signature Message Construction ==
+=== Common Signature Message Construction ===
 
 The [https://learnmeabitcoin.com/technical/upgrades/taproot/#common-signature-message common signature message] construction for P2TSH outputs is exactly the same procedure as defined in [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP 341] for Taproot transactions.
 
-== Compatibility with BIP 141 ==
+==Compatibility with BIP 141==
 
 By adhering to the SegWit transaction structure and versioning, P2TSH outputs are compatible with existing transaction processing rules. Nodes that do not recognize SegWit version 2 will treat these outputs as anyone-can-spend but, per [https://github.com/bitcoin/bips/blob/master/bip-0141.mediawiki BIP 141], will not relay or mine such transactions.
 
-== Transaction Size and Fees ==
+=== Transaction Size and Fees ===
 
 Equivalent P2TSH and P2TR outputs are always the same size. P2TSH inputs can be slightly larger or smaller than their equivalent P2TR inputs – depending on the use of key-path vs script-path spend in the case of P2TR. Let’s consider the cases.
 
@@ -288,15 +294,15 @@ A P2TSH input will be smaller than an equivalent script-path spend for P2TR inpu
 
 The P2TSH witness to spend the Schnorr path would be 103 + 32 * 1 = 135 bytes. Unfortunately, we cannot use the key-path spend optimization because the key-path spend is not quantum-resistant.
 
-== Performance Impact ==
+=== Performance Impact ===
 
 P2TSH is slightly more computationally performant than P2TR script-path spends, as the operations to spend a P2TSH output is a strict subset of the operations needed to perform a script-path spend on a P2TR output.
 
-== Backward Compatibility ==
+=== Backward Compatibility ===
 
 Older wallets and nodes that have not been made compatible with SegWit version 2 and P2TSH will not recognize these outputs. Users should ensure they are using updated wallets and nodes to use P2TSH outputs and validate transactions using these outputs. P2TSH is fully compatible with tapscript and existing tapscript programs can be used in P2TSH outputs without modification.
 
-== Security ==
+=== Security ===
 
 P2TSH outputs provide the same tapscript functionality as P2TR outputs, but without the quantum-vulnerable key-path spend. This enables users, exchanges and other users to easily move their coins from Taproot outputs to P2TSH outputs and thereby protect their coins from long-exposure quantum attacks.
 
@@ -308,7 +314,7 @@ P2TSH does not, by itself, protect against short-exposure quantum attacks, but s
 
 That said, the protection offered by resistance to long-exposure attack alone should not be underestimated. It is likely that the first CRQCs will not be able to perform short-exposure attacks - as such, defense against long-exposure attacks is more time-sensitive than prevention against short-exposure attacks.
 
-== Security Considerations for Post-Quantum Signature Schemes ==
+==Security Considerations for Post-Quantum Signature Schemes==
 
 While this proposal does not include the introduction of post-quantum signature schemes, we think it’s worth commenting on security considerations related to this possibility.
 
@@ -316,11 +322,11 @@ Quantum-resistant signature algorithms (e.g. ML-DSA or SLH-DSA) offer different
 
 We also imagine the possibility of introducing multiple post-quantum signatures into Bitcoin for redundancy. Balancing the risks of additional complexity with the benefits of signature-type redundancy will be the challenge here.
 
-= Test Vectors and Reference Code =
+==Test Vectors and Reference Code==
 
 TBD
 
-= Related Work =
+==Related Work==
 
 Below we attempt to summarize some of the ideas related to P2TSH that have been discussed on the bitcoin-dev mailing list, bitcointalk.org, and elsewhere.
 
@@ -338,7 +344,7 @@ This would require major changes to wallet behavior and would represent a signif
 
 Commit-reveal schemes such as [https://gnusha.org/pi/bitcoindev/1518710367.3550.111.camel@mmci.uni-saarland.de/ Re: Transition to post-quantum (2018)] and [https://groups.google.com/g/bitcoindev/c/LpWOcXMcvk8/m/YEiH-kTHAwAJ Post-Quantum commit / reveal Fawkescoin variant as a soft fork (2025)] have been proposed as a way to create cryptocurrencies without public key cryptography. The ideas in this paper were more recently expanded upon by Tadge Dryja in his “[https://www.youtube.com/watch?v=4bzOwYPf1yo Lifeboat]” proposal, which effectively quantum-proofs Bitcoin transactions through a similar pre-commitment scheme designed for Bitcoin.
 
-= Other Methods of Addressing Quantum Vulnerabilities for Cryptocurrencies =
+==Other Methods of Addressing Quantum Vulnerabilities for Cryptocurrencies==
 
 It is worth noting, by way of comparison, that [https://ethresear.ch/t/how-to-hard-fork-to-save-most-users-funds-in-a-quantum-emergency/18901 Vitalik Buterin’s proposed solution] to Ethereum’s quantum vulnerability is quite different from the approach in this BIP.
 
@@ -348,7 +354,7 @@ That said, we believe the use of STARKs (which are quantum-resistant) may prove 
 
 Discussions related to the burning of coins, and other attempts to slow a potential supply shock caused by quantum-retrieval of vulnerable coins, are out of scope for this proposal. That said, we have separately proposed [https://github.com/cryptoquick/bips/blob/hourglass/bip-hourglass.mediawiki Hourglass] to address this concern and are continuing research on this subject.
 
-= Glossary =
+==Glossary==
 
 '''Quantum Key Recovery'''
 
@@ -376,11 +382,11 @@ Tapscript-native output types are the category of output types that support taps
 
 A tapscript-native output type with nearly identical formatting to Pay-to-Taproot (P2TR) – with the quantum-vulnerable key-path spend removed.
 
-= Footnotes =
+==Footnotes==
 
 <references/>
 
-= Changelog =
+==Changelog==
 
 To help implementers understand updates to this BIP, we keep a list of substantial changes.
 
@@ -400,11 +406,7 @@ To help implementers understand updates to this BIP, we keep a list of substanti
 * 2024-09-28 - Add Winternitz, XMSS signatures, and security assumption types to PQC table. Omit NIST Level I table. Add spend script specification. Add revealed public key scenario table.
 * 2024-09-27 - Initial draft proposal
 
-= Copyright =
-
-This document is licensed under the 3-clause BSD license.
-
-= Acknowledgements =
+==Acknowledgements==
 
 This document is inspired by [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP 341], which introduced the design of the P2TR (Taproot) output type using Schnorr signatures.
 
