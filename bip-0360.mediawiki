@@ -9,6 +9,8 @@
   Status: Draft
   Type: Standards Track
   Created: 2024-12-18
+  License: BSD-3-Clause
+  Requires: TBD
 </pre>
 
 ==Introduction==
