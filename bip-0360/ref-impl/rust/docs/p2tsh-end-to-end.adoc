@@ -160,7 +160,7 @@ If on `signet` network, then execute the following:
 +
 [source,bash]
 -----
-$ $BITCOIN_SOURCE_DIR/contrib/signet/miner --cli "bitcoin-cli -conf=$HOME/anduro-360/configs/bitcoin.conf.signet" generate \
+$BITCOIN_SOURCE_DIR/contrib/signet/miner --cli "bitcoin-cli -conf=$HOME/anduro-360/configs/bitcoin.conf.signet" generate \
     --address $P2TSH_ADDR \
     --grind-cmd "$BITCOIN_SOURCE_DIR/build/bin/bitcoin-util grind" \
     --min-nbits --set-block-time $(date +%s) \

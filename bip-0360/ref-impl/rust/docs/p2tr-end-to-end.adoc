@@ -17,11 +17,11 @@ Execute in Bitcoin Core `regtest` mode.
 
 === Bitcoin Core
 
-The link:https://github.com/jbride/bitcoin/tree/p2qrh[p2qrh branch] of bitcoin core is needed.
+The link:https://github.com/jbride/bitcoin/tree/p2tsh-pqc[p2tsh branch] of bitcoin core is needed.
 
-Build instructions for the `p2qrh` branch are the same as `master` and is documented link:https://github.com/bitcoin/bitcoin/blob/master/doc/build-unix.md[here].
+Build instructions for the `p2tsh` branch are the same as `master` and is documented link:https://github.com/bitcoin/bitcoin/blob/master/doc/build-unix.md[here].
 
-As such, the following is an example series of steps (on a Fedora 42 host) to compile and run the `p2qrh` branch of bitcoin core:
+As such, the following is an example series of steps (on a Fedora 42 host) to compile and run the `p2tsh` branch of bitcoin core:
 
 . build
 +

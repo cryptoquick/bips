@@ -6,7 +6,7 @@ This rust project contains the test vectors for BIP-360
 
 ## Run Test Vectors
 
-These test vectors are being developed in conjunction with forks of [rust-bitcoin](https://github.com/jbride/rust-bitcoin/tree/p2qrh) and [rust-miniscript](https://github.com/jbride/rust-miniscript/tree/p2qrh) customized with p2tsh functionality.
+These test vectors are being developed in conjunction with forks of [rust-bitcoin](https://github.com/jbride/rust-bitcoin/tree/p2tsh) and [rust-miniscript](https://github.com/jbride/rust-miniscript/tree/p2tsh-pqc) customized with p2tsh functionality.
 
 
 1. environment variables

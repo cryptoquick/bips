@@ -243,7 +243,7 @@ This analysis shows that the OP_DUP operation has a measurable but manageable pe
 
 === Procedure
 
-* Testing is done using functionality found in the link:https://github.com/jbride/bitcoin/tree/p2qrh[p2qrh branch] of Bitcoin Core.
+* Testing is done using functionality found in the link:https://github.com/jbride/bitcoin/tree/p2tsh-pqc[p2tsh branch] of Bitcoin Core.
 
 * Compilation of Bitcoin Core is done using the following `cmake` flags:
 +
@@ -279,7 +279,7 @@ AddressSanitizer is a fast, compiler-based tool (available in GCC/Clang) for det
 
 ==== Results
 
-No memory errors or leaks were revealed by AddressSanetizer when running the `OP_SHA256` bench test for 30 minutes.
+No memory errors or leaks were revealed by AddressSanitizer when running the `OP_SHA256` bench test for 30 minutes.
 
 ==== Procedure
 
