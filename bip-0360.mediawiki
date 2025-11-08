@@ -145,12 +145,12 @@ initial stack element 0,
 …,
 initial stack element N,
 tapleaf script,
-control block = [control byte, 32 * m byte Merkle path] # m is the depth of the Merkle tree
+control block = [control byte, 32*d byte Merkle path] # d is the depth of the script in the Merkle tree
 </source>
 
 The initial stack elements provide the same functionality as they do in a P2TR script-path spend. That is, they place elements on the stack to be evaluated by the redeem script.
 
-The control block is a 1 + 32 * m byte array, where the first byte is the control byte and the next 32*m bytes are the Merkle path to the script. The control byte is the same as the control byte in a P2TR control block, including the 7 bits which are used to specify the tapleaf version. The parity bit of the control byte is always 1, since P2TSH does not have a key-path spend. Unlike P2TR, we omit the public key from the control block as it is not needed in P2TSH. We maintain support for the optional annex in the witness (see Specification section below for more details).
+The control block is a 1 + 32*d byte array, where the first byte is the control byte and the next 32*d bytes are the Merkle path to the leaf script, where d is the depth of the leaf script in the Merkle tree. The control byte is the same as the control byte in a P2TR control block, including the 7 bits which are used to specify the tapleaf version. The parity bit of the control byte is always 1, since P2TSH does not have a key-path spend. Unlike P2TR, we omit the public key from the control block as it is not needed in P2TSH. We maintain support for the optional annex in the witness (see Specification section below for more details).
 
 ==Rationale==
 
@@ -222,12 +222,12 @@ This is a Bech32m-encoded P2TSH scriptPubKey.
 
 A P2TSH output is a native SegWit output (see [[bip-0141.mediawiki | BIP141]]) with version 2 and a 32-byte witness program. The witness program is the root of the tapscript tree. For the sake of comparison, we have - as much as possible - copied the language verbatim from the script validation section of [[bip-0341.mediawiki | BIP341]].
 
-* Let ''q'' be the 32-byte array containing the witness program (the second push in the scriptPubKey) which represents the root of the tapleaf Merkle tree.
+* Let ''q'' be the 32-byte array containing the witness program (the second push in the scriptPubKey) which represents the root of the Tapscript tree.
 * Fail if the witness stack does not have two or more elements.
 * If there are at least three witness elements, and the first byte of the last element is 0x50, this last element is called ''annex'' ''a'' and is removed from the witness stack. The annex (or the lack thereof) is always covered by the signature and contributes to transaction weight, but is otherwise ignored during P2TSH validation.
 * There must be at least two witness elements left.
 ** Call the second-to-last stack element ''s'', the script (as defined in [[bip-0341.mediawiki | BIP 341]])
-** The last stack element is called the control block ''c'', and must have length ''1 + 32 * m'', for a value of ''m'' that is an integer between 0 and 128, inclusive. Fail if it does not have such a length.
+** The last stack element is called the control block ''c'', and must have length ''1 + 32*d'', for a value of ''d'' that is an integer between 0 and 128, inclusive. Fail if it does not have such a length.
 ** Let ''v = c[0] & 0xfe'' be the ''leaf version'' (as defined in [[bip-0341.mediawiki | BIP 341]]). To maintain ''leaf version'' encoding compatibility the last bit of c[0] is unused and must be 1.<ref>Why set the last bit of c[0] to one? Consider a faulty implementation that deserializes the ''leaf version'' as c[0] rather than c[0] &amp; 0xfe for both P2TR and P2TSH. If they test against P2TSH outputs and require that last bit is 1, this deserialization bug will cause an immediate error.</ref>
 ** Let ''k<sub>0</sub> = hash<sub>TapLeaf</sub>(v || compact_size(size of s) || s)''; also call it the ''tapleaf hash''.
 ** For ''j'' in ''[0,1,…,m-1]'':
@@ -244,7 +244,7 @@ The steps above follow the script-path spend logic from [[bip-0341.mediawiki | B
 
 * The witness program is the Merkle root of a taptree and not a "tweaked" public key. This means that we skip directly to the BIP 341 spend path tapleaf Merkle tree validation.
 * We compute the taptree Merkle root r and compare it directly to the witness program q.
-* The control block is 1 + 32*m bytes, instead of 33 + 32*m bytes.
+* The control block is 1 + 32*d bytes, instead of 33 + 32*m bytes.
 
 === Common Signature Message Construction ===
 
@@ -260,16 +260,7 @@ P2TSH and P2TR scriptPubKeys are always the same size, 34 bytes. A witness to a 
 
 === Comparison with P2TR key-path spend ===
 
-A P2TSH witness will be larger than a P2TR witness when the P2TR output would have been spent via the key-path spend. P2TSH quantum-resistance comes from removing the P2TR key-path spend. Consequently, it cannot make use of Taproot’s optimization where P2TR key-path spends do not require including a Merkle path in the P2TR witness.
-
-P2TSH witness for depth-0 tree (135 bytes):
-
-<source>
-[count] (1 byte), # Number of elements in the witness
-[size] signature (1 + 64 bytes = 65 bytes),
-tapleaf script = [size] [OP_PUSHBYTES_32, 32-byte scriptPubKey, OP_CHECKSIG] (1 + 1 + 32 + 1 bytes = 35 bytes),
-control block = [size] [control byte] [merkle_path] (1 + 1 + 32 bytes = 34 bytes)
-</source>
+A P2TSH witness will always be larger than a P2TR witness when the P2TR output is spent via a key-path spend. P2TSH quantum-resistance comes from removing the P2TR key-path spend functionality. Consequently, every P2TSH output is spent using a script-path spend, and so P2TSH witnesses must all contain the inputs to the leaf script, the leaf script itself, and a control block. All P2TSH control blocks require a merkle path except when there is exactly one leaf script, and so the tree has depth d = 0. In that special case, a merkle path may be omitted from the P2TSH control block.
 
 P2TR key-path spend witness (66 bytes):
 
@@ -278,20 +269,30 @@ P2TR key-path spend witness (66 bytes):
 [size] signature (1 + 64 bytes = 65 bytes)
 </source>
 
-Thus, the P2TSH input would be 135 - 66 = 69 bytes larger than a P2TR key-path spend input.
+P2TSH witness for depth-0 tree (103 bytes):
 
-If the Tapscript tree has more than a single leaf, then the Merkle path will increase in size by 32*(d-1) bytes, where d<ref>If d >= 8, then the compact size will use 3 bytes rather than 1 byte</ref> is the depth of the leaf script in the Tapscript tree. (Note: Huffman encoding of leaf scripts offers advantages here.)
+<source>
+[count] (1 byte), # Number of elements in the witness
+[size] signature (1 + 64 bytes = 65 bytes),
+tapleaf script = [size] [OP_PUSHBYTES_32, 32-byte scriptPubKey, OP_CHECKSIG] (1 + 1 + 32 + 1 bytes = 35 bytes),
+control block = [size] [control byte] [merkle path (empty)] (1 + 1 + 0 bytes = 2 bytes)
+</source>
 
+Thus, this P2TSH witness would be 103 - 66 = 37 bytes larger than a P2TR key-path spend witness.
+
+If the Tapscript tree has more than a single leaf, then the Merkle path will increase the size by 32*d bytes, where d<ref>If d >= 8, then the compact size will use 3 bytes rather than 1 byte</ref> is the depth of the leaf script in the Tapscript tree. (Note: Huffman encoding of leaf scripts offers advantages here.)
+
+P2TSH witness for depth-d tree (102 + 32*d bytes):
 <source>
 [count] (1 byte), # Number of elements in the witness
 [size] signature (64 + 1 bytes = 65 bytes),
 tapleaf script = [size] [OP_PUSHBYTES_32, 32-byte scriptPubKey, OP_CHECKSIG] (34 + 1 bytes = 35 bytes),
-control block = [size] [control byte] [Merkle path] (1 + 1 + 32*(d-1) = 2 + 32*(d-1) bytes)
+control block = [size] [control byte] [Merkle path] (1 + 1 + 32*d = 2 + 32*d bytes)
 </source>
 
 === Comparison with P2TR script-path spend ===
 
-A P2TSH witness will be smaller than an equivalent script-path spend for P2TR inputs. This is because P2TSH inputs do not require inclusion of an internal public key in the control block. For that reason, a P2TSH witness will be 32 bytes smaller than an equivalent P2TR script-path spend witness.
+A P2TSH witness will be smaller than an equivalent P2TR script-path spend witness. This is because P2TSH inputs do not require inclusion of any internal public key in the control block. For that reason, a P2TSH witness will be 32 bytes smaller than an equivalent P2TR script-path spend witness.
 
 === Performance Impact ===
 
