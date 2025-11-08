@@ -28,12 +28,12 @@
      showgrid="false"
      inkscape:zoom="0.77771465"
      inkscape:cx="234.6619"
-     inkscape:cy="622.33623"
-     inkscape:window-width="3437"
-     inkscape:window-height="1353"
-     inkscape:window-x="1080"
-     inkscape:window-y="55"
-     inkscape:window-maximized="1"
+     inkscape:cy="416.60524"
+     inkscape:window-width="1741"
+     inkscape:window-height="963"
+     inkscape:window-x="1169"
+     inkscape:window-y="81"
+     inkscape:window-maximized="0"
      inkscape:current-layer="layer1"
      showguides="true"
      inkscape:showpageshadow="2"
@@ -678,6 +678,13 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(-0.34020621)">
+    <rect
+       style="fill:#ffffff;stroke-width:0.264583"
+       id="rect1"
+       width="209.567"
+       height="207.86598"
+       x="0.34020621"
+       y="0" />
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,-10.103608,-4.786697)"
