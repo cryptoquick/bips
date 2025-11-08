@@ -26,7 +26,7 @@ Through this modification, P2TSH outputs provide a Tapscript-native, hashed outp
 
 It is worth noting that the proposed P2TSH outputs are only resistant to what we term “long-exposure attacks”; that is, attacks on public keys exposed on the blockchain for time periods longer than the average time needed to confirm a bitcoin transaction.
 
-Protection against more sophisticated quantum attacks - including protection against the recovery of secret keys from public keys (i.e. "quantum key recovery") that are exposed in mempools while a transaction is waiting to be confirmed (what we term “short-exposure attacks”) - may require the introduction of post-quantum signature schemes in Tapscript.
+Protection against more sophisticated quantum attacks - including protection against the recovery of secret keys from public keys that are exposed in mempools while a transaction is waiting to be confirmed (what we term “short-exposure attacks”) - may require the introduction of post-quantum signature schemes in Tapscript.
 
 This document defines long- and short-exposure attacks as specific quantum attack-vectors.
 
@@ -282,7 +282,7 @@ Thus, this P2TSH witness would be 103 - 66 = 37 bytes larger than a P2TR key-pat
 
 If the Tapscript tree has more than a single leaf, then the Merkle path will increase the size by 32*d bytes, where d<ref>If d >= 8, then the compact size will use 3 bytes rather than 1 byte</ref> is the depth of the leaf script in the Tapscript tree. (Note: Huffman encoding of leaf scripts offers advantages here.)
 
-P2TSH witness for depth-d tree (102 + 32*d bytes):
+P2TSH witness for depth-d tree (103 + 32*d bytes):
 <source>
 [count] (1 byte), # Number of elements in the witness
 [size] signature (64 + 1 bytes = 65 bytes),
