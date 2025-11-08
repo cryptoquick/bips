@@ -131,22 +131,22 @@ This output type is designed to offer Taproot users immediate protection against
 
 To construct a P2TSH output, we first follow the process outlined in [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP 341] to compute the Merkle root of a given taptree. Then, instead of computing a taproot from the sum of the internal public key and another point generated from the hash of the internal public key and the derived taptree root (i.e. H("TapTweak", internal_pubkey + merkle_root) * G) as is done in P2TR outputs, P2TSH outputs commit only to the Merkle root of the taptree.
 
-<syntaxhighlight>
+<source>
 D = tagged_hash(“TapLeaf”, bytes([leaf_version]) + ser_script(script))
 CD = tagged_hash(“TapBranch”, C + D)
 CDE = tagged_hash(“TapBranch”, CD + E)
 ABCDE = tagged_hash(“TapBranch”, AB + CDE)
-</syntaxhighlight>
+</source>
 
 A P2TSH input witness provides the following:
 
-<syntaxhighlight>
+<source>
 initial stack element 0,
 …,
 initial stack element N,
 tapleaf script,
 control block = [control byte, 32 * m byte Merkle path] # m is the depth of the Merkle tree
-</syntaxhighlight>
+</source>
 
 The initial stack elements provide the same functionality as they do in a P2TR script-path spend. That is, they place elements on the stack to be evaluated by the redeem script.
 
@@ -198,9 +198,9 @@ A P2TSH output is a modified P2TR output that commits to the root of a taptree (
 
 The scriptPubKey for a P2TSH output is:
 
-<syntaxhighlight>
+<source>
 OP_2 OP_PUSHBYTES_32 <hash>
-</syntaxhighlight>
+</source>
 
 Where:
 * OP_2 (0x52) indicates SegWit version 2.
@@ -212,9 +212,9 @@ P2TSH outputs use SegWit version 2, resulting in mainnet addresses that start wi
 
 Example P2TSH address:
 
-<syntaxhighlight>
+<source>
 bc1zzmv50jjgxxhww6ve4g5zpewrkjqhr06fyujpm20tuezdlxmfphcqfc80ve
-</syntaxhighlight>
+</source>
 
 This is a Bech32m-encoded P2TSH scriptPubKey.
 
@@ -264,30 +264,30 @@ A P2TSH witness will be larger than a P2TR witness when the P2TR output would ha
 
 P2TSH witness for depth-0 tree (135 bytes):
 
-<syntaxhighlight>
+<source>
 [count] (1 byte), # Number of elements in the witness
 [size] signature (1 + 64 bytes = 65 bytes),
 tapleaf script = [size] [OP_PUSHBYTES_32, 32-byte scriptPubKey, OP_CHECKSIG] (1 + 1 + 32 + 1 bytes = 35 bytes),
 control block = [size] [control byte] [merkle_path] (1 + 1 + 32 bytes = 34 bytes)
-</syntaxhighlight>
+</source>
 
 P2TR key-path spend witness (66 bytes):
 
-<syntaxhighlight>
+<source>
 [count] (1 byte), # Number of elements in the witness
 [size] signature (1 + 64 bytes = 65 bytes)
-</syntaxhighlight>
+</source>
 
 Thus, the P2TSH input would be 135 - 66 = 69 bytes larger than a P2TR key-path spend input.
 
 If the Tapscript tree has more than a single leaf, then the Merkle path will increase in size by 32*(d-1) bytes, where d<ref>If d >= 8, then the compact size will use 3 bytes rather than 1 byte</ref> is the depth of the leaf script in the Tapscript tree. (Note: Huffman encoding of leaf scripts offers advantages here.)
 
-<syntaxhighlight>
+<source>
 [count] (1 byte), # Number of elements in the witness
 [size] signature (64 + 1 bytes = 65 bytes),
 tapleaf script = [size] [OP_PUSHBYTES_32, 32-byte scriptPubKey, OP_CHECKSIG] (34 + 1 bytes = 35 bytes),
 control block = [size] [control byte] [Merkle path] (1 + 1 + 32*(d-1) = 2 + 32*(d-1) bytes)
-</syntaxhighlight>
+</source>
 
 === Comparison with P2TR script-path spend ===
 
