@@ -2,14 +2,14 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="210mm"
-   height="297mm"
-   viewBox="0 0 210 297"
+   width="209.567mm"
+   height="207.86598mm"
+   viewBox="0 0 209.567 207.86598"
    version="1.1"
    id="svg5"
    inkscape:version="1.4.2 (ebf0e940d0, 2025-05-08)"
    sodipodi:docname="merkletree.svg"
-   inkscape:export-filename="C:\Users\e0\Documents\GitHub\bips\bip-0360\merkletree.png"
+   inkscape:export-filename="merkletree.png"
    inkscape:export-xdpi="71.752861"
    inkscape:export-ydpi="71.752861"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
@@ -26,9 +26,9 @@
      inkscape:pagecheckerboard="0"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="1.0998546"
-     inkscape:cx="140.01851"
-     inkscape:cy="395.50682"
+     inkscape:zoom="0.77771465"
+     inkscape:cx="234.6619"
+     inkscape:cy="622.33623"
      inkscape:window-width="3437"
      inkscape:window-height="1353"
      inkscape:window-x="1080"
@@ -41,131 +41,131 @@
   <defs
      id="defs2">
     <rect
-       x="369.1397"
-       y="42.732921"
-       width="369.1397"
-       height="98.194798"
+       x="369.13971"
+       y="42.732922"
+       width="369.13971"
+       height="98.194801"
        id="rect2" />
     <rect
        x="163.39183"
-       y="559.45774"
-       width="671.26395"
-       height="89.71898"
+       y="559.45776"
+       width="671.26398"
+       height="89.718979"
        id="rect450123" />
     <rect
-       x="261.6641"
-       y="631.97987"
-       width="61.076386"
-       height="17.358552"
+       x="261.66409"
+       y="631.97986"
+       width="61.076385"
+       height="17.358553"
        id="rect389388" />
     <marker
-       style="overflow:visible;"
+       style="overflow:visible"
        id="Arrow1Lend"
-       refX="0.0"
-       refY="0.0"
+       refX="0"
+       refY="0"
        orient="auto"
        inkscape:stockid="Arrow1Lend"
        inkscape:isstock="true">
       <path
-         transform="scale(0.8) rotate(180) translate(12.5,0)"
-         style="fill-rule:evenodd;fill:context-stroke;stroke:context-stroke;stroke-width:1.0pt;"
-         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         transform="matrix(-0.8,0,0,-0.8,-10,0)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
          id="path334697" />
     </marker>
     <marker
-       style="overflow:visible;"
+       style="overflow:visible"
        id="Arrow2Mend"
-       refX="0.0"
-       refY="0.0"
+       refX="0"
+       refY="0"
        orient="auto"
        inkscape:stockid="Arrow2Mend"
        inkscape:isstock="true">
       <path
-         transform="scale(0.6) rotate(180) translate(0,0)"
-         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
-         style="stroke:context-stroke;fill-rule:evenodd;fill:context-stroke;stroke-width:0.62500000;stroke-linejoin:round;"
+         transform="scale(-0.6)"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:0.625;stroke-linejoin:round"
          id="path334721" />
     </marker>
     <rect
-       x="412.10488"
+       x="412.10489"
        y="340.09903"
        width="266.16446"
-       height="83.578213"
+       height="83.578217"
        id="rect288534" />
     <rect
-       x="517.54201"
-       y="566.08166"
+       x="517.54199"
+       y="566.08167"
        width="139.51132"
-       height="73.291663"
+       height="73.291664"
        id="rect265632" />
     <rect
        x="102.74085"
-       y="590.98721"
-       width="147.2922"
-       height="48.188188"
+       y="590.98718"
+       width="147.29221"
+       height="48.188187"
        id="rect259484" />
     <rect
        x="391.41537"
-       y="356.86535"
-       width="150.92904"
-       height="28.185544"
+       y="356.86536"
+       width="150.92905"
+       height="28.185543"
        id="rect255768" />
     <rect
        x="232.75804"
-       y="380.05024"
+       y="380.05023"
        width="496.42926"
        height="143.65535"
        id="rect205247" />
     <rect
        x="590.078"
        y="165.93102"
-       width="55.916482"
-       height="38.186866"
+       width="55.916481"
+       height="38.186867"
        id="rect145949" />
     <rect
-       x="614.62132"
-       y="190.94407"
-       width="80.363666"
+       x="614.62134"
+       y="190.94408"
+       width="80.363663"
        height="28.28801"
        id="rect135795" />
     <rect
-       x="298.22124"
+       x="298.22125"
        y="25.912516"
-       width="53.188849"
-       height="99.558615"
+       width="53.18885"
+       height="99.558617"
        id="rect88030" />
     <rect
-       x="199.9448"
+       x="199.94479"
        y="124.0815"
-       width="67.505479"
+       width="67.505478"
        height="23.787645"
        id="rect67667" />
     <rect
-       x="372.88741"
+       x="372.88742"
        y="271.95065"
        width="25.716373"
-       height="24.430554"
+       height="24.430553"
        id="rect57813" />
     <rect
-       x="300.88157"
-       y="217.30335"
-       width="66.219661"
-       height="41.789106"
+       x="300.88156"
+       y="217.30334"
+       width="66.219658"
+       height="41.789104"
        id="rect53361" />
     <rect
-       x="52.075656"
-       y="224.37536"
+       x="52.075657"
+       y="224.37537"
        width="112.50914"
        height="21.216007"
        id="rect46322" />
     <rect
-       x="447.46489"
+       x="447.4649"
        y="102.22258"
-       width="221.29792"
+       width="221.29791"
        height="26.363644"
        id="rect41542" />
     <rect
-       x="46.289472"
+       x="46.289471"
        y="39.860378"
        width="224.37535"
        height="21.216007"
@@ -191,20 +191,20 @@
     <rect
        x="46.289471"
        y="39.860378"
-       width="322.14849"
-       height="25.457374"
+       width="322.1485"
+       height="25.457375"
        id="rect2700-7-7" />
     <rect
        x="102.74085"
        y="590.98718"
-       width="94.895099"
-       height="20.221631"
+       width="94.895096"
+       height="20.22163"
        id="rect259484-0" />
     <rect
        x="102.74085"
        y="590.98718"
-       width="79.143821"
-       height="39.508912"
+       width="79.143822"
+       height="39.508911"
        id="rect259484-1" />
     <rect
        x="102.74085"
@@ -468,7 +468,7 @@
        x="46.289471"
        y="39.860378"
        width="180.31157"
-       height="69.099508"
+       height="69.09951"
        id="rect2700-7-7-2" />
     <rect
        x="300.88156"
@@ -658,7 +658,7 @@
        x="46.289471"
        y="39.860378"
        width="394.88538"
-       height="34.549486"
+       height="34.549484"
        id="rect2700-7-7-27" />
     <rect
        x="447.4649"
@@ -676,7 +676,8 @@
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1">
+     id="layer1"
+     transform="translate(-0.34020621)">
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,-10.103608,-4.786697)"
@@ -687,9 +688,9 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="46.289062"
          y="54.419331"
-         id="tspan4"><tspan
+         id="tspan51"><tspan
            style="font-weight:bold"
-           id="tspan3">P2TSH Witness (input)</tspan></tspan></text>
+           id="tspan2">P2TSH Witness (input)</tspan></tspan></text>
     <rect
        style="fill:#e4bee3;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect12088"
@@ -785,9 +786,9 @@
          style="font-size:16px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect135795);display:inline;stroke-width:1.88976;stroke-miterlimit:4;stroke-dasharray:none"><tspan
            x="614.62109"
            y="205.50136"
-           id="tspan6"><tspan
+           id="tspan53"><tspan
              style="stroke:none"
-             id="tspan5">annex</tspan></tspan></text>
+             id="tspan52">annex</tspan></tspan></text>
       <text
          xml:space="preserve"
          transform="matrix(0.26458333,0,0,0.26458333,-97.506514,-16.277673)"
@@ -795,9 +796,9 @@
          style="font-size:16px;line-height:1.25;font-family:sans-serif;white-space:pre;shape-inside:url(#rect145949);display:inline;stroke-width:0.498898;stroke-miterlimit:4;stroke-dasharray:none"><tspan
            x="590.07812"
            y="180.48964"
-           id="tspan8"><tspan
+           id="tspan55"><tspan
              style="stroke:#808080"
-             id="tspan7">50</tspan></tspan></text>
+             id="tspan54">50</tspan></tspan></text>
     </g>
     <rect
        style="fill:#e8baba;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
@@ -878,7 +879,7 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="52.076172"
          y="238.933"
-         id="tspan9">Initial stack</tspan></text>
+         id="tspan56">Initial stack</tspan></text>
     <g
        id="g17745-5-3"
        transform="matrix(1.5040779,0,0,1.0049545,22.685492,-31.200521)"
@@ -915,7 +916,7 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="447.46484"
          y="116.78066"
-         id="tspan10">Merkle path (32*(d-1) bytes)</tspan></text>
+         id="tspan57">Merkle path (32*(d-1) bytes)</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,-20.573525,-12.540476)"
@@ -926,7 +927,7 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="447.46484"
          y="116.78066"
-         id="tspan11">Control block</tspan></text>
+         id="tspan58">Control block</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,-62.001274,30.326575)"
@@ -937,7 +938,7 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="447.46484"
          y="116.78066"
-         id="tspan12">Witness Program</tspan></text>
+         id="tspan59">Witness Program</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,-109.12454,29.833839)"
@@ -948,7 +949,7 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="447.46484"
          y="116.78066"
-         id="tspan13">SegWit version 2</tspan></text>
+         id="tspan60">SegWit version 2</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,-3.2518289,-37.057947)"
@@ -959,10 +960,10 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="300.88086"
          y="231.86074"
-         id="tspan14">tapleaf </tspan><tspan
+         id="tspan61">tapleaf </tspan><tspan
          x="300.88086"
          y="251.86074"
-         id="tspan15">version</tspan></text>
+         id="tspan62">version</tspan></text>
     <rect
        style="fill:#e8baba;fill-opacity:1;stroke:#000000;stroke-width:0.467735;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect12088-0-7-7-8-7-9"
@@ -983,10 +984,10 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="300.88086"
          y="231.86074"
-         id="tspan16">tapleaf </tspan><tspan
+         id="tspan63">tapleaf </tspan><tspan
          x="300.88086"
          y="251.86074"
-         id="tspan17">version</tspan></text>
+         id="tspan64">version</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,1.1708515,-48.643815)"
@@ -997,7 +998,7 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="372.88672"
          y="286.50917"
-         id="tspan18">1</tspan></text>
+         id="tspan65">1</tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(-0.00160967,-0.1592893,0.53311092,-0.00163141,53.796304,85.188522)"
@@ -1008,9 +1009,9 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="298.2207"
          y="83.85378"
-         id="tspan20"><tspan
+         id="tspan67"><tspan
            style="-inkscape-font-specification:sans-serif"
-           id="tspan19">{</tspan></tspan></text>
+           id="tspan66">{</tspan></tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(-0.0017354,-0.1592893,0.57475143,-0.00163141,-10.689285,85.028412)"
@@ -1021,9 +1022,9 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="298.2207"
          y="83.85378"
-         id="tspan22"><tspan
+         id="tspan69"><tspan
            style="-inkscape-font-specification:sans-serif"
-           id="tspan21">{</tspan></tspan></text>
+           id="tspan68">{</tspan></tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,-9.6102756,36.875316)"
@@ -1034,9 +1035,9 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="46.289062"
          y="54.419331"
-         id="tspan24"><tspan
+         id="tspan71"><tspan
            style="font-weight:bold"
-           id="tspan23">P2TSH scriptPubKey (output)</tspan></tspan></text>
+           id="tspan70">P2TSH scriptPubKey (output)</tspan></tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,-9.6079194,69.367573)"
@@ -1047,9 +1048,9 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="46.289062"
          y="54.419331"
-         id="tspan26"><tspan
+         id="tspan73"><tspan
            style="font-weight:bold"
-           id="tspan25">How the Taptree Root is Computed:</tspan></tspan></text>
+           id="tspan72">How the Taptree Root is Computed:</tspan></tspan></text>
     <rect
        style="fill:#d6d6d6;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect12088-0-7-9"
@@ -1086,7 +1087,7 @@
          y="69.920135">OP_PUSHNUM2</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;white-space:pre;inline-size:36.3819;stroke-width:0.264583"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;white-space:pre;inline-size:36.3819;display:inline;stroke-width:0.264583"
        x="53.265163"
        y="69.97226"
        id="text14922-4-7-8-4"
@@ -1095,7 +1096,7 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="53.265163"
          y="69.97226"
-         id="tspan27">      taptree root</tspan></text>
+         id="tspan74">      taptree root</tspan></text>
     <rect
        style="fill:#bbe7d2;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect12088-0-7-9-5-3"
@@ -1268,7 +1269,7 @@
          sodipodi:role="line"
          style="font-style:italic;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:'sans-serif Italic';stroke-width:0.264583"
          x="86.897667"
-         y="126.94414"
+         y="126.94415"
          id="tspan282693-5-4-8">   TapBranch</tspan></text>
     <text
        xml:space="preserve"
@@ -1311,13 +1312,13 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="102.74023"
          y="605.54433"
-         id="tspan28">tapleaf
+         id="tspan75">tapleaf
 </tspan><tspan
          x="102.74023"
          y="625.54433"
-         id="tspan30">    <tspan
+         id="tspan77">    <tspan
    style="font-weight:bold"
-   id="tspan29">A</tspan></tspan></text>
+   id="tspan76">A</tspan></tspan></text>
     <rect
        style="fill:#e8baba;fill-opacity:1;stroke:#000000;stroke-width:0.467735;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect12088-0-7-7-8-7-9-5"
@@ -1338,10 +1339,10 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="300.88086"
          y="231.86074"
-         id="tspan31">tapleaf </tspan><tspan
+         id="tspan78">tapleaf </tspan><tspan
          x="300.88086"
          y="251.86074"
-         id="tspan32">version</tspan></text>
+         id="tspan79">version</tspan></text>
     <g
        id="g17745-7-1-4"
        transform="matrix(1.057386,0,0,0.99792136,9.3364099,158.31709)"
@@ -1378,13 +1379,13 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="102.74023"
          y="605.54433"
-         id="tspan33">tapleaf
+         id="tspan80">tapleaf
 </tspan><tspan
          x="102.74023"
          y="625.54433"
-         id="tspan35">    <tspan
+         id="tspan82">    <tspan
    style="font-weight:bold"
-   id="tspan34">B</tspan></tspan></text>
+   id="tspan81">B</tspan></tspan></text>
     <rect
        style="fill:#e8baba;fill-opacity:1;stroke:#000000;stroke-width:0.467735;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect12088-0-7-7-8-7-9-5-6"
@@ -1405,10 +1406,10 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="300.88086"
          y="231.86074"
-         id="tspan36">tapleaf </tspan><tspan
+         id="tspan83">tapleaf </tspan><tspan
          x="300.88086"
          y="251.86074"
-         id="tspan37">version</tspan></text>
+         id="tspan84">version</tspan></text>
     <g
        id="g17745-7-1-4-4"
        transform="matrix(1.057386,0,0,0.99792136,48.217947,158.31954)"
@@ -1445,13 +1446,13 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="102.74023"
          y="605.54433"
-         id="tspan38">tapleaf
+         id="tspan85">tapleaf
 </tspan><tspan
          x="102.74023"
          y="625.54433"
-         id="tspan40">    <tspan
+         id="tspan87">    <tspan
    style="font-weight:bold"
-   id="tspan39">C</tspan></tspan></text>
+   id="tspan86">C</tspan></tspan></text>
     <rect
        style="fill:#e8baba;fill-opacity:1;stroke:#000000;stroke-width:0.467735;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect12088-0-7-7-8-7-9-5-6-9"
@@ -1472,10 +1473,10 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="300.88086"
          y="231.86074"
-         id="tspan41">tapleaf </tspan><tspan
+         id="tspan88">tapleaf </tspan><tspan
          x="300.88086"
          y="251.86074"
-         id="tspan42">version</tspan></text>
+         id="tspan89">version</tspan></text>
     <g
        id="g17745-7-1-4-4-3"
        transform="matrix(1.0647598,0,0,0.99778343,86.625759,158.31578)"
@@ -1512,13 +1513,13 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="102.74023"
          y="605.54433"
-         id="tspan43">tapleaf
+         id="tspan90">tapleaf
 </tspan><tspan
          x="102.74023"
          y="625.54433"
-         id="tspan45">    <tspan
+         id="tspan92">    <tspan
    style="font-weight:bold"
-   id="tspan44">D</tspan></tspan></text>
+   id="tspan91">D</tspan></tspan></text>
     <rect
        style="fill:#e8baba;fill-opacity:1;stroke:#000000;stroke-width:0.467735;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect12088-0-7-7-8-7-9-5-6-9-8"
@@ -1539,10 +1540,10 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="300.88086"
          y="231.86074"
-         id="tspan46">tapleaf </tspan><tspan
+         id="tspan93">tapleaf </tspan><tspan
          x="300.88086"
          y="251.86074"
-         id="tspan47">version</tspan></text>
+         id="tspan94">version</tspan></text>
     <g
        id="g17745-7-1-4-4-3-0"
        transform="matrix(1.0500126,0,0,0.99805978,126.09213,158.29979)"
@@ -1579,13 +1580,13 @@
        inkscape:export-ydpi="71.752861"><tspan
          x="102.74023"
          y="605.54433"
-         id="tspan48">tapleaf
+         id="tspan95">tapleaf
 </tspan><tspan
          x="102.74023"
          y="625.54433"
-         id="tspan50">    <tspan
+         id="tspan97">    <tspan
    style="font-weight:bold"
-   id="tspan49">E</tspan></tspan></text>
+   id="tspan96">E</tspan></tspan></text>
     <text
        xml:space="preserve"
        transform="scale(0.26458333)"
@@ -1853,6 +1854,13 @@
        xml:space="preserve"
        transform="scale(0.26458333)"
        id="text2"
-       style="fill:#000000;text-orientation:auto;text-align:start;writing-mode:lr-tb;direction:ltr;-inkscape-font-specification:'sans-serif Bold';font-family:sans-serif;font-weight:bold;font-style:normal;font-stretch:normal;font-variant:normal;font-size:13.33333333px;white-space:pre;shape-inside:url(#rect2)" />
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:13.3333px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:start;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect2);display:inline;fill:#000000" />
+    <rect
+       style="fill:none;stroke-width:0.264583"
+       id="rect3"
+       width="209.567"
+       height="207.86598"
+       x="0.34020621"
+       y="0" />
   </g>
 </svg>
