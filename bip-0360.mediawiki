@@ -203,8 +203,8 @@ OP_2 OP_PUSHBYTES_32 <hash>
 </source>
 
 Where:
-* OP_2 (0x52) indicates SegWit version 2.
-* <hash> is the 32-byte Merkle root of the taptree.
+* <code>OP_2</code> (0x52) indicates SegWit version 2.
+* <code><hash></code> is the 32-byte Merkle root of the taptree.
 
 === Address Format ===
 
