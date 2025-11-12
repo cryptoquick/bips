@@ -1172,8 +1172,8 @@ Those proposing changes should consider that ultimately consent may rest with th
 |-
 | [[bip-0360.mediawiki|360]]
 | Consensus (soft fork)
-| Pay to Quantum Resistant Hash
-| Hunter Beast, Ethan Heilman
+| Pay-to-Tapscript-Hash (P2TSH)
+| Hunter Beast, Ethan Heilman, Isabel Foxen Duke
 | Standard
 | Draft
 |- style="background-color: #cfffcf"
