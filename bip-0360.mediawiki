@@ -170,7 +170,7 @@ Design of the P2TSH output type is guided by the following intentions:
   <li>
     Create the safest possible path for the addition of post-quantum signature integrations in the event they are used in the future.
     <p>Importantly, we are proposing a Tapscript-native, hashed output type that is resistant to long-exposure attacks. While some existing output types are already resistant to long-exposure attacks (e.g. P2WSH), no such output type supports Tapscript – which may be required for practical extension with post-quantum signatures via opcodes.</p>
-    <p>More specifically, unlike Tapscript, Bitcoin script provided by P2WSH does not support OP_SUCCESSx opcode upgrades, which is the way we (the authors) prefer to integrate post-quantum OP_CHECKSIG opcodes into Bitcoin.<ref>OP_SUCCESSx is a mechanism to upgrade the Script system OP_SUCCESS</ref></p>
+    <p>More specifically, unlike Tapscript, Bitcoin script provided by P2WSH does not support OP_SUCCESSx opcode upgrades.</p>
   </li>
 
   <li>
