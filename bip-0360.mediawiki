@@ -118,7 +118,7 @@ A complete list of outputs that are vulnerable to long-exposure attacks:
 * Reused outputs of any type
 * Taproot outputs (mainnet start with bc1p)
 
-For further clarification on quantum attack vectors, please refer to the Glossary of Terms.
+For further clarification on quantum attack vectors, please refer to our [[#Glossary|Glossary of Terms]].
 
 ==Design==
 
