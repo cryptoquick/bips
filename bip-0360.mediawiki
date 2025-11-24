@@ -372,7 +372,7 @@ Long-exposure attacks give attackers an ample amount of time to perform quantum 
 
 Attempts to derive private keys from public keys during the brief period when funds are unconfirmed in mempools. These attacks cannot be prevented through wallet hygiene, as revealing the redeem script and/or a public key is necessary for spending.
 
-Protection against short-exposure attacks may require post-quantum signature schemes; that said, executing these attacks requires faster CRQCs with greater coherence and better error-correction than those capable of executing long-exposure attacks – and are therefore viewed as lower-risk than long-exposure attacks in the near-term.
+Protection against short-exposure attacks may require post-quantum signature schemes; that said, executing these attacks requires more powerful CRQCs than those capable of executing long-exposure attacks – and are therefore viewed as lower-risk than long-exposure attacks in the near-term.
 
 '''Tapscript-Native Output Type'''
 
