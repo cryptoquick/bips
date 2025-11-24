@@ -124,7 +124,7 @@ For further clarification on quantum attack vectors, please refer to the Glossar
 
 Pay-to-Tapscript-Hash (P2TSH) is a Tapscript-native, hashed output type that commits solely to the root of a Tapscript tree. Functionally, it is a modified Pay-to-Taproot (P2TR) output with the quantum-vulnerable key-path spend disabled by omission of the internal keys and of the Taproot 'tweak' step.
 
-In other words, P2TSH outputs commit to the Merkle root of a tapscript tree without committing to any internal public key. The script(s) being committed to, however, may contain keys or key-hashes.
+In other words, P2TSH outputs commit to the Merkle root of a Tapscript tree without committing to any internal public key. The script(s) being committed to, however, may contain keys or key-hashes.
 
 This output type is designed to offer Taproot users immediate protection against long-exposure quantum attacks – as well as to provide a practical output type with which new, post-quantum signatures may evolve for additional security.
 
