@@ -155,9 +155,8 @@ The control block is a ''1 + 32*m'' byte array, where the first byte is the cont
 
 ==Rationale==
 
-In this proposal, we adopt a “prepared not scared” approach to the possible advancement of quantum computing – and offer Bitcoin users an option for increased protection if they so choose.
-
-We understand that this subject is controversial and veiled in uncertainty; and hope to offer users flexible options - tailored to their level of concern - that are relatively unobtrusive to existing network architecture.
+In this proposal, we adopt a “prepared not scared” approach to the possible advancement of quantum computing – and offer Bitcoin users an option for increased protection if they so choose. 
+This BIP does not take a position on any specific quantum computing timeline, but rather proposes a flexible and unobtrusive option for users who wish to mitigate this risk according to their own estimate of the timeline.
 
 Design of the P2TSH output type is guided by the following intentions:
 
