@@ -229,7 +229,7 @@ A P2TSH output is a native SegWit output (see [[bip-0141.mediawiki | BIP141]]) w
 * There must be at least two witness elements left.
 ** Call the second-to-last stack element ''s'', the script (as defined in [[bip-0341.mediawiki | BIP 341]])
 ** The last stack element is called the control block ''c'', and must have length ''1 + 32*d'', for a value of ''d'' that is an integer between 0 and 128, inclusive. Fail if it does not have such a length.
-** Let ''v = c[0] & 0xfe'' be the ''leaf version'' (as defined in [[bip-0341.mediawiki | BIP 341]]). To maintain ''leaf version'' encoding compatibility the last bit of c[0] is unused and must be 1.<ref>Why set the last bit of c[0] to one? Consider a faulty implementation that deserializes the ''leaf version'' as c[0] rather than c[0] &amp; 0xfe for both P2TR and P2TSH. If they test against P2TSH outputs and require that last bit is 1, this deserialization bug will cause an immediate error.</ref>
+** Let ''v = c[0] & 0xfe'' be the ''leaf version'' (as defined in [[bip-0341.mediawiki | BIP 341]]). To maintain ''leaf version'' encoding compatibility the last bit of c[0] is unused and must be 1.<ref>Why set the last bit of c[0] to one? Consider a faulty implementation that deserializes the ''leaf version'' as c[0] rather than c[0] & 0xfe for both P2TR and P2TSH. If they test against P2TSH outputs and require that last bit is 1, this deserialization bug will cause an immediate error.</ref>
 ** Let ''k<sub>0</sub> = hash<sub>TapLeaf</sub>(v || compact_size(size of s) || s)''; also call it the ''tapleaf hash''.
 ** For ''j'' in ''[0,1,…,m-1]'':
 *** Let ''e<sub>j</sub> = c[33+32j:65+32j]''.
