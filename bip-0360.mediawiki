@@ -106,7 +106,7 @@ The following list of output types describes their long-exposure attack vulnerab
 | bc1p92aslsnseq786wxfk3ekra90ds9ku47qttupfjsqm mj4z82xdq4q3rr58u
 |-
 | P2TSH
-| No
+| No¹
 | bc1z
 | bc1zzmv50jjgxxhww6ve4g5zpewrkjqhr06fyujpm20tuezdlxmfphcqfc80ve
 |}
