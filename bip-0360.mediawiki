@@ -348,7 +348,6 @@ Commit-reveal schemes such as [https://gnusha.org/pi/bitcoindev/1518710367.3550.
 ==Other Methods of Addressing Quantum Vulnerabilities for Cryptocurrencies==
 
 It is worth noting, by way of comparison, that [https://ethresear.ch/t/how-to-hard-fork-to-save-most-users-funds-in-a-quantum-emergency/18901 Vitalik Buterin’s proposed solution] to Ethereum’s quantum vulnerability is quite different from the approach in this BIP.
-
 His plan involves a hard fork of the chain, reverting all blocks after some sufficient amount of theft, and using STARKs based on BIP 32 seeds to act as the authoritative secret when signing. We believe rollbacks of any kind are an untenable approach for Bitcoin – and would be practically impossible to implement.
 
 That said, we believe the use of STARKs (which are quantum-resistant) may prove useful as a method of proving access to external private keys, in the event that the community chooses to burn vulnerable coins – as proposed by Jameson Lopp and others in [https://qbip.org/ QBIP].
