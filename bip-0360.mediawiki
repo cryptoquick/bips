@@ -47,19 +47,19 @@ The Commercial National Security Algorithm Suite (CNSA) 2.0, for instance, has m
 
 Even in the most optimistic case – wherein quantum computers never pose a significant risk to ECC – we believe that public fear of their advancement alone may be influencing adoption and broad confidence in the Bitcoin network. In other words, we believe users’ fear of quantum computers may be worth addressing regardless of CRQC viability, which is difficult to assess. Given these concerns, we think it’s worth considering changes that offer quantum-resistance, are minimal in complexity and risk – and that create new options for using Bitcoin (and Tapscript).
 
-As a conservative first step in this effort, we propose Pay-to-Tapscript-Hash (P2TSH) – a Tapscript-native, hashed output type that can be used in a quantum-resistant manner.
+As a conservative first step in this effort, we propose Pay-to-Tapscript-Hash (P2TSH) – a Tapscript-native, quantum-resistant output type.
 
-===Long-Exposure vs Short-Exposure Quantum Vulnerability===
+===Long-Exposure vs Short-Exposure Attacks===
 
-This proposal specifically mitigates against the risk of long-exposure attacks on Taproot outputs. While other (hashed) Bitcoin output script types already mitigate against this risk, Taproot outputs expose their public keys and so are currently vulnerable to long-exposure quantum attacks.
+This proposal specifically mitigates the risk of long-exposure attacks on Taproot outputs. While other (hashed) Bitcoin output script types already mitigate against this risk, Taproot outputs expose their public keys and so are currently vulnerable to long-exposure quantum attacks.
 
-A long-exposure attack is an attack performed on exposed blockchain data, such as exposed public keys or the spend scripts of spent outputs. These are likely to be the earliest quantum attacks made possible on Bitcoin, because quantum attackers have ample time – as much time as vulnerable keys are exposed – to carry out quantum key recovery.
+A long-exposure attack is an attack performed on exposed blockchain data, such as exposed public keys or the spend scripts of spent outputs. These are likely to be the earliest quantum attacks made possible on Bitcoin, because they give quantum attackers ample time – as much time as vulnerable keys are exposed – to carry out quantum key recovery.
 
-Short-exposure attacks would likely require faster quantum computers with greater choerence and error-tolerance – because these attacks must occur within the relatively short time that a transaction is being confirmed in block, while the public key(s) are exposed in the mempool.
+Short-exposure attacks would likely require faster quantum computers – because these attacks must occur within the relatively short time that the public key(s) of a transaction have been exposed in the mempool but the transaction is not yet confirmed in Bitcoin's blockchain.
 
 All Bitcoin outputs are currently vulnerable to short-exposure attacks – as all Bitcoin transactions require revelation of the redeem scripts and/or associated public keys to unlock and spend unspent outputs.<ref>A vulnerable Bitcoin output is any scriptPubKey type that exposes an elliptic curve public key as raw bytes in a block, making it susceptible to quantum key recovery via Shor’s algorithm. This includes P2PK outputs and any script that contains an unprotected or reused public key.</ref> Comprehensive quantum-resistance of outputs from short-exposure attacks may require the use of post-quantum signature schemes.
 
-Since long-exposure attacks on public keys are likely to be the first quantum-enabled threat to Bitcoin, we propose a Tapscript-native, hashed output type that is resistant to long-exposure attacks as a first step in hardening Bitcoin against the potential threat of quantum computers.
+Since long-exposure attacks on public keys are likely to be the first quantum-enabled threat to Bitcoin, we propose a Tapscript-native, hashed output type that is resistant to long-exposure attacks as a first step in hardening Bitcoin against the potential threat of quantum computers or non-quantum cryptanalytic breaks in Elliptic Curve Cryptography.
 
 The following list of output types describes their long-exposure attack vulnerability:
 
