@@ -251,11 +251,11 @@ The steps above follow the script-path spend logic from [[bip-0341.mediawiki | B
 
 The [https://learnmeabitcoin.com/technical/upgrades/taproot/#common-signature-message common signature message] construction for P2TSH outputs is exactly the same procedure as defined in [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP 341] for Taproot transactions.
 
-==Compatibility with BIP 141==
+=== Compatibility with BIP 141 ===
 
 By adhering to the SegWit transaction structure and versioning, P2TSH outputs are compatible with existing transaction processing rules. Nodes that do not recognize SegWit version 2 will treat these outputs as anyone-can-spend but, per [https://github.com/bitcoin/bips/blob/master/bip-0141.mediawiki BIP 141], will not relay or mine such transactions.
 
-=== Transaction Size and Fees ===
+== Transaction Size and Fees ==
 
 P2TSH and P2TR scriptPubKeys are always the same size, 34 bytes. A witness to a P2TSH output can be slightly larger or smaller than the equivalent P2TR witness – depending on the use of key- vs script-path spend in the case of P2TR. Let’s consider the cases.
 
@@ -315,7 +315,7 @@ P2TSH does not, by itself, protect against short-exposure quantum attacks, but s
 
 That said, the protection offered by resistance to long-exposure attack alone should not be underestimated. It is likely that the first CRQCs will not be able to perform short-exposure attacks - as such, defense against long-exposure attacks is more time-sensitive than is defense against short-exposure attacks.
 
-==Security Considerations for Post-Quantum Signature Schemes==
+== Security Considerations for Post-Quantum Signature Schemes ==
 
 While this proposal does not include the introduction of post-quantum signature schemes, we think it’s worth commenting on security considerations related to this possibility.
 
