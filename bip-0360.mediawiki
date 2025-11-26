@@ -311,7 +311,7 @@ That said, the protection offered by resistance to long-exposure attack alone sh
 
 While this proposal does not include the introduction of post-quantum signature schemes, we think it’s worth commenting on security considerations related to this possibility.
 
-Quantum-resistant signature algorithms (e.g. ML-DSA or SLH-DSA) offer different levels of protection (e.g. NIST I - V) and should be scrutinized before use. We are currently researching options for the potential proposal of post-quantum signatures into Bitcoin – and encourage others to engage in this research as well.
+Quantum-resistant signature algorithms (e.g. ML-DSA or SLH-DSA) offer different theorized levels of protection (e.g. NIST I - V), and each should be scrutinized before use. We are currently researching options for the potential proposal of post-quantum signatures into Bitcoin – and encourage others to engage in this research as well.
 
 We also imagine the possibility of introducing multiple post-quantum signatures into Bitcoin for redundancy. Balancing the risks of additional complexity with the benefits of signature-type redundancy will be the challenge here.
 
