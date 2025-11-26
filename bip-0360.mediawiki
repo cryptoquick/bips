@@ -165,7 +165,8 @@ Design of the P2TSH output type is guided by the following intentions:
 #: P2TSH leverages Taproot code already in Bitcoin for tapscript and taptree construction – reducing the implementation burden on wallets, exchanges, and libraries, which can reuse code they already have. This approach reduces complexity and minimizes implementation risks.
 # Create the safest possible path for the addition of post-quantum signatures - in the event they are used in the future. 
 #:
-#: Importantly, we are proposing a Tapscript-native, hashed output type that is resistant to long-exposure attacks. While some existing output types are already resistant to long-exposure attacks (e.g. P2WSH), no such output type supports Tapscript – which may be required for practical extension with post-quantum signatures via opcodes. More specifically, unlike Tapscript, Bitcoin script provided by P2WSH does not support OP_SUCCESSx opcode upgrades.
+#: Importantly, we are proposing a Tapscript-native, hashed output type that is resistant to long-exposure attacks. While existing hashed output types (i.e. P2PKH, P2SH, P2WPKH, and P2WSH) are already resistant to long-exposure attacks, these output types do not support Tapscript – which may be required for practical extension with post-quantum signature opcodes. Unlike Tapscript, Bitcoin script as provided by P2SH and P2WSH does not support OP_SUCCESSx opcode upgrades.
+#:
 # Facilitate gradual integration of quantum-resistant features - that can be carried out iteratively as quantum computers evolve. This approach encourages responsiveness to the current threat-level, while avoiding heavy-handedness in our reactions to a potential threat. 
 #:
 #: We designed P2TSH with an eye towards integrating post-quantum signatures in the future, without proposing more complex changes while CRQCs are still in their infancy.
