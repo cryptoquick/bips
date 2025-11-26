@@ -55,7 +55,7 @@ This proposal specifically mitigates the risk of long-exposure attacks on Taproo
 
 A long-exposure attack is an attack performed on exposed blockchain data, such as exposed public keys or the spend scripts of spent outputs. These are likely to be the earliest quantum attacks made possible on Bitcoin, because they give quantum attackers ample time – as much time as vulnerable keys are exposed – to carry out quantum key recovery.
 
-Short-exposure attacks would likely require faster quantum computers – because these attacks must occur within the relatively short time that the public key(s) of a transaction have been exposed in the mempool but the transaction is not yet confirmed in Bitcoin's blockchain.
+Short-exposure attacks will require significantly more advanced, error-tolerant quantum computers – because these attacks must occur within the relatively short time that the public key(s) of a transaction are exposed in the mempool while a transaction is awaiting confirmation in Bitcoin's blockchain.
 
 All Bitcoin outputs are currently vulnerable to short-exposure attacks – as all Bitcoin transactions require revelation of the redeem scripts and/or associated public keys to unlock and spend unspent outputs.<ref>A vulnerable Bitcoin output is any scriptPubKey type that exposes an elliptic curve public key as raw bytes in a block, making it susceptible to quantum key recovery via Shor’s algorithm. This includes P2PK outputs and any script that contains an unprotected or reused public key.</ref> Comprehensive quantum-resistance of outputs from short-exposure attacks may require the use of post-quantum signature schemes.
 
