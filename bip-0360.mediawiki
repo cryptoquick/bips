@@ -177,7 +177,7 @@ While P2TR outputs (and ECC-based key-path spends) will remain an option for fol
 
 A P2TSH witness will be larger than a P2TR key-path spend witness. That said, a P2TSH witness will be slightly smaller than the witness to an equivalent P2TR script-path spend, because with P2TSH there is no need to reveal any internal public key. For a more complete comparison of input witness sizes, the “Transaction Size and Fees” section may be reviewed later in this proposal.
 
-Additionally, there is a privacy tradeoff when comparing P2TSH and P2TR. That is, since P2TSH outputs can only be spent via the script-path spend, users functionally reveal the existence of a Tapscript tree whenever they are using a P2TSH output. Of course, the chosen leaf script is also revealed whenever spending from any script. In P2TR, when you spend an output by the key-path spend you don’t reveal any script or if you had any scripts at all.
+Additionally, there is a privacy tradeoff when comparing P2TSH and P2TR. That is, since P2TSH outputs can only be spent via the script-path spend, users functionally reveal the existence of a Tapscript tree whenever they are using a P2TSH output. Of course, a chosen leaf script is also revealed at spend-time. In P2TR, when you spend an output by the key-path spend you don’t reveal any script or if you had any scripts at all.
 
 '''Note:''' P2TSH and P2TR both provide greater optionality and privacy regarding script policy compared to P2SH [https://github.com/bitcoin/bips/blob/master/bip-0016.mediawiki (BIP 16 - Pay to Script Hash)].
 
