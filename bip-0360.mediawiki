@@ -155,23 +155,23 @@ The control block is a ''1 + 32*m'' byte array, where the first byte is the cont
 
 ==Rationale==
 
-In this proposal, we adopt a “prepared not scared” approach to the possible advancement of quantum computing – and offer Bitcoin users an option for increased protection if they so choose. 
+In this proposal, we adopt a “prepared not scared” approach to the possible advancement of quantum computing – and offer Bitcoin users an option for increased protection if they so choose.
 This BIP does not take a position on any specific quantum computing timeline, but rather proposes a flexible and unobtrusive option for users who wish to mitigate this risk according to their own estimate of the timeline.
 
 Design of the P2TSH output type is guided by the following intentions:
 
-# Minimize changes to the network – we should reuse existing Bitcoin code and preserve existing software behavior, workflows, user expectations and compatibility whenever possible. 
+# Minimize changes to the network – we should reuse existing Bitcoin code and preserve existing software behavior, workflows, user expectations and compatibility whenever possible.
 #:
 #: P2TSH leverages Taproot code already in Bitcoin for tapscript and taptree construction – reducing the implementation burden on wallets, exchanges, and libraries, which can reuse code they already have. This approach reduces complexity and minimizes implementation risks.
-# Create the safest possible path for the addition of post-quantum signatures - in the event they are used in the future. 
+# Create the safest possible path for the addition of post-quantum signatures - in the event they are used in the future.
 #:
 #: Importantly, we are proposing a Tapscript-native, hashed output type that is resistant to long-exposure attacks. While existing hashed output types (i.e. P2PKH, P2SH, P2WPKH, and P2WSH) are already resistant to long-exposure attacks, these output types do not support Tapscript – which may be required for practical extension with post-quantum signature opcodes. Unlike Tapscript, Bitcoin script as provided by P2SH and P2WSH does not support OP_SUCCESSx opcode upgrades.
 #:
-# Facilitate gradual integration of quantum-resistant features - that can be carried out iteratively as quantum computers evolve. This approach encourages responsiveness to the current threat-level, while avoiding heavy-handedness in our reactions to a potential threat. 
+# Facilitate gradual integration of quantum-resistant features - that can be carried out iteratively as quantum computers evolve. This approach encourages responsiveness to the current threat-level, while avoiding heavy-handedness in our reactions to a potential threat.
 #:
 #: We designed P2TSH with an eye towards integrating post-quantum signatures in the future, without proposing more complex changes while CRQCs are still in their infancy.
 
-=== P2TSH Trade-Offs ===
+===P2TSH Trade-Offs===
 
 While P2TR outputs (and ECC-based key-path spends) will remain an option for folks wishing to use them – we aim to be clear about the tradeoffs of using P2TSH outputs, which disable the key-path spend for the benefit of quantum protection.
 
@@ -187,7 +187,7 @@ We define the Pay-to-Tapscript-Hash (P2TSH) output structure as follows:
 
 A P2TSH output is a modified P2TR output that commits to the root of a taptree (as defined in [https://github.com/bitcoin/bips/blob/master/bip-0342.mediawiki BIP 342]). Unlike P2TR outputs, we disable the key-path spend for the benefit of quantum resistance by omitting the internal keys and the Taproot "tweak" step. The root of the taptree is then set as the witness program, prepended with a SegWit version 2 byte, and committed to in the output scriptPubKey.
 
-=== ScriptPubKey ===
+===ScriptPubKey===
 
 The scriptPubKey for a P2TSH output is:
 
@@ -199,7 +199,7 @@ Where:
 * <code>OP_2</code> indicates SegWit version 2.
 * <code><hash></code> is the 32-byte Merkle root of the taptree.
 
-=== Address Format ===
+===Address Format===
 
 P2TSH outputs use SegWit version 2, resulting in mainnet addresses that start with 'bc1z', following [https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki#bech32 BIP 173]. Bech32m encoding maps version 2 to the prefix z.
 
@@ -211,7 +211,7 @@ bc1zzmv50jjgxxhww6ve4g5zpewrkjqhr06fyujpm20tuezdlxmfphcqfc80ve
 
 This is a Bech32m-encoded P2TSH scriptPubKey.
 
-=== Script Validation ===
+===Script Validation===
 
 A P2TSH output is a native SegWit output (see [[bip-0141.mediawiki | BIP141]]) with version 2 and a 32-byte witness program. The witness program is the root of the tapscript tree. For the sake of comparison, we have - as much as possible - copied the language verbatim from the script validation section of [[bip-0341.mediawiki | BIP341]].
 
@@ -239,7 +239,7 @@ The steps above follow the script-path spend logic from [[bip-0341.mediawiki | B
 * We compute the taptree Merkle root r and compare it directly to the witness program q.
 * The control block is ''1 + 32*m'' bytes, instead of ''33 + 32*m'' bytes.
 
-=== Common Signature Message Construction ===
+===Common Signature Message Construction===
 
 The [https://learnmeabitcoin.com/technical/upgrades/taproot/#common-signature-message common signature message] construction for P2TSH outputs is exactly the same procedure as defined in [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP 341] for Taproot transactions.
 
@@ -247,11 +247,11 @@ The [https://learnmeabitcoin.com/technical/upgrades/taproot/#common-signature-me
 
 By adhering to the SegWit transaction structure and versioning, P2TSH outputs are compatible with existing transaction processing rules. Nodes that do not recognize SegWit version 2 will treat these outputs as anyone-can-spend but, per [https://github.com/bitcoin/bips/blob/master/bip-0141.mediawiki BIP 141], will not relay or mine such transactions.
 
-== Transaction Size and Fees ==
+===Transaction Size and Fees===
 
 P2TSH and P2TR scriptPubKeys are always the same size, 34 bytes. A witness to a P2TSH output can be slightly larger or smaller than the equivalent P2TR witness – depending on the use of key- vs script-path spend in the case of P2TR. Let’s consider the cases.
 
-=== Comparison with P2TR key-path spend ===
+===Comparison with P2TR key-path spend===
 
 A P2TSH witness will always be larger than a P2TR witness when the P2TR output is spent via a key-path spend. P2TSH quantum-resistance comes from removing the P2TR key-path spend functionality. Consequently, every P2TSH output is spent using a script-path spend, and so P2TSH witnesses must all contain the inputs to the leaf script, the leaf script itself, and a control block. All P2TSH control blocks require a merkle path except when there is exactly one leaf script, and so the tree has depth ''m = 0''. In that special case, a merkle path may be omitted from the P2TSH control block.
 
@@ -283,19 +283,19 @@ tapleaf script = [size] [OP_PUSHBYTES_32, 32-byte scriptPubKey, OP_CHECKSIG] (34
 control block = [size] [control byte] [Merkle path] (1 + 1 + 32*m = 2 + 32*m bytes)
 </source>
 
-=== Comparison with P2TR script-path spend ===
+===Comparison with P2TR script-path spend===
 
 A P2TSH witness will be smaller than an equivalent P2TR script-path spend witness. This is because P2TSH inputs do not require inclusion of any internal public key in the control block. For that reason, a P2TSH witness will be 32 bytes smaller than an equivalent P2TR script-path spend witness.
 
-=== Performance Impact ===
+===Performance Impact===
 
 P2TSH is slightly more computationally performant than P2TR script-path spends, as the operations to spend a P2TSH output are a strict subset of the operations needed to perform a script-path spend on a P2TR output.
 
-=== Backward Compatibility ===
+===Backward Compatibility===
 
 Older wallets and nodes that have not been made compatible with SegWit version 2 and P2TSH will not recognize these outputs. Users should ensure they are using updated wallets and nodes to use P2TSH outputs and validate transactions using these outputs. P2TSH is fully compatible with Tapscript and existing tapscripts can be used in P2TSH outputs without modification.
 
-=== Security ===
+===Security===
 
 P2TSH outputs provide the same Tapscript functionality as P2TR outputs, but without the quantum-vulnerable key-path spend. This enables users, exchanges and others to easily move their coins from Taproot outputs to P2TSH outputs, and thereby to protect their coins from long-exposure quantum attacks.
 
