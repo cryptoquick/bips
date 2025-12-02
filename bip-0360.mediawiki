@@ -317,7 +317,11 @@ We also imagine the possibility of introducing multiple post-quantum signatures 
 
 ==Test Vectors and Reference Code==
 
-TBD
+Test vector data for creation of P2TSH UTXOs can be found [https://github.com/bitcoin/bips/blob/p2qrh-bip-testvector-comment/bip-0360/ref-impl/common/tests/data/p2tsh_construction.json here].
+
+These test vectors build off of the test vectors for BIP341 (Taproot). One important distinction is that the P2TSH test vectors do not include keypath spend scenarios.
+
+Also included are test vectors in [https://github.com/bitcoin/bips/blob/p2qrh-bip-testvector-comment/bip-0360/ref-impl/rust rust] and [https://github.com/bitcoin/bips/blob/p2qrh-bip-testvector-comment/bip-0360/ref-impl/python python]. One of these tests demonstrates a tapleaf tapscript that requires a secp256k1 signature to spend the P2TSH UTXO (modeled after one of the extremely valuable examples provided by [https://learnmeabitcoin.com/technical/upgrades/taproot/#example-3-script-path-spend-signature learnmeabitcoin]. Similar to BIP341 test vectors, all signatures are created with an all-zero (0x0000...0000) BIP340 auxiliary randomness array.
 
 ==Related Work==
 
