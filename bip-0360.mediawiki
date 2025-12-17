@@ -339,7 +339,7 @@ For instance, [https://gnusha.org/pi/bitcoindev/CAD5xwhgzR8e5r1e4H-5EH2mSsE1V39d
 
 Lamport and WOTS (Winternitz One-Time Signatures) built from CAT are quantum resistant, but are one-time signatures - meaning, if you sign twice for the same public key, you risk leaking your private key, which is a significant practical vulnerability for everyday users.
 
-This would require major changes to wallet behavior and would represent a significant security downgrade. Common practices such as RBF and even CPFP could risk revealing private keys if no stateless signature scheme is used.
+This would require major changes to wallet behavior and would represent a significant security downgrade. Common practices, such as RBF and CPFP, could risk revealing private keys if no stateless signature scheme is used.
 
 [https://groups.google.com/g/bitcoindev/c/8O857bRSVV8/m/rTrpeFjWDAAJ Trivial QC signatures with clean upgrade path] and [https://groups.google.com/g/bitcoindev/c/oQKezDOc4us/m/T1vSMkZNAAAJ Re: P2QRH / BIP 360 Update] also discuss the possibility of Taproot with key path spend removed. The design of P2TSH was partly inspired by these discussions.
 
