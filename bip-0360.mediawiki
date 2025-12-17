@@ -11,7 +11,7 @@
   Type: Standards Track
   Created: 2024-12-18
   License: BSD-3-Clause
-  Requires: [[bip-0340.mediawiki|BIP 340]], [[bip-0341.mediawiki|BIP 341]], [[bip-0342.mediawiki|BIP 342]]
+  Requires: 340, 341, 342
 </pre>
 
 ==Introduction==
