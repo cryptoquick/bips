@@ -22,7 +22,7 @@ This document proposes a new output type: Pay-to-Tapscript-Hash (P2TSH), via a s
 
 Through this modification, P2TSH outputs allow developers to use tapscript in a manner that is:
 
-# resistant to long exposure attacks by cryptographically relevant quantum computers (CRQCs), and
+# resistant to long exposure attacks by Cryptographically Relevant Quantum Computers (CRQCs), and
 # resistant to future cryptanalytic approaches that may compromise the elliptic curve cryptography (ECC) used by Bitcoin.
 
 It is worth noting that proposed P2TSH outputs are only resistant to "long exposure attacks" on elliptic curve cryptography; that is, attacks on keys exposed for time periods longer than needed to confirm a spending transaction.
