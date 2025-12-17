@@ -11,7 +11,7 @@
   Type: Standards Track
   Created: 2024-12-18
   License: BSD-3-Clause
-  Requires: 340, 341 (partial), 342
+  Requires: [[bip-0340.mediawiki|BIP 340]], [[bip-0341.mediawiki|BIP 341]], [[bip-0342.mediawiki|BIP 342]]
 </pre>
 
 ==Introduction==
@@ -47,7 +47,7 @@ As a conservative first step in this effort, we propose Pay-to-Tapscript-Hash (P
 
 ===Long-Exposure vs Short-Exposure Attacks===
 
-For clarity, this proposal specifically mitigates against the risk of long exposure attacks on tapscript-native outputs. While other Bitcoin output types already mitigate against this risk, Tapscrips outputs (P2TR output types) are currently vulnerable to long-exposure quantum attacks.
+For clarity, this proposal specifically mitigates against the risk of long exposure attacks on tapscript-native outputs. While other Bitcoin output types already mitigate against this risk, Tapscript outputs (P2TR output types) are currently vulnerable to long-exposure quantum attacks.
 
 A long-exposure attack is an attack performed on exposed blockchain data, such as exposed public keys or the spend scripts of spent outputs. These are likely to be the earliest quantum attacks made possible on Bitcoin, because attackers will have ample time - as much time as vulnerable keys are exposed - to carry out quantum key recovery.
 
@@ -99,7 +99,7 @@ The following list of output types describes their long-exposure attack vulnerab
 | P2TR
 | Yes
 | bc1p
-| bc1p92aslsnseq786wxfk3ekra90ds9ku47qttupfjsqm mj4z82xdq4q3rr58u
+| bc1p92aslsnseq786wxfk3ekra90ds9ku47qttupfjsqmmj4z82xdq4q3rr58u
 |-
 | P2TSH
 | No*
@@ -125,11 +125,11 @@ In other words, P2TSH outputs commit to the Merkle root of a tapscript tree with
 
 This output type is designed to offer tapscript users protection against long-exposure quantum attacks as well as a practical output type with which post-quantum signatures may be used if such signatures are adopted in the future.
 
-Since P2TSH outputs have no key path spend, they omit the Taproot internal key. Instead, a P2TSH output includes the 32-byte root of the tapleaf Merkle tree as defined in [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP 341] hashed with the tag "TapBranch" as shown below.
+Since P2TSH outputs have no key path spend, they omit the Taproot internal key. Instead, a P2TSH output includes the 32-byte root of the tapleaf Merkle tree as defined in [[bip-0341.mediawiki|BIP 341]] hashed with the tag "TapBranch" as shown below.
 
-[[File:bip-0360/merkletree.png|thumb|Construction of P2TSH Taptree root, scriptPubkey, and Witness]]
+[[File:bip-0360/media/merkletree.png|thumb|Construction of P2TSH Taptree root, scriptPubkey, and Witness]]
 
-To construct a P2TSH output, we follow the process outlined in [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP 341] to compute the final tapbranch hash, which is the merkle root of the tapleafs; however, instead of tweaking the internal key with the root of the Merkle tree (as is the case with P2TR outputs), P2TSH outputs commit only to final tapbranch hash, which is tagged, "TapBranch".
+To construct a P2TSH output, we follow the process outlined in [[bip-0341.mediawiki|BIP 341]] to compute the final tapbranch hash, which is the merkle root of the tapleaves; however, instead of tweaking the internal key with the root of the Merkle tree (as is the case with P2TR outputs), P2TSH outputs commit only to final tapbranch hash, which is tagged, "TapBranch".
 
 <source>
 D = tagged_hash("TapLeaf", bytes([leaf_version]) + ser_script(script))
@@ -156,19 +156,19 @@ The control block is a ''1 + 32 * m'' byte array, where the first byte is the co
 
 Design of the P2TSH output type is guided by the following intentions:
 
-# Minimize changes to the network. We should reuse existing Bitcoin code and preserve existing software behavior, workflows, user expectations and compatibility whenever possible.
-#:
-#: P2TSH leverages the battle tested P2TR, tapleaf and tapscript code already in Bitcoin, reducing the implementation burden on wallets, exchanges, and libraries that can reuse code they already have. This approach reduces complexity and minimizes implementation risks.
-#:
-# Create the safest possible path for the addition of post-quantum signature integrations, in the event that they are used in the future.
-#:
-#: Importantly, we are proposing a tapscript-native output type that is resistant to long-exposure attacks. While some existing output types are already resistant to long-exposure attacks (e.g. P2WSH), no such output type supports tapscript - a feature that may be required for practical implementation of post-quantum signature opcodes.
-#:
-#: P2WSH, for instance, is not tapscript-native and as such does not support the OP_SUCCESSx opcode update path that will be critical for the integration of post-quantum OP_CHECKSIG opcodes into Bitcoin.<ref><code>OP_SUCCESSx</code> is a mechanism to upgrade tapscript</ref>
-#:
-# Facilitate gradual integration of quantum resistant features that can be carried out iteratively as quantum computers evolve. This approach encourages responsiveness to the current threat-level, while avoiding heavy-handedness in our reactions to a potential threat.
-#:
-#: We designed P2TSH with an eye towards integrating post-quantum signatures in the future, without proposing more complex changes while CRQCs are still in their infancy.
+1. Minimize changes to the network. We should reuse existing Bitcoin code and preserve existing software behavior, workflows, user expectations and compatibility whenever possible.
+
+P2TSH leverages the battle tested P2TR, tapleaf and tapscript code already in Bitcoin, reducing the implementation burden on wallets, exchanges, and libraries that can reuse code they already have. This approach reduces complexity and minimizes implementation risks.
+
+2. Create the safest possible path for the addition of post-quantum signature integrations, in the event that they are used in the future.
+
+Importantly, we are proposing a tapscript-native output type that is resistant to long-exposure attacks. While some existing output types are already resistant to long-exposure attacks (e.g. P2WSH), no such output type supports tapscript - a feature that may be required for practical implementation of post-quantum signature opcodes.
+
+P2WSH, for instance, is not tapscript-native and as such does not support the OP_SUCCESSx opcode update path that will be critical for the integration of post-quantum OP_CHECKSIG opcodes into Bitcoin.<ref><code>OP_SUCCESSx</code> is a mechanism to upgrade tapscript</ref>
+
+3. Facilitate gradual integration of quantum resistant features that can be carried out iteratively as quantum computers evolve. This approach encourages responsiveness to the current threat-level, while avoiding heavy-handedness in our reactions to a potential threat.
+
+We designed P2TSH with an eye towards integrating post-quantum signatures in the future, without proposing more complex changes while CRQCs are still in their infancy.
 
 ===P2TSH Trade-Offs===
 
@@ -178,17 +178,17 @@ First off, P2TSH script path spends are slightly larger than P2TR key path spend
 
 Additionally, there is a privacy tradeoff when comparing P2TSH and P2TR, which is that users reveal they are spending to a script tree whenever they are using P2TSH outputs, since P2TSH outputs can only be spent via script path spend. In P2TR when you spend an output as a key path spend, you don't reveal if you have any script path spends. This trade-off only exists when comparing P2TR key path spends to P2TSH script path spends; P2TR and P2TSH provide the same level of privacy when both are script path spends.
 
-'''Note:''' P2TSH and P2TR both provide greater script privacy than P2SH [https://github.com/bitcoin/bips/blob/master/bip-0016.mediawiki (BIP 16 - Pay to Script Hash)] because unused script paths are not revealed.
+'''Note:''' P2TSH and P2TR both provide greater script privacy than P2SH [[bip-0016.mediawiki|BIP 16]] because unused script paths are not revealed.
 
 ==Specification==
 
 We define the Pay-to-Tapscript-Hash (P2TSH) output structure as follows:
 
-A P2TSH output is similar to a P2TR output that uses the root of a tapleaf Merkle tree (as defined in [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP 341]); however, unlike P2TR outputs, we disable the key path spend for the benefit of quantum resistance by omitting the internal key and the tap tweak step. The root of the Merkle tree is then set as the witness program, prepended with a SegWit version 2 byte, and committed to in the output scriptPubKey.
+A P2TSH output is similar to a P2TR output that uses the root of a tapleaf Merkle tree (as defined in [[bip-0341.mediawiki|BIP 341]]); however, unlike P2TR outputs, we disable the key path spend for the benefit of quantum resistance by omitting the internal key and the tap tweak step. The root of the Merkle tree is then set as the witness program, prepended with a SegWit version 2 byte, and committed to in the output scriptPubKey.
 
 ===Address Format===
 
-P2TSH outputs use SegWit version 2, resulting in mainnet addresses that start with <code>bc1z</code>, following [https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki#bech32 BIP 173]. Bech32m encoding maps version 2 to the prefix <code>z</code>.
+P2TSH outputs use SegWit version 2, resulting in mainnet addresses that start with <code>bc1z</code>, following [[bip-0173.mediawiki|BIP 173]]. Bech32m encoding maps version 2 to the prefix <code>z</code>.
 
 Example P2TSH address:
 
@@ -212,15 +212,15 @@ Where:
 
 ===Script Validation===
 
-A P2TSH output is a native SegWit output (see [[bip-0141.mediawiki | BIP 141]]) with version 2 and a 32-byte witness program. The witness program is the root of the tapscript tree. For the sake of comparison, we have - as much as possible - copied the language verbatim from the script validation section of [[bip-0341.mediawiki | BIP 341]].
+A P2TSH output is a native SegWit output (see [[bip-0141.mediawiki|BIP 141]]) with version 2 and a 32-byte witness program. The witness program is the root of the tapscript tree. For the sake of comparison, we have - as much as possible - copied the language verbatim from the script validation section of [[bip-0341.mediawiki|BIP 341]].
 
 * Let ''q'' be the 32-byte array containing the witness program (the second push in the scriptPubKey) which represents the root of the tapleaf Merkle tree.
 * Fail if the witness stack does not have two or more elements.
 * If there are at least three witness elements, and the first byte of the last element is 0x50, this last element is called ''annex a'' and is removed from the witness stack. The annex (or the lack thereof) is always covered by the signature and contributes to transaction weight, but is otherwise ignored during P2TSH validation.
 * There must be at least two witness elements left.
-** Call the second-to-last stack element ''s'', the script (as defined in [[bip-0341.mediawiki | BIP 341]])
+** Call the second-to-last stack element ''s'', the script (as defined in [[bip-0341.mediawiki|BIP 341]])
 ** The last stack element is called the control block ''c'', and must have length ''1 + 32*m'', for a value of ''m'' that is an integer between 0 and 128, inclusive. Fail if it does not have such a length.
-** Let ''v = c[0] & 0xfe'' be the ''leaf version'' (as defined in [[bip-0341.mediawiki | BIP 341]]). To maintain ''leaf version'' encoding compatibility the last bit of c[0] is unused and must be 1.<ref>Why set the last bit of c[0] to one? Consider a faulty implementation that deserializes the ''leaf version'' as c[0] rather than c[0] & 0xfe for both P2TR and P2TSH. If they test against P2TSH outputs and require that last bit is 1, this deserialization bug will cause an immediate error.</ref>
+** Let ''v = c[0] & 0xfe'' be the ''leaf version'' (as defined in [[bip-0341.mediawiki|BIP 341]]). To maintain ''leaf version'' encoding compatibility the last bit of c[0] is unused and must be 1.<ref>Why set the last bit of c[0] to one? Consider a faulty implementation that deserializes the ''leaf version'' as c[0] rather than c[0] & 0xfe for both P2TR and P2TSH. If they test against P2TSH outputs and require that last bit is 1, this deserialization bug will cause an immediate error.</ref>
 ** Let ''k<sub>0</sub> = hash<sub>TapLeaf</sub>(v || compact_size(size of s) || s)''; also call it the ''tapleaf hash''.
 ** For ''j'' in ''[0,1,…,m-1]'':
 *** Let ''e<sub>j</sub> = c[33+32j:65+32j]''.
@@ -232,7 +232,7 @@ A P2TSH output is a native SegWit output (see [[bip-0141.mediawiki | BIP 141]]) 
 ** Execute the script, according to the applicable script rules, using the witness stack elements excluding the script ''s'', the control block ''c'', and the annex ''a'' if present, as initial stack. This implies that for the future leaf versions (non-''0xC0'') the execution must succeed.
 * Otherwise, fail.
 
-The steps above follow the script-path spend logic from [[bip-0341.mediawiki | BIP 341]] with the following changes:
+The steps above follow the script-path spend logic from [[bip-0341.mediawiki|BIP 341]] with the following changes:
 
 * The witness program is the taptree Merkle root and not a tweaked public key. This means that we skip directly to the BIP 341 spend path taptree Merkle tree validation.
 * We compute the taptree Merkle root r and compare it directly to the witness program q.
@@ -240,11 +240,11 @@ The steps above follow the script-path spend logic from [[bip-0341.mediawiki | B
 
 ===Common Signature Message Construction===
 
-The [https://learnmeabitcoin.com/technical/upgrades/taproot/#common-signature-message common signature message] construction for P2TSH outputs is exactly the same procedure as defined in [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP 341] for Taproot transactions.
+The [https://learnmeabitcoin.com/technical/upgrades/taproot/#common-signature-message common signature message] construction for P2TSH outputs is exactly the same procedure as defined in [[bip-0341.mediawiki|BIP 341]] for Taproot transactions.
 
 === Compatibility with BIP 141 ===
 
-By adhering to the SegWit transaction structure and versioning, P2TSH outputs are compatible with existing transaction processing rules. Nodes that do not recognize SegWit version 2 will treat these outputs as anyone-can-spend but, per [https://github.com/bitcoin/bips/blob/master/bip-0141.mediawiki BIP 141], will not relay or mine such transactions.
+By adhering to the SegWit transaction structure and versioning, P2TSH outputs are compatible with existing transaction processing rules. Nodes that do not recognize SegWit version 2 will treat these outputs as anyone-can-spend but, per [[bip-0141.mediawiki|BIP 141]], will not relay or mine such transactions.
 
 ===Transaction Size and Fees===
 
@@ -305,7 +305,7 @@ P2TSH outputs provide the same tapscript functionality as P2TR outputs, but with
 
 Protection from long-exposure quantum attacks does not depend on the activation of post-quantum signatures in Bitcoin, but requires that users do not expose their public keys to attackers via public key reuse or other unsafe practices.
 
-P2TSH uses a 256-bit hash output, providing 128 bits of collision resistance and 256 bits of preimage resistance. This is the same level of security as P2WSH specified in [[bip-0141.mediawiki | BIP 141]], which also uses a 256-bit hash output.
+P2TSH uses a 256-bit hash output, providing 128 bits of collision resistance and 256 bits of preimage resistance. This is the same level of security as P2WSH specified in [[bip-0141.mediawiki|BIP 141]], which also uses a 256-bit hash output.
 
 P2TSH does not, by itself, protect against short-exposure quantum attacks, but these attacks can be mitigated by future activation of post-quantum signatures.
 
@@ -323,11 +323,11 @@ We also imagine the possibility of introducing multiple post-quantum signatures 
 
 ==Test Vectors and Reference Code==
 
-Test vector data for creation of P2TSH UTXOs can be found [https://github.com/bitcoin/bips/blob/p2qrh-bip-testvector-comment/bip-0360/ref-impl/common/tests/data/p2tsh_construction.json here].
+Test vector data for creation of P2TSH UTXOs can be found [https://github.com/bitcoin/bips/blob/master/bip-0360/ref-impl/common/tests/data/p2tsh_construction.json here].
 
-These test vectors build off of the test vectors for BIP 341 (Taproot). One important distinction is that the P2TSH test vectors do not include keypath spend scenarios.
+These test vectors build off of the test vectors for [[bip-0341.mediawiki|BIP 341]] (Taproot). One important distinction is that the P2TSH test vectors do not include keypath spend scenarios.
 
-Also included are test vectors in [https://github.com/bitcoin/bips/blob/p2qrh-bip-testvector-comment/bip-0360/ref-impl/rust rust] and [https://github.com/bitcoin/bips/blob/p2qrh-bip-testvector-comment/bip-0360/ref-impl/python python]. One of these tests demonstrates a tapleaf tapscript that requires a secp256k1 signature to spend the P2TSH UTXO (modeled after one of the extremely valuable examples provided by [https://learnmeabitcoin.com/technical/upgrades/taproot/#example-3-script-path-spend-signature learnmeabitcoin]. Similar to BIP 341 test vectors, all signatures are created with an all-zero (0x0000...0000) BIP 340 auxiliary randomness array.
+Also included are test vectors in [https://github.com/bitcoin/bips/tree/master/bip-0360/ref-impl/rust rust implementation] and [https://github.com/bitcoin/bips/tree/master/bip-0360/ref-impl/python python implementation]. One of these tests demonstrates a tapleaf tapscript that requires a secp256k1 signature to spend the P2TSH UTXO (modeled after one of the extremely valuable examples provided by [https://learnmeabitcoin.com/technical/upgrades/taproot/#example-3-script-path-spend-signature this Taproot script-path spend example]. Similar to BIP 341 test vectors, all signatures are created with an all-zero (0x0000...0000) [[bip-0340.mediawiki|BIP 340]] auxiliary randomness array.
 
 ==Related Work==
 
@@ -335,7 +335,7 @@ Below we attempt to summarize some of the ideas discussed on the Bitcoin Develop
 
 The idea of Taproot with key path spend removed has been discussed a number of times in the Bitcoin community.
 
-For instance, [https://gnusha.org/pi/bitcoindev/CAD5xwhgzR8e5r1e4H-5EH2mSsE1V39dd06+TgYniFnXFSBqLxw@mail.gmail.com/ OP_CAT Makes Bitcoin Quantum Secure] notes that if we disable the key path spend in Taproot and activated OP_CAT [https://github.com/bitcoin/bips/blob/master/bip-0347.mediawiki BIP 347], we could achieve quantum resistance by using Lamport signatures with OP_CAT.
+For instance, [https://gnusha.org/pi/bitcoindev/CAD5xwhgzR8e5r1e4H-5EH2mSsE1V39dd06+TgYniFnXFSBqLxw@mail.gmail.com/ OP_CAT Makes Bitcoin Quantum Secure] notes that if we disable the key path spend in Taproot and activate OP_CAT [[bip-0347.mediawiki|BIP 347]], we could achieve quantum resistance by using Lamport signatures with OP_CAT.
 
 Lamport and WOTS (Winternitz One-Time Signatures) built from CAT are quantum resistant, but are one-time signatures - meaning, if you sign twice for the same public key, you risk leaking your private key, which is a significant practical vulnerability for everyday users.
 
@@ -383,7 +383,7 @@ Protection against short-exposure attacks may require post-quantum signature sch
 
 '''Tapscript-Native Output Type'''
 
-Tapscript-native output types are the category of output types that support tapscript (including Schnorr signatures) and [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki taptrees].
+Tapscript-native output types are the category of output types that support tapscript (including Schnorr signatures) and taptrees.
 
 '''Pay-to-Tapscript-Hash (P2TSH)'''
 
@@ -401,7 +401,7 @@ To help implementers understand updates to this BIP, we keep a list of substanti
 * 2025-07-20 - Changed the Witness Version from 3 to 2.
 * 2025-07-07 - P2QRH is now a P2TR with the vulnerable key-path spend removed. Number of PQ signature algorithms supported reduced from three to two. PQ signature algorithm support is now added via opcodes or tapleaf version.
 * 2025-03-18 - Correct inconsistencies in commitment and attestation structure. Switch from Merkle tree commitment to sorted vector hash commitment. Update descriptor format.
-* 2025-03-12 - Add verification times for each algorithm. 256 ->; 128 (NIST V ->; NIST I). Add key type bitmask. Clarify multisig semantics.
+* 2025-03-12 - Add verification times for each algorithm. 256 to 128 (NIST V to NIST I). Add key type bitmask. Clarify multisig semantics.
 * 2025-02-23 - More points of clarification from review. Update dead link.
 * 2025-01-20 - Remove SQIsign from consideration due to significant performance concerns. Refactor language from long-range attack to long-exposure so as to not be confused with the language around block re-org attacks.
 * 2024-12-18 - Assigned BIP number.
@@ -415,7 +415,7 @@ To help implementers understand updates to this BIP, we keep a list of substanti
 
 ==Acknowledgements==
 
-This document is inspired by [https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki BIP 341], which introduced the design of the P2TR (Taproot) output type using Schnorr signatures.
+This document is inspired by [[bip-0341.mediawiki|BIP 341]], which introduced the design of the P2TR (Taproot) output type using Schnorr signatures.
 
 I'm incredibly grateful to Ethan Heilman for joining as co-author and transforming this BIP into something far more congruent with existing Bitcoin design. Additionally, much gratitude to our most recent co-author, Isabel Foxen Duke, for her thoughtful editing and crafting much of the language in this proposal. I am likewise indebted to those on the Anduro Quantum Working Group who took the time to contribute including Jeff Bride, Michael Casey, and notmike.
 
