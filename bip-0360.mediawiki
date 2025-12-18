@@ -41,7 +41,7 @@ The primary threat to Bitcoin from Cryptographically Relevant Quantum Computers 
 
 While some may balk at the potential threat of quantum computers to Bitcoin given their limited functionality to date, some others - including governments, corporations and some existing and potential Bitcoin users - are concerned about their potential for advancement. The Commercial National Security Algorithm Suite (CNSA) 2.0, for instance, has mandated software and networking equipment to be upgraded to post-quantum schemes by 2030, with browsers and operating systems fully upgraded by 2033. Additionally, according to NIST IR 8547, Elliptic Curve Cryptography (ECC) is planned to be disallowed within the US federal government after 2035 (with an exception made for hybrid cryptography, or the use of ECC and post-quantum algorithms together). These kinds of mandates have triggered concern by some ECC users, including some Bitcoin users who prefer to be prepared out of an abundance of caution.
 
-In the most optimistic case, wherein quantum computers never pose a significant risk to ECC, we understand that the possibility of quantum advancement alone may be influencing adoption and broad confidence in the Bitcoin network. In other words, we believe users' fear of quantum computers may be worth addressing regardless of CRQC viability, which is difficult to assess. Given these concerns, we think it's worth considering changes that are minimal in complexity and risk, and create new options for using Bitcoin in a quantum-resistant way.
+In the most optimistic case, wherein quantum computers never pose a significant risk to ECC, we understand that the possibility of quantum advancement alone may be influencing adoption and broad confidence in the Bitcoin network. In other words, we believe users' fear of quantum computers may be worth addressing regardless of CRQC viability. Given these concerns, we think it's worth considering simple low risk changes that create options for using Bitcoin in a quantum-resistant way.
 
 As a conservative first step in this effort, we propose Pay-to-Tapscript-Hash (P2TSH), a tapscript-native output type that can be used in a quantum resistant manner.
 
@@ -53,7 +53,7 @@ A long-exposure attack is an attack performed on exposed blockchain data, such a
 
 Short exposure attacks, however, require faster quantum computers, because they must occur within the relatively short time that a transaction is unconfirmed in the mempool.
 
-Bitcoin outputs are generally vulnerable to short exposure attacks, as most Bitcoin transactions require revealing the associated public key when spending.<ref>A vulnerable Bitcoin output is any scriptPubKey type that exposes an elliptic curve public key as raw bytes in a block, making it susceptible to private key derivation through Shor's algorithm. This includes P2PK outputs and any script that contains an unprotected or reused public key.</ref> Full protection of outputs from short-exposure attacks may require the use of post-quantum signature schemes.
+Bitcoin outputs are generally vulnerable to short exposure attacks, as most Bitcoin transactions require revealing the associated public key when spending. Full protection of outputs from short-exposure attacks may require the use of post-quantum signature schemes.
 
 Since long-exposure attacks on public keys are likely to be the first quantum-enabled threat to Bitcoin, we propose a tapscript-native output type that is resistant to long-exposure attacks as a first step in hardening Bitcoin against the potential threat of quantum computers.
 
@@ -224,7 +224,7 @@ A P2TSH output is a native SegWit output (see [[bip-0141.mediawiki|BIP 141]]) wi
 ** Let ''k<sub>0</sub> = hash<sub>TapLeaf</sub>(v || compact_size(size of s) || s)''; also call it the ''tapleaf hash''.
 ** For ''j'' in ''[0,1,…,m-1]'':
 *** Let ''e<sub>j</sub> = c[33+32j:65+32j]''.
-*** Let ''k<sub>j</sub>+1 depend on whether'' k<sub>j</sub> < e<sub>j</sub> ''(lexicographically):''
+*** Let ''k<sub>j+1</sub> depend on whether'' k<sub>j</sub> < e<sub>j</sub> ''(lexicographically):''
 **** If ''k<sub>j</sub> < e<sub>j</sub>'': ''k<sub>j</sub>+1 = hash<sub>TapBranch</sub>(k<sub>j</sub> || e<sub>j</sub>)''.
 **** If ''k<sub>j</sub> ≥ e<sub>j</sub>'': ''k<sub>j</sub>+1 = hash<sub>TapBranch</sub>(e<sub>j</sub> || k<sub>j</sub>)''.
 ** Let ''r = k<sub>m</sub>''.
@@ -252,7 +252,7 @@ Equivalent P2TSH and P2TR outputs are always the same size. P2TSH inputs can be 
 
 ====Comparison with P2TR key path spend====
 
-P2TSH inputs will be larger than P2TR inputs when the P2TR output would have been spent via the key path spend. P2TSH quantum resistance comes from removing the P2TR key path spend. Consequently, it cannot make use of Taproot's optimization where P2TR key path spends do not require including a Merkle path in the P2TR input. If the Merkle tree only has a single leaf script, no Merkle path is needed in the control block, giving us a 1-byte control block.
+A P2TSH witness will be larger than a P2TR witness when the P2TR output is spent via the key path spend. A witness to a P2TR key path spend is simply a signature. P2TSH quantum resistance comes from removing the P2TR key path spend. Every P2TSH spend is a P2TR script path spend and so requires a script, its inputs and a control block. Consequently, P2TSH loses this size advantage of P2TR key path spends in order to gain quantum resistance. If the taptree only has a single leaf script, no Merkle path is needed in the control block, giving us a minimal size control block of 1 byte.
 
 P2TSH witness for depth-0 tree (103 bytes):
 
@@ -285,7 +285,7 @@ control block = [size] [control byte] [Merkle path] (1 + 1 + 32*m = 2 + 32*m byt
 
 ====Comparison with P2TR script path spend====
 
-A P2TSH input will be smaller than an equivalent script path spend for P2TR inputs. This is because P2TSH inputs do not require inclusion of a public key in the control block to open the commitment to the Merkle root. A P2TSH input will be 32 bytes smaller than an equivalent P2TR script path spend input.
+A P2TSH witness will be smaller than the witness to an equivalent P2TR script path spend. This is because P2TSH does not require inclusion of any internal public key in the control block to unlock and spend an output. For this reason, a P2TSH witness will always be 32 bytes smaller than an equivalent P2TR script path spend witness.
 
 ====Consider a P2TSH output with a post-quantum signature leaf and a Schnorr leaf====
 
