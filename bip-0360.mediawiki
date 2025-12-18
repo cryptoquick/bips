@@ -125,7 +125,7 @@ In other words, P2TSH outputs commit to the Merkle root of a tapscript tree with
 
 This output type is designed to offer tapscript users protection against long exposure quantum attacks as well as a practical output type with which post-quantum signatures may be used if such signatures are adopted in the future.
 
-Since P2TSH outputs have no key path spend, they omit the Taproot internal key. Instead, a P2TSH output includes the 32-byte root of the tapleaf Merkle tree as defined in [[bip-0341.mediawiki|BIP 341]] hashed with the tag "TapBranch" as shown below.
+Since P2TSH outputs have no key path spend, they omit the Taproot internal key. Instead, a P2TSH output includes the 32-byte root of the taptree as defined in [[bip-0341.mediawiki|BIP 341]] hashed with the tag "TapBranch" as shown below.
 
 [[File:bip-0360/media/merkletree.png|thumb|Construction of P2TSH Taptree root, scriptPubkey, and Witness]]
 
@@ -184,7 +184,7 @@ Additionally, there is a privacy tradeoff when comparing P2TSH and P2TR, which i
 
 We define the Pay-to-Tapscript-Hash (P2TSH) output structure as follows:
 
-A P2TSH output is similar to a P2TR output that uses the root of a tapleaf Merkle tree (as defined in [[bip-0341.mediawiki|BIP 341]]); however, unlike P2TR outputs, we disable the key path spend for the benefit of quantum resistance by omitting the internal key and the tap tweak step. The root of the Merkle tree is then set as the witness program, prepended with a SegWit version 2 byte, and committed to in the output scriptPubKey.
+A P2TSH output is similar to a P2TR output that uses the root of a taptree (as defined in [[bip-0341.mediawiki|BIP 341]]); however, unlike P2TR outputs, we disable the key path spend for the benefit of quantum resistance by omitting the internal key and the tap tweak step. The root of the Merkle tree is then set as the witness program, prepended with a SegWit version 2 byte, and committed to in the output scriptPubKey.
 
 ===Address Format===
 
@@ -214,7 +214,7 @@ Where:
 
 A P2TSH output is a native SegWit output (see [[bip-0141.mediawiki|BIP 141]]) with version 2 and a 32-byte witness program. The witness program is the root of the tapscript tree. For the sake of comparison, we have - as much as possible - copied the language verbatim from the script validation section of [[bip-0341.mediawiki|BIP 341]].
 
-* Let ''q'' be the 32-byte array containing the witness program (the second push in the scriptPubKey) which represents the root of the tapleaf Merkle tree.
+* Let ''q'' be the 32-byte array containing the witness program (the second push in the scriptPubKey) which represents the root of the tapleaf Merkle tree (also known as a taptree).
 * Fail if the witness stack does not have two or more elements.
 * If there are at least three witness elements, and the first byte of the last element is 0x50, this last element is called ''annex a'' and is removed from the witness stack. The annex (or the lack thereof) is always covered by the signature and contributes to transaction weight, but is otherwise ignored during P2TSH validation.
 * There must be at least two witness elements left.
