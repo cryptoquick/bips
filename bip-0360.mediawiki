@@ -113,7 +113,7 @@ The following output types are fundamentally vulnerable to long exposure attacks
 * Reused outputs*
 * Tapscript outputs (starts with bc1p)
 
-\*Funds in P2PKH, P2SH, P2WPKH, P2WSH, and P2TSH outputs can become vulnerable to long exposure quantum attacks anytime their script reveals a public key.
+<nowiki>*</nowiki> Funds in P2PKH, P2SH, P2WPKH, P2WSH, and P2TSH outputs can become vulnerable to long exposure quantum attacks anytime their script reveals a public key.
 
 Note: Extended public keys, commonly known as "xpubs," and wallet descriptors also reveal quantum vulnerable public key information. For further clarification on quantum attack vectors, please refer to the [[#Glossary|Glossary of Terms]].
 
@@ -231,7 +231,7 @@ A P2TSH output is a native SegWit output (see [[bip-0141.mediawiki|BIP 141]]) wi
 ** If ''q &ne; r'', fail.
 ** Execute the script, according to the applicable script rules, using the witness stack elements excluding the script ''s'', the control block ''c'', and the annex ''a'' if present, as initial stack. This implies that for the future leaf versions (non-''0xC0'') the execution must succeed.
 
-The steps above follow the script-path spend logic from [[bip-0341.mediawiki|BIP 341]] with the following changes:
+The steps above follow the script path spend logic from [[bip-0341.mediawiki|BIP 341]] with the following changes:
 
 * The witness program is the taptree Merkle root and not a tweaked public key. This means that we skip directly to the BIP 341 spend path taptree Merkle tree validation.
 * We compute the taptree Merkle root ''r'' and compare it directly to the witness program ''q''.
@@ -262,7 +262,7 @@ tapleaf script = [size] [OP_PUSHBYTES_32, 32-byte public key, OP_CHECKSIG] (1 + 
 control block = [size] [control byte] [merkle path (empty)] (1 + 1 + 0 bytes = 2 bytes)
 </source>
 
-P2TR key-path spend witness (66 bytes):
+P2TR key path spend witness (66 bytes):
 
 <source>
 [count] (1 byte), # Number of elements in the witness
@@ -271,7 +271,7 @@ P2TR key-path spend witness (66 bytes):
 
 Thus, the P2TSH input would be 103 - 66 = 37 bytes larger than a P2TR key path spend input.
 
-If the Merkle tree has more than a single leaf, then the Merkle path must be included in the control block, increasing the size by ''32 * m'' bytes. This would make such input 37 + 32 * m bytes larger than a P2TR key path spend input.<ref>If ''m >= 8'', then the compact size will use 3 bytes rather than 1 byte</ref>
+If the Merkle tree has more than a single leaf, then the Merkle path must be included in the control block, increasing the size by ''32 * m'' bytes, where m is the depth of the Merkle tree. This would make such input 37 + 32 * m bytes larger than a P2TR key path spend input.<ref>If ''m >= 8'', then the compact size will use 3 bytes rather than 1 byte</ref>
 
 P2TSH witness ''(103 + 32*m bytes)'':
 
@@ -322,7 +322,7 @@ Test vector data for creation of P2TSH UTXOs can be found [https://github.com/bi
 
 These test vectors build off of the test vectors for [[bip-0341.mediawiki|BIP 341]] (Taproot). One important distinction is that the P2TSH test vectors do not include keypath spend scenarios.
 
-Also included are test vectors in [https://github.com/bitcoin/bips/tree/master/bip-0360/ref-impl/rust rust implementation] and [https://github.com/bitcoin/bips/tree/master/bip-0360/ref-impl/python python implementation]. One of these tests demonstrates a tapleaf tapscript that requires a secp256k1 signature to spend the P2TSH UTXO (modeled after one of the extremely valuable examples provided by [https://learnmeabitcoin.com/technical/upgrades/taproot/#example-3-script-path-spend-signature this Taproot script-path spend example]. Similar to BIP 341 test vectors, all signatures are created with an all-zero (0x0000...0000) [[bip-0340.mediawiki|BIP 340]] auxiliary randomness array.
+Also included are test vectors in [https://github.com/bitcoin/bips/tree/master/bip-0360/ref-impl/rust rust implementation] and [https://github.com/bitcoin/bips/tree/master/bip-0360/ref-impl/python python implementation]. One of these tests demonstrates a tapleaf tapscript that requires a secp256k1 signature to spend the P2TSH UTXO (modeled after one of the extremely valuable examples provided by [https://learnmeabitcoin.com/technical/upgrades/taproot/#example-3-script-path-spend-signature this Taproot script path spend example]. Similar to BIP 341 test vectors, all signatures are created with an all-zero (0x0000...0000) [[bip-0340.mediawiki|BIP 340]] auxiliary randomness array.
 
 ==Related Work==
 
@@ -382,7 +382,7 @@ Tapscript-native output types are the category of output types that support taps
 
 '''Pay-to-Tapscript-Hash (P2TSH)'''
 
-A tapscript-native output type with nearly identical formatting to Pay-to-Taproot (P2TR), with the quantum-vulnerable key path spend removed.
+A tapscript-native output type, similar to to Pay-to-Taproot (P2TR), but with the quantum-vulnerable key path spend removed.
 
 ==Footnotes==
 
@@ -394,11 +394,11 @@ To help implementers understand updates to this BIP, we keep a list of substanti
 
 * 2025-09-17 - Rewrote BIP for clarity and renamed from P2QRH to P2TSH
 * 2025-07-20 - Changed the Witness Version from 3 to 2.
-* 2025-07-07 - P2QRH is now a P2TR with the vulnerable key-path spend removed. Number of PQ signature algorithms supported reduced from three to two. PQ signature algorithm support is now added via opcodes or tapleaf version.
+* 2025-07-07 - P2QRH is now a P2TR with the vulnerable key path spend removed. Number of PQ signature algorithms supported reduced from three to two. PQ signature algorithm support is now added via opcodes or tapleaf version.
 * 2025-03-18 - Correct inconsistencies in commitment and attestation structure. Switch from Merkle tree commitment to sorted vector hash commitment. Update descriptor format.
 * 2025-03-12 - Add verification times for each algorithm. 256 to 128 (NIST V to NIST I). Add key type bitmask. Clarify multisig semantics.
 * 2025-02-23 - More points of clarification from review. Update dead link.
-* 2025-01-20 - Remove SQIsign from consideration due to significant performance concerns. Refactor language from long-range attack to long exposure so as to not be confused with the language around block re-org attacks.
+* 2025-01-20 - Remove SQIsign from consideration due to significant performance concerns. Refactor language from long range attack to long exposure so as to not be confused with the language around block re-org attacks.
 * 2024-12-18 - Assigned BIP number.
 * 2024-12-13 - Update to use Merkle tree for attestation commitment. Update LR & SR quantum attack scenarios.
 * 2024-12-01 - Add details on attestation structure and parsing.
