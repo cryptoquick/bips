@@ -174,7 +174,7 @@ We designed P2TSH with an eye towards integrating post-quantum signatures in the
 
 While P2TR outputs (and the use of key path spend) will remain an option for folks wishing to use them, we aim to be clear about the tradeoffs of using P2TSH outputs, which disable the key path spend for the benefit of quantum resistance.
 
-First off, P2TSH script path spends are slightly larger than P2TR key path spends, because you have to include the control byte, merkle path (if depth > 0), and script in the transaction. That said, script path spends from P2TSH outputs will be slightly smaller than script path spends from P2TR outputs. For a more complete comparison of output type transaction sizes, the "Transaction Size and Fees" section may be reviewed later in this proposal.
+First off, P2TSH script path spends are larger than P2TR key path spends, because you have to include the control byte, merkle path (if depth > 0), and script in the transaction. That said, P2TSH script path spends will be smaller than P2TR script path spends because there is no longer an internal key that must also be revealed. For a more complete comparison of output type transaction sizes, the "Transaction Size and Fees" section may be reviewed later in this proposal.
 
 Additionally, there is a privacy tradeoff when comparing P2TSH and P2TR, which is that users reveal they are spending to a script tree whenever they are using P2TSH outputs, since P2TSH outputs can only be spent via script path spend. In P2TR when you spend an output as a key path spend, you don't reveal if you have any script path spends. This trade-off only exists when comparing P2TR key path spends to P2TSH script path spends; P2TR and P2TSH provide the same level of privacy when both are script path spends.
 
