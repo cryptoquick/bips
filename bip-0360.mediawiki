@@ -45,19 +45,19 @@ In the most optimistic case, wherein quantum computers never pose a significant 
 
 As a conservative first step in this effort, we propose Pay-to-Tapscript-Hash (P2TSH), a tapscript-native output type that can be used in a quantum resistant manner.
 
-===Long-Exposure vs Short-Exposure Attacks===
+===Long Exposure vs Short Exposure Attacks===
 
-For clarity, this proposal specifically mitigates against the risk of long exposure attacks on tapscript-native outputs. While other Bitcoin output types already mitigate against this risk, Tapscript outputs (P2TR output types) are vulnerable to long-exposure quantum attacks.
+For clarity, this proposal specifically mitigates against the risk of long exposure attacks on tapscript-native outputs. While other Bitcoin output types already mitigate against this risk, Tapscript outputs (P2TR output types) are vulnerable to long exposure quantum attacks.
 
-A long-exposure attack is an attack performed on exposed blockchain data, such as exposed public keys or the spend scripts of spent outputs. These are likely to be the earliest quantum attacks made possible on Bitcoin, because attackers will have ample time - as much time as vulnerable keys are exposed - to carry out quantum key recovery.
+A long exposure attack is an attack performed on exposed blockchain data, such as exposed public keys or the spend scripts of spent outputs. These are likely to be the earliest quantum attacks made possible on Bitcoin, because attackers will have ample time - as much time as vulnerable keys are exposed - to carry out quantum key recovery.
 
 Short exposure attacks, however, require faster quantum computers, because they must occur within the relatively short time that a transaction is unconfirmed in the mempool.
 
-Bitcoin outputs are generally vulnerable to short exposure attacks, as most Bitcoin transactions require revealing the associated public key when spending. Full protection of outputs from short-exposure attacks may require the use of post-quantum signature schemes.
+Bitcoin outputs are generally vulnerable to short exposure attacks, as most Bitcoin transactions require revealing the associated public key when spending. Full protection of outputs from short exposure attacks may require the use of post-quantum signature schemes.
 
-Since long-exposure attacks on public keys are likely to be the first quantum-enabled threat to Bitcoin, we propose a tapscript-native output type that is resistant to long-exposure attacks as a first step in hardening Bitcoin against the potential threat of quantum computers.
+Since long exposure attacks on public keys are likely to be the first quantum-enabled threat to Bitcoin, we propose a tapscript-native output type that is resistant to long exposure attacks as a first step in hardening Bitcoin against the potential threat of quantum computers.
 
-The following list of output types describes their long-exposure attack vulnerability:
+The following list of output types describes their long exposure attack vulnerability:
 
 {| class="wikitable"
 |-
@@ -79,7 +79,7 @@ The following list of output types describes their long-exposure attack vulnerab
 | P2MS
 | Yes
 | Varies
-| 52410496ec45f878b62c46c4be8e336dff7cc58df9b502178cc240e…
+| 52410496ec45f878b62c46c4be8e336dff7cc58df9b502178cc240e...
 |-
 | P2SH
 | No*
@@ -107,13 +107,13 @@ The following list of output types describes their long-exposure attack vulnerab
 | bc1zzmv50jjgxxhww6ve4g5zpewrkjqhr06fyujpm20tuezdlxmfphcqfc80ve
 |}
 
-The following output types are fundamentally vulnerable to long-exposure attacks:
+The following output types are fundamentally vulnerable to long exposure attacks:
 
 * P2PK outputs (e.g. Satoshi's coins, CPU miners)
 * Reused outputs*
 * Tapscript outputs (starts with bc1p)
 
-\*Funds in P2PKH, P2SH, P2WPKH, P2WSH, and P2TSH outputs can become vulnerable to long-exposure quantum attacks anytime their redeem script reveals a public key.
+\*Funds in P2PKH, P2SH, P2WPKH, P2WSH, and P2TSH outputs can become vulnerable to long exposure quantum attacks anytime their redeem script reveals a public key.
 
 Note: Extended public keys, commonly known as "xpubs," and wallet descriptors also reveal quantum vulnerable public key information. For further clarification on quantum attack vectors, please refer to the [[#Glossary|Glossary of Terms]].
 
@@ -123,7 +123,7 @@ P2TSH (Pay-to-Tapscript-Hash) is a proposed new output type that commits to the 
 
 In other words, P2TSH outputs commit to the Merkle root of a tapscript tree without committing to an internal key. The script(s) being committed to, however, may contain a key or key-hash.
 
-This output type is designed to offer tapscript users protection against long-exposure quantum attacks as well as a practical output type with which post-quantum signatures may be used if such signatures are adopted in the future.
+This output type is designed to offer tapscript users protection against long exposure quantum attacks as well as a practical output type with which post-quantum signatures may be used if such signatures are adopted in the future.
 
 Since P2TSH outputs have no key path spend, they omit the Taproot internal key. Instead, a P2TSH output includes the 32-byte root of the tapleaf Merkle tree as defined in [[bip-0341.mediawiki|BIP 341]] hashed with the tag "TapBranch" as shown below.
 
@@ -142,7 +142,7 @@ A P2TSH input witness provides the following:
 
 <source>
 initial stack element 0,
-…,
+...,
 initial stack element N,
 tapleaf script,
 control block = [control byte, 32*m byte Merkle path] # m is the depth of the script in the Merkle tree
@@ -162,7 +162,7 @@ P2TSH leverages the battle tested P2TR, tapleaf and tapscript code already in Bi
 
 2. Create the safest possible path for the addition of post-quantum signature integrations, in the event that they are used in the future.
 
-Importantly, we are proposing a tapscript-native output type that is resistant to long-exposure attacks. While some existing output types are already resistant to long-exposure attacks (e.g. P2WSH), no such output type supports tapscript - a feature that may be required for practical implementation of post-quantum signature opcodes.
+Importantly, we are proposing a tapscript-native output type that is resistant to long exposure attacks. While some existing output types are already resistant to long exposure attacks (e.g. P2WSH), no such output type supports tapscript - a feature that may be required for practical implementation of post-quantum signature opcodes.
 
 P2WSH, for instance, is not tapscript-native and as such does not support the OP_SUCCESSx opcode update path that will be critical for the integration of post-quantum OP_CHECKSIG opcodes into Bitcoin.<ref><code>OP_SUCCESSx</code> is a mechanism to upgrade tapscript</ref>
 
@@ -222,7 +222,7 @@ A P2TSH output is a native SegWit output (see [[bip-0141.mediawiki|BIP 141]]) wi
 ** The last stack element is called the control block ''c'', and must have length ''1 + 32*m'', for a value of ''m'' that is an integer between 0 and 128, inclusive. Fail if it does not have such a length.
 ** Let ''v = c[0] & 0xfe'' be the ''leaf version'' (as defined in [[bip-0341.mediawiki|BIP 341]]). To maintain ''leaf version'' encoding compatibility the last bit of c[0] is unused and must be 1.<ref>Why set the last bit of c[0] to one? Consider a faulty implementation that deserializes the ''leaf version'' as c[0] rather than c[0] & 0xfe for both P2TR and P2TSH. If they test against P2TSH outputs and require that last bit is 1, this deserialization bug will cause an immediate error.</ref>
 ** Let ''k<sub>0</sub> = hash<sub>TapLeaf</sub>(v || compact_size(size of s) || s)''; also call it the ''tapleaf hash''.
-** For ''j'' in ''[0,1,…,m-1]'':
+** For ''j'' in ''[0,1,...,m-1]'':
 *** Let ''e<sub>j</sub> = c[33+32j:65+32j]''.
 *** Let ''k<sub>j+1</sub> depend on whether'' k<sub>j</sub> < e<sub>j</sub> ''(lexicographically):''
 **** If ''k<sub>j</sub> < e<sub>j</sub>'': ''k<sub>j</sub>+1 = hash<sub>TapBranch</sub>(k<sub>j</sub> || e<sub>j</sub>)''.
@@ -301,17 +301,17 @@ Older wallets and nodes that have not been made compatible with SegWit version 2
 
 ==Security==
 
-P2TSH outputs provide the same tapscript functionality as P2TR outputs, but with the quantum-vulnerable key path spend removed. The similarity between these output types enables users to easily migrate coins from P2TR outputs to P2TSH outputs for protection against long-exposure quantum attacks.
+P2TSH outputs provide the same tapscript functionality as P2TR outputs, but with the quantum-vulnerable key path spend removed. The similarity between these output types enables users to easily migrate coins from P2TR outputs to P2TSH outputs for protection against long exposure quantum attacks.
 
-Protection from long-exposure quantum attacks does not depend on the activation of post-quantum signatures in Bitcoin, but requires that users do not expose their public keys to attackers via public key reuse or other unsafe practices.
+Protection from long exposure quantum attacks does not depend on the activation of post-quantum signatures in Bitcoin, but requires that users do not expose their public keys to attackers via public key reuse or other unsafe practices.
 
 P2TSH uses a 256-bit hash output, providing 128 bits of collision resistance and 256 bits of preimage resistance. This is the same level of security as P2WSH specified in [[bip-0141.mediawiki|BIP 141]], which also uses a 256-bit hash output.
 
-P2TSH does not, by itself, protect against short-exposure quantum attacks, but these attacks can be mitigated by future activation of post-quantum signatures.
+P2TSH does not, by itself, protect against short exposure quantum attacks, but these attacks can be mitigated by future activation of post-quantum signatures.
 
-Combined with P2TSH, post-quantum signature schemes can provide comprehensive quantum resistance to P2TSH outputs, including protection from short-exposure attacks.
+Combined with P2TSH, post-quantum signature schemes can provide comprehensive quantum resistance to P2TSH outputs, including protection from short exposure attacks.
 
-That said, protection against long-exposure quantum attacks alone should not be underestimated. It's unlikely that early CRQCs will be fast enough to perform short-exposure attacks, making preparedness against long-exposure attacks more time-critical.
+That said, protection against long exposure quantum attacks alone should not be underestimated. It's unlikely that early CRQCs will be fast enough to perform short exposure attacks, making preparedness against long exposure attacks more time-critical.
 
 ==Security Considerations for Post-Quantum Signature Schemes==
 
@@ -369,17 +369,17 @@ The derivation of private keys from public keys in elliptic curve cryptography (
 
 Shor's algorithm, developed by Peter Shor in 1994, is a quantum algorithm that efficiently solves the discrete logarithm problem - potentially made possible by the future viability of cryptographically relevant quantum computers (CRQCs).
 
-'''Long-Exposure Attacks'''
+'''Long Exposure Attacks'''
 
 Attempts to derive private keys from public keys that are exposed for an extended period of time; that is, longer than the window of time that a public key is generally exposed in the mempool while waiting to be confirmed.
 
-Long-exposure attacks give attackers an unlimited amount of time to perform quantum key recovery, as long as funds remain in the output. Poor wallet hygiene (e.g. from address reuse) or use of outputs with exposed public keys (e.g. P2TR outputs) increases vulnerability to long-exposure attacks.
+Long exposure attacks give attackers an unlimited amount of time to perform quantum key recovery, as long as funds remain in the output. Poor wallet hygiene (e.g. from address reuse) or use of outputs with exposed public keys (e.g. P2TR outputs) increases vulnerability to long exposure attacks.
 
-'''Short-Exposure Attacks'''
+'''Short Exposure Attacks'''
 
 Attempts to derive private keys from public keys during the brief period when funds are unconfirmed in the mempool. These attacks cannot be prevented through wallet hygiene, as revealing a public key is necessary for spending.
 
-Protection against short-exposure attacks may require post-quantum signature schemes; that said, executing these attacks requires faster CRQCs than those capable of executing long exposure attacks and are therefore viewed as lower-risk than long-exposure attacks in the nearer term.
+Protection against short exposure attacks may require post-quantum signature schemes; that said, executing these attacks requires faster CRQCs than those capable of executing long exposure attacks and are therefore viewed as lower-risk than long exposure attacks in the nearer term.
 
 '''Tapscript-Native Output Type'''
 
@@ -403,7 +403,7 @@ To help implementers understand updates to this BIP, we keep a list of substanti
 * 2025-03-18 - Correct inconsistencies in commitment and attestation structure. Switch from Merkle tree commitment to sorted vector hash commitment. Update descriptor format.
 * 2025-03-12 - Add verification times for each algorithm. 256 to 128 (NIST V to NIST I). Add key type bitmask. Clarify multisig semantics.
 * 2025-02-23 - More points of clarification from review. Update dead link.
-* 2025-01-20 - Remove SQIsign from consideration due to significant performance concerns. Refactor language from long-range attack to long-exposure so as to not be confused with the language around block re-org attacks.
+* 2025-01-20 - Remove SQIsign from consideration due to significant performance concerns. Refactor language from long-range attack to long exposure so as to not be confused with the language around block re-org attacks.
 * 2024-12-18 - Assigned BIP number.
 * 2024-12-13 - Update to use Merkle tree for attestation commitment. Update LR & SR quantum attack scenarios.
 * 2024-12-01 - Add details on attestation structure and parsing.
