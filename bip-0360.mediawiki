@@ -219,18 +219,17 @@ A P2TSH output is a native SegWit output (see [[bip-0141.mediawiki|BIP 141]]) wi
 * If there are at least three witness elements, and the first byte of the last element is 0x50, this last element is called ''annex a'' and is removed from the witness stack. The annex (or the lack thereof) is always covered by the signature and contributes to transaction weight, but is otherwise ignored during P2TSH validation.
 * There must be at least two witness elements left.
 ** Call the second-to-last stack element ''s'', the script (as defined in [[bip-0341.mediawiki|BIP 341]])
-** The last stack element is called the control block ''c'', and must have length ''1 + 32*m'', for a value of ''m'' that is an integer between 0 and 128, inclusive. Fail if it does not have such a length.
+** The last stack element is called the control block ''c'', and must have length ''1 + 32 * m'', for a value of ''m'' that is an integer between 0 and 128, inclusive. Fail if it does not have such a length.
 ** Let ''v = c[0] & 0xfe'' be the ''leaf version'' (as defined in [[bip-0341.mediawiki|BIP 341]]). To maintain ''leaf version'' encoding compatibility the last bit of c[0] is unused and must be 1.<ref>Why set the last bit of c[0] to one? Consider a faulty implementation that deserializes the ''leaf version'' as c[0] rather than c[0] & 0xfe for both P2TR and P2TSH. If they test against P2TSH outputs and require that last bit is 1, this deserialization bug will cause an immediate error.</ref>
 ** Let ''k<sub>0</sub> = hash<sub>TapLeaf</sub>(v || compact_size(size of s) || s)''; also call it the ''tapleaf hash''.
 ** For ''j'' in ''[0,1,...,m-1]'':
 *** Let ''e<sub>j</sub> = c[33+32j:65+32j]''.
-*** Let ''k<sub>j+1</sub> depend on whether'' k<sub>j</sub> < e<sub>j</sub> ''(lexicographically):''
-**** If ''k<sub>j</sub> < e<sub>j</sub>'': ''k<sub>j</sub>+1 = hash<sub>TapBranch</sub>(k<sub>j</sub> || e<sub>j</sub>)''.
-**** If ''k<sub>j</sub> ≥ e<sub>j</sub>'': ''k<sub>j</sub>+1 = hash<sub>TapBranch</sub>(e<sub>j</sub> || k<sub>j</sub>)''.
+*** Let ''k<sub>j+1</sub>'' depend on whether ''k<sub>j</sub> < e<sub>j</sub>'' (lexicographically):
+**** If ''k<sub>j</sub> < e<sub>j</sub>'': ''k<sub>j+1</sub> = hash<sub>TapBranch</sub>(k<sub>j</sub> || e<sub>j</sub>)''.
+**** If ''k<sub>j</sub> &ge; e<sub>j</sub>'': ''k<sub>j+1</sub> = hash<sub>TapBranch</sub>(e<sub>j</sub> || k<sub>j</sub>)''.
 ** Let ''r = k<sub>m</sub>''.
-** If ''q ≠ r'', fail.
+** If ''q &ne; r'', fail.
 ** Execute the script, according to the applicable script rules, using the witness stack elements excluding the script ''s'', the control block ''c'', and the annex ''a'' if present, as initial stack. This implies that for the future leaf versions (non-''0xC0'') the execution must succeed.
-* Otherwise, fail.
 
 The steps above follow the script-path spend logic from [[bip-0341.mediawiki|BIP 341]] with the following changes:
 
