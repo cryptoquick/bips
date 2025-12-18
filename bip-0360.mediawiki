@@ -119,7 +119,7 @@ Note: Extended public keys, commonly known as "xpubs," and wallet descriptors al
 
 ==Design==
 
-P2TSH (Pay-to-Tapscript-Hash) is a proposed new output type that commits to the root of a tapscript tree. It operates with nearly the same functionality as P2TR (Pay-to-Taproot) outputs, but with the quantum vulnerable key path spend removed.
+Pay-to-Tapscript-Hash (P2TSH) is a proposed new output type that commits to the root of a tapscript tree. It operates with nearly the same functionality as P2TR (Pay-to-Taproot) outputs, but with the quantum vulnerable key path spend removed.
 
 In other words, P2TSH outputs commit to the Merkle root of a tapscript tree without committing to an internal key. The script(s) being committed to, however, may contain a key or key-hash.
 
@@ -174,7 +174,7 @@ We designed P2TSH with an eye towards integrating post-quantum signatures in the
 
 While P2TR outputs (and the use of key path spend) will remain an option for folks wishing to use them, we aim to be clear about the tradeoffs of using P2TSH outputs, which disable the key path spend for the benefit of quantum resistance.
 
-First off, P2TSH script path spends are slightly larger than P2TR key path spends, because you have to include the control byte and script in the transaction. That said, script path spends from P2TSH outputs will be slightly smaller than script path spends from P2TR outputs. For a more complete comparison of output type transaction sizes, the "Transaction Size and Fees" section may be reviewed later in this proposal.
+First off, P2TSH script path spends are slightly larger than P2TR key path spends, because you have to include the control byte, merkle path (if depth > 0), and script in the transaction. That said, script path spends from P2TSH outputs will be slightly smaller than script path spends from P2TR outputs. For a more complete comparison of output type transaction sizes, the "Transaction Size and Fees" section may be reviewed later in this proposal.
 
 Additionally, there is a privacy tradeoff when comparing P2TSH and P2TR, which is that users reveal they are spending to a script tree whenever they are using P2TSH outputs, since P2TSH outputs can only be spent via script path spend. In P2TR when you spend an output as a key path spend, you don't reveal if you have any script path spends. This trade-off only exists when comparing P2TR key path spends to P2TSH script path spends; P2TR and P2TSH provide the same level of privacy when both are script path spends.
 
@@ -196,7 +196,7 @@ Example P2TSH address:
 bc1zzmv50jjgxxhww6ve4g5zpewrkjqhr06fyujpm20tuezdlxmfphcqfc80ve
 </source>
 
-This commits to a 32-byte Bech32m-encoded tapscript tree hash.
+This commits to a 32-byte tapscript tree hash.
 
 ===ScriptPubKey===
 
@@ -287,15 +287,11 @@ control block = [size] [control byte] [Merkle path] (1 + 1 + 32*m = 2 + 32*m byt
 
 A P2TSH witness will be smaller than the witness to an equivalent P2TR script path spend. This is because P2TSH does not require inclusion of any internal public key in the control block to unlock and spend an output. For this reason, a P2TSH witness will always be 32 bytes smaller than an equivalent P2TR script path spend witness.
 
-====Consider a P2TSH output with a post-quantum signature leaf and a Schnorr leaf====
-
-The P2TSH witness to spend the Schnorr path would be ''103 + 32 * 1 = 135 bytes''. Unfortunately, we cannot use the key path spend optimization because the key path spend is not quantum-resistant.
-
-===Performance Impact===
+==Performance Impact==
 
 P2TSH is slightly more computationally performant than P2TR script path spends, as the operations to spend a P2TSH output is a strict subset of the operations needed to perform a script path spend on a P2TR output.
 
-===Backward Compatibility===
+==Backward Compatibility==
 
 Older wallets and nodes that have not been made compatible with SegWit version 2 and P2TSH will not recognize these outputs. Users should ensure they are using updated wallets and nodes to use P2TSH outputs and validate transactions using P2TSH outputs. P2TSH is fully compatible with tapscript and existing tapscript programs can be used in P2TSH outputs without modification.
 
