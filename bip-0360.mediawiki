@@ -113,7 +113,7 @@ The following output types are fundamentally vulnerable to long exposure attacks
 * Reused outputs*
 * Tapscript outputs (starts with bc1p)
 
-\*Funds in P2PKH, P2SH, P2WPKH, P2WSH, and P2TSH outputs can become vulnerable to long exposure quantum attacks anytime their redeem script reveals a public key.
+\*Funds in P2PKH, P2SH, P2WPKH, P2WSH, and P2TSH outputs can become vulnerable to long exposure quantum attacks anytime their script reveals a public key.
 
 Note: Extended public keys, commonly known as "xpubs," and wallet descriptors also reveal quantum vulnerable public key information. For further clarification on quantum attack vectors, please refer to the [[#Glossary|Glossary of Terms]].
 
@@ -148,7 +148,7 @@ tapleaf script,
 control block = [control byte, 32*m byte Merkle path] # m is the depth of the script in the Merkle tree
 </source>
 
-The initial stack elements of P2TSH provide the same functionality as they do in P2TR. That is, they place elements on the stack to be evaluated by the script, a.k.a. the redeem script.
+The initial stack elements of P2TSH provide the same functionality as they do in P2TR. That is, they place elements on the stack to be evaluated by the script.
 
 The control block is a ''1 + 32 * m'' byte array, where the first byte is the control byte and the next ''32 * m'' bytes are the Merkle path to the tapleaf script. The control byte is the same as the control byte in a P2TR control block, including the 7 bits which are used to specify the tapleaf version. The parity bit of the control byte is always 1, since P2TSH does not have a key path spend. Unlike P2TR, we omit the public key from the control block as it is not needed in P2TSH. We maintain support for the optional annex in the witness (see Specification section below for more details).
 
