@@ -47,7 +47,7 @@ As a conservative first step in this effort, we propose Pay-to-Tapscript-Hash (P
 
 ===Long-Exposure vs Short-Exposure Attacks===
 
-For clarity, this proposal specifically mitigates against the risk of long exposure attacks on tapscript-native outputs. While other Bitcoin output types already mitigate against this risk, Tapscript outputs (P2TR output types) are currently vulnerable to long-exposure quantum attacks.
+For clarity, this proposal specifically mitigates against the risk of long exposure attacks on tapscript-native outputs. While other Bitcoin output types already mitigate against this risk, Tapscript outputs (P2TR output types) are vulnerable to long-exposure quantum attacks.
 
 A long-exposure attack is an attack performed on exposed blockchain data, such as exposed public keys or the spend scripts of spent outputs. These are likely to be the earliest quantum attacks made possible on Bitcoin, because attackers will have ample time - as much time as vulnerable keys are exposed - to carry out quantum key recovery.
 
@@ -235,7 +235,7 @@ A P2TSH output is a native SegWit output (see [[bip-0141.mediawiki|BIP 141]]) wi
 The steps above follow the script-path spend logic from [[bip-0341.mediawiki|BIP 341]] with the following changes:
 
 * The witness program is the taptree Merkle root and not a tweaked public key. This means that we skip directly to the BIP 341 spend path taptree Merkle tree validation.
-* We compute the taptree Merkle root r and compare it directly to the witness program q.
+* We compute the taptree Merkle root ''r'' and compare it directly to the witness program ''q''.
 * The control block is ''1 + 32*m'' bytes, instead of ''33 + 32*m'' bytes.
 
 ===Common Signature Message Construction===
@@ -259,7 +259,7 @@ P2TSH witness for depth-0 tree (103 bytes):
 <source>
 [count] (1 byte), # Number of elements in the witness
 [size] signature (1 + 64 bytes = 65 bytes),
-tapleaf script = [size] [OP_PUSHBYTES_32, 32-byte scriptPubKey, OP_CHECKSIG] (1 + 1 + 32 + 1 bytes = 35 bytes),
+tapleaf script = [size] [OP_PUSHBYTES_32, 32-byte public key, OP_CHECKSIG] (1 + 1 + 32 + 1 bytes = 35 bytes),
 control block = [size] [control byte] [merkle path (empty)] (1 + 1 + 0 bytes = 2 bytes)
 </source>
 
@@ -279,7 +279,7 @@ P2TSH witness ''(103 + 32*m bytes)'':
 <source>
 [count] (1 byte), # Number of elements in the witness
 [size] signature (64 + 1 bytes = 65 bytes),
-tapleaf script = [size] [OP_PUSHBYTES_32, 32-byte scriptPubKey, OP_CHECKSIG] (34 + 1 bytes = 35 bytes),
+tapleaf script = [size] [OP_PUSHBYTES_32, 32-byte public key, OP_CHECKSIG] (34 + 1 bytes = 35 bytes),
 control block = [size] [control byte] [Merkle path] (1 + 1 + 32*m = 2 + 32*m bytes)
 </source>
 
@@ -299,7 +299,7 @@ P2TSH is slightly more computationally performant than P2TR script path spends, 
 
 Older wallets and nodes that have not been made compatible with SegWit version 2 and P2TSH will not recognize these outputs. Users should ensure they are using updated wallets and nodes to use P2TSH outputs and validate transactions using P2TSH outputs. P2TSH is fully compatible with tapscript and existing tapscript programs can be used in P2TSH outputs without modification.
 
-===Security===
+==Security==
 
 P2TSH outputs provide the same tapscript functionality as P2TR outputs, but with the quantum-vulnerable key path spend removed. The similarity between these output types enables users to easily migrate coins from P2TR outputs to P2TSH outputs for protection against long-exposure quantum attacks.
 
@@ -337,7 +337,7 @@ The idea of Taproot with key path spend removed has been discussed a number of t
 
 For instance, [https://gnusha.org/pi/bitcoindev/CAD5xwhgzR8e5r1e4H-5EH2mSsE1V39dd06+TgYniFnXFSBqLxw@mail.gmail.com/ OP_CAT Makes Bitcoin Quantum Secure] notes that if we disable the key path spend in Taproot and activate OP_CAT [[bip-0347.mediawiki|BIP 347]], we could achieve quantum resistance by using Lamport signatures with OP_CAT.
 
-Lamport and WOTS (Winternitz One-Time Signatures) built from CAT are quantum resistant, but are one-time signatures - meaning, if you sign twice for the same public key, you risk leaking your private key, which is a significant practical vulnerability for everyday users.
+Lamport and WOTS (Winternitz One-Time Signatures) built from CAT are quantum resistant, but are one-time signatures - meaning, if you sign twice for the same public key, you risk leaking your private key, which is a significant security concern for everyday users.
 
 This would require major changes to wallet behavior and would represent a significant security downgrade. Common practices, such as RBF and CPFP, could risk revealing private keys if no stateless signature scheme is used.
 
@@ -349,7 +349,7 @@ Commit-reveal schemes such as [https://gnusha.org/pi/bitcoindev/1518710367.3550.
 
 It is worth noting, by way of comparison, that [https://ethresear.ch/t/how-to-hard-fork-to-save-most-users-funds-in-a-quantum-emergency/18901 Vitalik Buterin's proposed solution] to Ethereum's quantum vulnerability is quite different from the approach in this BIP.
 
-His plan involves a hard fork of the chain, reverting all blocks after some sufficient amount of theft, and using STARKs based on BIP 32 seeds to act as the authoritative secret when signing. We believe rollbacks of any kind are an untenable approach for Bitcoin and would be practically impossible to implement.
+His plan involves a hard fork of the chain, reverting all blocks after some sufficient amount of theft, and using STARKs based on BIP 32 seeds to act as the authoritative secret when signing. We believe rollbacks of any kind are an untenable approach for Bitcoin and would likely be impractical to implement.
 
 That said, we believe the use of STARKs (which are quantum-resistant) may prove useful as a method of proving access to external private keys, in the event that the community chooses to burn vulnerable coins as proposed by Jameson Lopp and others in [https://qbip.org/ QBIP].
 
