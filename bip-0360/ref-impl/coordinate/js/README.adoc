@@ -1,0 +1,26 @@
+
+= BIP 360 Javascript Reference Implementation
+
+This implementation uses `coordinate-lib-js` from the Anduro Project, installed directly from GitHub:
+
+* `coordinate-lib-js`: Bitcoin library for the Coordinate sidechain (Anduro Network)
+* `@jbride/bitcoinpqc-wasm`: Post-quantum cryptography support
+* `ecpair`: Elliptic curve key pair management
+* `tiny-secp256k1`: Secp256k1 elliptic curve operations
+:numbered:
+
+== procedure
+
+-----
+# Verify Node.js version
+$ node --version  # Should be v22.x.x or higher
+
+$ npm install
+
+# compile Typecript
+$ npx tsc
+
+
+# run tests
+$ node src/p2tsh-example.ts
+-----
