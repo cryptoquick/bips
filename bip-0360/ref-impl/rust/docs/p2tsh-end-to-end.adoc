@@ -60,6 +60,33 @@ $ alias b-cli='docker run --rm  --network host bitcoin-cli:p2tsh-pqc-0.0.1 -rpcc
 
 == Create & Fund P2TSH UTXO
 
+The purpose of this workshop is to demonstrate construction and spending of a link:https://github.com/cryptoquick/bips/blob/p2qrh/bip-0360.mediawiki[bip-360] _P2TSH_ address (optionally using _Post-Quantum Cryptography_).
+
+In this section of the workshop, you create and fund a P2TSH address.
+
+The following depicts the construction of a P2TSH _TapTree_ and computation its _scriptPubKey_.
+
+image::images/p2tsh_construction.png[]
+
+A P2TSH address is created by adding locking scripts to leaves of a _TapTree_.
+The locking scripts can use either _Schnorr_ (as per BIP-360) or _SLH-DSA_ (defined in a future BIP) cryptography.
+
+. Define number of total leaves in tap tree :
++
+[source,bash]
+-----
+export TOTAL_LEAF_COUNT=5
+-----
+
+. Set the tap leaf index to later use as the unlocking script (when spending):
++
+[source,bash]
+-----
+export LEAF_OF_INTEREST=4
+-----
++
+NOTE: Defaults is 4 leaves with the first leaf (leaf 0 ) as the script to later use to unlock during spending.
+
 . Set an environment variable specific to your Bitcoin network environment (regtest, signet, etc)
 +
 [source,bash]
@@ -71,23 +98,34 @@ Doing so influences the P2TSH address that you'll create later in this tutorial.
 
 
 . OPTIONAL: Indicate what type of cryptography to use in the locking scripts of your TapTree leaves.
-Valid options are: `SLH_DSA_ONLY`, `SCHNORR_ONLY`, `SCHNORR_AND_SLH_DSA`.
-Default is `SCHNORR_ONLY`.
+Valid options are: `MIXED`, `SCHNORR_ONLY`, `SLH_DSA_ONLY`, and `CONCATENATED_SCHNORR_AND_SLH_DSA`.
+Default is `MIXED`.
 +
 [source,bash]
 -----
-$ export LEAF_SCRIPT_TYPE=SLH_DSA_ONLY
+$ export TAP_TREE_LOCK_TYPE=MIXED
 -----
 
-. OPTIONAL: Define number of leaves in tap tree as well as the tap leaf to later use as the unlocking script:
+.. If you set _TAP_TREE_LOCK_TYPE=SCHNORR_ONLY_, then the locking script of your TapTree leaves will utilize _Schnorr_ cryptography.
 +
-[source,bash]
------
-$ export TOTAL_LEAF_COUNT=5 \
-    && export LEAF_OF_INTEREST=4
------
+Schnorr is not quantum-resistant.  However, its signature size is relatively small: 64 bytes.
+
+.. If you set _TAP_TREE_LOCK_TYPE=SLH_DSA_ONLY_, then the locking script of your TapTree leaves will utilize _SLH-DSA_ cryptography.
 +
-NOTE: Defaults are 4 leaves with the first leaf (leaf 0 ) as the script to later use as the unlocking script. 
+SLH_DSA is quantum-resistant.  However, the trade-off is the much larger signature size 7,856 bytes when spending.
++
+image::images/crypto_key_characteristics.png[]
++
+NOTE: PQC cryptography is made available to this BIP-360 reference implementation via the link:https://crates.io/crates/bitcoinpqc[libbitcoinpqc Rust bindings].
+
+.. If you set _MIXED_, then each leaf of the taptree will consist of *either* a Schnorr based locking script or a SLH-DSA based locking script.
+A _MIXED_ tap tree could be represented as follows:
++
+image::images/tap_tree_mixed.png[t,300]
++
+NOTE:  The benefit of constructing a taptree with a mixed set of cryptography used as locking scripts in the leaves is articulated nicely in link:https://www.bitmex.com/blog/Taproot%20Quantum%20Spend%20Paths[this article from BitMex].
+
+.. If you set _TAP_TREE_LOCK_TYPE=CONCATENATED_SCHNORR_AND_SLH_DSA_, then the locking script of your TapTree leaves will be secured using both SCHNORR and SLH-DSA cryptography in a concatenated / serial manner.  Private keys for both SCHNORR and SLH-DSA will be needed when unlocking.
 
 . Generate a P2TSH scripPubKey with multi-leaf taptree:
 +
@@ -115,6 +153,13 @@ The source code for the above logic is found in this project:  src/lib.rs
 
 </details>
 ++++
+
+.  Only if you previously set `TAP_TREE_LOCK_TYPE=MIXED`, set the environment variable `SPENDING_LEAF_TYPE`.  Valid values are `SHNORR_ONLY` or `SLH_DSA_ONLY` based on the type of locking script that was used in the leaf you will spend from later in this lab.  The logs from the previous step tell you the appropriate value to set.  For instance:
++
+-----
+NOTE: TAP_TREE_LOCK_TYPE=MIXED requires setting SPENDING_LEAF_TYPE when spending (based on leaf_script_type in output above) as follows:
+    export SPENDING_LEAF_TYPE=SCHNORR_ONLY
+-----
 
 . Set some env vars (for use in later steps in this tutorial) based on previous result:
 +
@@ -148,7 +193,7 @@ If on `regtest` network, execute the following:
 +
 [source,bash]
 -----
-$ export COINBASE_REWARD_TX_ID=$( b-cli -regtest -named generatetoaddress nblocks=1 address="$P2TSH_ADDR" maxtries=5  | jq -r '.[]' ) \
+$ export COINBASE_REWARD_TX_ID=$( b-cli -named generatetoaddress nblocks=1 address="$P2TSH_ADDR" maxtries=5  | jq -r '.[]' ) \
     && echo $COINBASE_REWARD_TX_ID
 -----
 +
@@ -438,7 +483,7 @@ This tutorial assumes that a bitcoin core wallet is available.
 $ export W_NAME=anduro
 
 $ b-cli -named createwallet \
-    wallet_name=$W_NAME \ 
+    wallet_name=$W_NAME \
     descriptors=true \
     load_on_startup=true
 -----

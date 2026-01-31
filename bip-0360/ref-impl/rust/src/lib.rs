@@ -24,7 +24,7 @@ use bitcoinpqc::{
     generate_keypair, public_key_size, secret_key_size, Algorithm, KeyPair, sign, verify,
 };
 
-use data_structures::{SpendDetails, UtxoReturn, TaptreeReturn, UnifiedKeypair, MultiKeypair, LeafScriptType};
+use data_structures::{SpendDetails, UtxoReturn, TaptreeReturn, UnifiedKeypair, MultiKeypair, LeafScriptType, MixedLeafInfo};
 
 /* Secp256k1 implements the Signing trait when it's initialized in signing mode.
    It's important to note that Secp256k1 has different capabilities depending on how it's constructed:
@@ -34,7 +34,13 @@ use data_structures::{SpendDetails, UtxoReturn, TaptreeReturn, UnifiedKeypair, M
 */
 static SECP: Lazy<Secp256k1<bitcoin::secp256k1::All>> = Lazy::new(Secp256k1::new);
 
-fn create_huffman_tree(leaf_script_type: LeafScriptType) -> (Vec<(u32, ScriptBuf)>, MultiKeypair, ScriptBuf) {
+/// Creates a Huffman tree with leaves of the specified script type.
+///
+/// For Mixed type, leaves alternate between Schnorr (even indices) and SLH-DSA (odd indices).
+/// The LEAF_OF_INTEREST_TYPE env var can override the type for the leaf of interest.
+///
+/// Returns: (huffman_entries, keypairs_of_interest, script_buf_of_interest, actual_leaf_type)
+fn create_huffman_tree(leaf_script_type: LeafScriptType) -> (Vec<(u32, ScriptBuf)>, MultiKeypair, ScriptBuf, LeafScriptType) {
 
     let mut total_leaf_count: u32 = 1;
     if let Ok(env_value) = env::var("TOTAL_LEAF_COUNT") {
@@ -42,13 +48,20 @@ fn create_huffman_tree(leaf_script_type: LeafScriptType) -> (Vec<(u32, ScriptBuf
             total_leaf_count = parsed_value;
         }
     }
-    
+
     let mut leaf_of_interest: u32 = 0;
     if let Ok(env_value) = env::var("LEAF_OF_INTEREST") {
         if let Ok(parsed_value) = env_value.parse::<u32>() {
             leaf_of_interest = parsed_value;
         }
     }
+
+    // For Mixed mode, allow overriding the type of the leaf of interest
+    let leaf_of_interest_type: Option<LeafScriptType> = if leaf_script_type == LeafScriptType::Mixed {
+        env::var("LEAF_OF_INTEREST_TYPE").ok().map(|s| LeafScriptType::from_string(&s))
+    } else {
+        None
+    };
 
     if total_leaf_count < 1 {
         panic!("total_leaf_count must be greater than 0");
@@ -61,11 +74,30 @@ fn create_huffman_tree(leaf_script_type: LeafScriptType) -> (Vec<(u32, ScriptBuf
     let mut huffman_entries: Vec<(u32, ScriptBuf)> = vec![];
     let mut keypairs_of_interest: Option<MultiKeypair> = None;
     let mut script_buf_of_interest: Option<ScriptBuf> = None;
+    let mut actual_leaf_type_of_interest: LeafScriptType = leaf_script_type;
+
     for leaf_index in 0..total_leaf_count {
         let keypairs: MultiKeypair;
         let script_buf: ScriptBuf;
-        
-        match leaf_script_type {
+
+        // Determine the effective script type for this leaf
+        let effective_script_type = if leaf_script_type == LeafScriptType::Mixed {
+            // For Mixed mode, check if this is the leaf of interest with an override
+            if leaf_index == leaf_of_interest && leaf_of_interest_type.is_some() {
+                leaf_of_interest_type.unwrap()
+            } else {
+                // Default pattern: even indices use Schnorr, odd indices use SLH-DSA
+                if leaf_index % 2 == 0 {
+                    LeafScriptType::SchnorrOnly
+                } else {
+                    LeafScriptType::SlhDsaOnly
+                }
+            }
+        } else {
+            leaf_script_type
+        };
+
+        match effective_script_type {
             LeafScriptType::SchnorrOnly => {
                 let schnorr_keypair = acquire_schnorr_keypair();
                 keypairs = MultiKeypair::new_schnorr_only(schnorr_keypair);
@@ -86,19 +118,19 @@ fn create_huffman_tree(leaf_script_type: LeafScriptType) -> (Vec<(u32, ScriptBuf
                 script_buf_bytes.push(0x7f); // OP_SUBSTR
                 script_buf = ScriptBuf::from_bytes(script_buf_bytes);
             },
-            LeafScriptType::SchnorrAndSlhDsa => {
+            LeafScriptType::ConcatenatedSchnorrAndSlhDsaSameLeaf => {
                 // For combined scripts, we need both keypairs
                 let schnorr_keypair = acquire_schnorr_keypair();
                 let slh_dsa_keypair = acquire_slh_dsa_keypair();
                 keypairs = MultiKeypair::new_combined(schnorr_keypair, slh_dsa_keypair);
-                
+
                 let schnorr_pubkey = keypairs.schnorr_keypair().unwrap().public_key_bytes();
                 let slh_dsa_pubkey = keypairs.slh_dsa_keypair().unwrap().public_key_bytes();
-                
+
                 // Debug: Print the private key used for script construction
                 info!("SLH-DSA DEBUG: Script construction using private key: {}", hex::encode(keypairs.slh_dsa_keypair().unwrap().secret_key_bytes()));
                 info!("SLH-DSA DEBUG: Script construction using public key: {}", hex::encode(&slh_dsa_pubkey));
-                
+
                 // Combined script: <Schnorr_PubKey> OP_CHECKSIG <SLH_DSA_PubKey> OP_SUBSTR OP_BOOLAND OP_VERIFY
                 let mut script_buf_bytes = vec![0x20]; // OP_PUSHBYTES_32
                 script_buf_bytes.extend_from_slice(&schnorr_pubkey);
@@ -110,51 +142,69 @@ fn create_huffman_tree(leaf_script_type: LeafScriptType) -> (Vec<(u32, ScriptBuf
                 script_buf_bytes.push(0x69); // OP_VERIFY
                 script_buf = ScriptBuf::from_bytes(script_buf_bytes);
             }
+            LeafScriptType::Mixed => {
+                // This shouldn't happen as Mixed is resolved to a specific type above
+                panic!("LeafScriptType::Mixed should have been resolved to a specific type");
+            }
             LeafScriptType::NotApplicable => {
                 panic!("LeafScriptType::NotApplicable is not applicable");
             }
         }
-            
+
             let random_weight = thread_rng().gen_range(0..total_leaf_count);
-            
+
             let huffman_entry = (random_weight, script_buf.clone());
             huffman_entries.push(huffman_entry);
             if leaf_index == leaf_of_interest {
                 keypairs_of_interest = Some(keypairs);
                 script_buf_of_interest = Some(script_buf.clone());
-                debug!("Selected leaf: weight: {}, script: {:?}", random_weight, script_buf);
+                actual_leaf_type_of_interest = effective_script_type;
+                debug!("Selected leaf {}: type: {:?}, weight: {}, script: {:?}",
+                    leaf_index, effective_script_type, random_weight, script_buf);
             }
     }
-    return (huffman_entries, keypairs_of_interest.unwrap(), script_buf_of_interest.unwrap());
+    return (huffman_entries, keypairs_of_interest.unwrap(), script_buf_of_interest.unwrap(), actual_leaf_type_of_interest);
 }
 
-/// Parses the LEAF_SCRIPT_TYPE environment variable and returns the corresponding LeafScriptType.
-/// Defaults to LeafScriptType::SchnorrOnly if the environment variable is not set or has an invalid value.
+/// Parses the TAP_TREE_LOCK_TYPE environment variable and returns the corresponding LeafScriptType.
+/// Defaults to LeafScriptType::SchnorrOnly if the environment variable is not set.
+/// Exits with error code 1 if an invalid value is provided.
+///
+/// Supported values:
+/// - SLH_DSA_ONLY: All leaves use SLH-DSA signatures
+/// - SCHNORR_ONLY: All leaves use Schnorr signatures
+/// - CONCATENATED_SCHNORR_AND_SLH_DSA: All leaves require both Schnorr and SLH-DSA signatures
+/// - MIXED: Different leaves use different algorithms (Schnorr or SLH-DSA) (default)
 pub fn parse_leaf_script_type() -> LeafScriptType {
-    match env::var("LEAF_SCRIPT_TYPE")
-        .unwrap_or_else(|_| "SCHNORR_ONLY".to_string())
-        .as_str() {
-        "SLH_DSA_ONLY" => LeafScriptType::SlhDsaOnly,
-        "SCHNORR_ONLY" => LeafScriptType::SchnorrOnly,
-        "SCHNORR_AND_SLH_DSA" => LeafScriptType::SchnorrAndSlhDsa,
-        _ => {
-            error!("Invalid LEAF_SCRIPT_TYPE. Must be one of: SLH_DSA_ONLY, SCHNORR_ONLY, SCHNORR_AND_SLH_DSA");
-            LeafScriptType::SchnorrOnly
+    match env::var("TAP_TREE_LOCK_TYPE") {
+        Ok(value) => match value.as_str() {
+            "SLH_DSA_ONLY" => LeafScriptType::SlhDsaOnly,
+            "SCHNORR_ONLY" => LeafScriptType::SchnorrOnly,
+            "CONCATENATED_SCHNORR_AND_SLH_DSA" => LeafScriptType::ConcatenatedSchnorrAndSlhDsaSameLeaf,
+            "MIXED" => LeafScriptType::Mixed,
+            _ => {
+                error!("Invalid TAP_TREE_LOCK_TYPE '{}'. Must be one of: SLH_DSA_ONLY, SCHNORR_ONLY, CONCATENATED_SCHNORR_AND_SLH_DSA, MIXED", value);
+                std::process::exit(1);
+            }
+        },
+        Err(_) => {
+            // Default to Mixed if not set
+            LeafScriptType::Mixed
         }
     }
 }
 
 pub fn create_p2tsh_multi_leaf_taptree() -> TaptreeReturn {
     let leaf_script_type = parse_leaf_script_type();
-    
-    let (huffman_entries, keypairs_of_interest, script_buf_of_interest) = create_huffman_tree(leaf_script_type);
+
+    let (huffman_entries, keypairs_of_interest, script_buf_of_interest, actual_leaf_type) = create_huffman_tree(leaf_script_type);
     let p2tsh_builder: P2tshBuilder = P2tshBuilder::with_huffman_tree(huffman_entries).unwrap();
 
 
     let p2tsh_spend_info: P2tshSpendInfo = p2tsh_builder.clone().finalize().unwrap();
     let merkle_root:TapNodeHash = p2tsh_spend_info.merkle_root.unwrap();
 
-    
+
     let tap_tree: TapTree = p2tsh_builder.clone().into_inner().try_into_taptree().unwrap();
     let mut script_leaves: ScriptLeaves = tap_tree.script_leaves();
     let script_leaf = script_leaves
@@ -184,7 +234,7 @@ pub fn create_p2tsh_multi_leaf_taptree() -> TaptreeReturn {
         merkle_branch: merkle_branch.clone(),
     };
 
-    // Not a requirement here but useful to demonstrate what Bitcoin Core does as the verifier when spending from a p2tsh UTXO   
+    // Not a requirement here but useful to demonstrate what Bitcoin Core does as the verifier when spending from a p2tsh UTXO
     control_block.verify_script_in_merkle_root_path(leaf_script, merkle_root);
 
     let control_block_hex: String = hex::encode(control_block.serialize());
@@ -197,17 +247,18 @@ pub fn create_p2tsh_multi_leaf_taptree() -> TaptreeReturn {
         leaf_script_hex: leaf_script.to_hex_string(),
         tree_root_hex: hex::encode(merkle_root.to_byte_array()),
         control_block_hex: control_block_hex,
+        leaf_script_type: actual_leaf_type.to_string(),
     };
 }
 
 pub fn create_p2tr_multi_leaf_taptree(p2tr_internal_pubkey_hex: String) -> TaptreeReturn {
 
-    let (huffman_entries, keypairs_of_interest, script_buf_of_interest) = create_huffman_tree(LeafScriptType::SchnorrOnly);
+    let (huffman_entries, keypairs_of_interest, script_buf_of_interest, actual_leaf_type) = create_huffman_tree(LeafScriptType::SchnorrOnly);
 
     let pub_key_string = format!("02{}", p2tr_internal_pubkey_hex);
     let internal_pubkey: PublicKey = pub_key_string.parse::<PublicKey>().unwrap();
     let internal_xonly_pubkey: XOnlyPublicKey = internal_pubkey.inner.into();
-    
+
     let p2tr_builder: TaprootBuilder = TaprootBuilder::with_huffman_tree(huffman_entries).unwrap();
     let p2tr_spend_info: TaprootSpendInfo = p2tr_builder.clone().finalize(&SECP, internal_xonly_pubkey).unwrap();
     let merkle_root: TapNodeHash = p2tr_spend_info.merkle_root().unwrap();
@@ -253,6 +304,7 @@ pub fn create_p2tr_multi_leaf_taptree(p2tr_internal_pubkey_hex: String) -> Taptr
         leaf_script_hex: leaf_script,
         tree_root_hex: hex::encode(merkle_root.to_byte_array()),
         control_block_hex: control_block_hex,
+        leaf_script_type: actual_leaf_type.to_string(),
     };
 }
 
@@ -415,7 +467,7 @@ pub fn pay_to_p2wpkh_tx(
             derived_witness.push(&sig_bytes_with_sighash);
             debug!("SchnorrOnly signature bytes: {:?}", sig_bytes.len());
         },
-        LeafScriptType::SchnorrAndSlhDsa => {
+        LeafScriptType::ConcatenatedSchnorrAndSlhDsaSameLeaf => {
             if leaf_script_priv_keys_bytes.len() != 2 {
                 panic!("SchnorrAndSlhDsa requires exactly two private keys (Schnorr first, then SLH-DSA)");
             }
@@ -451,6 +503,10 @@ pub fn pay_to_p2wpkh_tx(
             witness_sig_bytes.extend_from_slice(&slh_dsa_signature.bytes);
             witness_sig_bytes.push(TapSighashType::All as u8);
             derived_witness.push(&witness_sig_bytes);
+        }
+        LeafScriptType::Mixed => {
+            // Mixed is not a valid type for spending - the actual leaf type should be used
+            panic!("LeafScriptType::Mixed is not valid for spending. Use the actual leaf type (SchnorrOnly or SlhDsaOnly).");
         }
         LeafScriptType::NotApplicable => {
             panic!("LeafScriptType::NotApplicable is not applicable");

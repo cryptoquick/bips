@@ -147,29 +147,6 @@ image::images/p2tsh_construction.png[]
 A P2TSH address is created by adding locking scripts to leaves of a _TapTree_.
 The locking scripts can use either _Schnorr_ (as per BIP-360) or _SLH-DSA_ (defined in a future BIP) cryptography.
 
-. OPTIONAL: In your container image, indicate what type of cryptography to use in the locking scripts of your TapTree leaves.
-Valid options are: `SLH_DSA_ONLY`, `SCHNORR_ONLY`, `SCHNORR_AND_SLH_DSA`.
-Default is `SCHNORR_ONLY`.
-+
-[source,bash]
------
-$ export LEAF_SCRIPT_TYPE=SLH_DSA_ONLY
------
-
-.. If you set _LEAF_SCRIPT_TYPE=SCHNORR_ONLY_, then the locking script of your TapTree leaves will utilize _Schnorr_ cryptography.
-+
-Schnorr is not quantum-resistant.  However, its signature size is relatively small: 64 bytes.
-
-.. If you set _LEAF_SCRIPT_TYPE=SLH_DSA_ONLY_, then the locking script of your TapTree leaves will utilize _SLH-DSA_ cryptography.
-+
-SLH_DSA is quantum-resistant.  However, the trade-off is the much larger signature size 7,856 bytes when spending.
-+
-image::images/crypto_key_characteristics.png[]
-+
-NOTE: PQC cryptography is made available to this BIP-360 reference implementation via the link:https://crates.io/crates/bitcoinpqc[libbitcoinpqc Rust bindings].
-
-.. If you set _LEAF_SCRIPT_TYPE=SCHNORR_AND_SLH_DSA_, then the locking script of your TapTree leaves will be secured using both SCHNORR and SLH-DSA cryptography.
-
 . Define number of total leaves in tap tree :
 +
 [source,bash]
@@ -177,14 +154,44 @@ NOTE: PQC cryptography is made available to this BIP-360 reference implementatio
 export TOTAL_LEAF_COUNT=5
 -----
 
-. Set the tap leaf index to later use as the unlocking script (when spending)
+. Set the tap leaf index to later use as the unlocking script (when spending):
 +
 [source,bash]
 -----
 export LEAF_OF_INTEREST=4
 -----
 +
-NOTE: Defaults is 4 leaves with the first leaf (leaf 0 ) as the script to later use to unlock during spending. 
+NOTE: Defaults is 4 leaves with the first leaf (leaf 0 ) as the script to later use to unlock during spending.
+
+. OPTIONAL: In your container image, indicate what type of cryptography to use in the locking scripts of your TapTree leaves.
+Valid options are: `MIXED`, `SLH_DSA_ONLY`, `SCHNORR_ONLY`, `CONCATENATED_SCHNORR_AND_SLH_DSA`.
+Default is `MIXED`.
++
+[source,bash]
+-----
+$ export TAP_TREE_LOCK_TYPE=MIXED
+-----
+
+.. If you set _TAP_TREE_LOCK_TYPE=SCHNORR_ONLY_, then the locking script of your TapTree leaves will utilize _Schnorr_ cryptography.
++
+Schnorr is not quantum-resistant.  However, its signature size is relatively small: 64 bytes.
+
+.. If you set _TAP_TREE_LOCK_TYPE=SLH_DSA_ONLY_, then the locking script of your TapTree leaves will utilize _SLH-DSA_ cryptography.
++
+SLH_DSA is quantum-resistant.  However, the trade-off is the much larger signature size 7,856 bytes when spending.
++
+image::images/crypto_key_characteristics.png[]
++
+NOTE: PQC cryptography is made available to this BIP-360 reference implementation via the link:https://crates.io/crates/bitcoinpqc[libbitcoinpqc Rust bindings].
+
+.. If you set _MIXED_, then each leaf of the taptree will consist of *either* a Schnorr based locking script or a SLH-DSA based locking script.
+A _MIXED_ tap tree could be represented as follows:
++
+image::images/tap_tree_mixed.png[t,300]
++
+NOTE:  The benefit of constructing a taptree with a mixed set of cryptography used as locking scripts in the leaves is articulated nicely in link:https://www.bitmex.com/blog/Taproot%20Quantum%20Spend%20Paths[this article from BitMex].
+
+.. If you set _TAP_TREE_LOCK_TYPE=CONCATENATED_SCHNORR_AND_SLH_DSA_, then the locking script of your TapTree leaves will be secured using both SCHNORR and SLH-DSA cryptography in a concatenated / serial manner.  Private keys for both SCHNORR and SLH-DSA will be needed when unlocking.
 
 . Generate a P2TSH scripPubKey with multi-leaf taptree:
 +
@@ -213,6 +220,13 @@ The Rust based reference implementation for BIP-0360 is leveraged to construct a
 ++++
 +
 The source code for the above logic is found in this project's source file:  link:../src/lib.rs[src/lib.rs]
+
+.  Only if you previously set `TAP_TREE_LOCK_TYPE=MIXED`, set the environment variable `SPENDING_LEAF_TYPE`.  Valid values are `SHNORR_ONLY` or `SLH_DSA_ONLY` based on the type of locking script that was used in the leaf you will spend from later in this lab.  The logs from the previous step tell you the appropriate value to set.  For instance:
++
+-----
+NOTE: TAP_TREE_LOCK_TYPE=MIXED requires setting SPENDING_LEAF_TYPE when spending (based on leaf_script_type in output above) as follows:
+    export SPENDING_LEAF_TYPE=SCHNORR_ONLY
+-----
 
 . Fund this P2TSH address using workshop's signet faucet
 
