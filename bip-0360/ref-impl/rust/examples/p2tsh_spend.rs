@@ -1,4 +1,4 @@
-use p2tsh_ref::{ pay_to_p2wpkh_tx, verify_schnorr_signature_via_bytes, verify_slh_dsa_via_bytes, parse_leaf_script_type };
+use p2tsh_ref::{ pay_to_p2wpkh_tx, verify_schnorr_signature_via_bytes, verify_slh_dsa_via_bytes, tap_tree_lock_type };
 
 use p2tsh_ref::data_structures::{SpendDetails, LeafScriptType};
 use std::env;
@@ -55,7 +55,7 @@ fn main() -> SpendDetails {
     info!("P2TSH control block size: {}", control_block_bytes.len());
 
     // TAP_TREE_LOCK_TYPE environment variable is required to determine key structure
-    let leaf_script_type: LeafScriptType = parse_leaf_script_type();
+    let leaf_script_type: LeafScriptType = tap_tree_lock_type();
     info!("leaf_script_type: {:?}", leaf_script_type);
 
     // For Mixed trees, we need to determine the actual leaf type via SPENDING_LEAF_TYPE

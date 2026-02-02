@@ -71,7 +71,7 @@ $ b-reg -named createwallet \
 +
 -----
 $ export TOTAL_LEAF_COUNT=5 \
-    && export LEAF_OF_INTEREST=4
+    && export LEAF_TO_SPEND_FROM=4
 -----
 +
 NOTE: Defaults are 4 leaves with the first leaf (leaf 0 ) as the script to later use as the unlocking script.

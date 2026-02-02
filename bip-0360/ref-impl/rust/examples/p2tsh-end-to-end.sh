@@ -3,7 +3,7 @@ export BITCOIN_SOURCE_DIR=$HOME/bitcoin
 export W_NAME=anduro
 export USE_PQC=false
 export TOTAL_LEAF_COUNT=5
-export LEAF_OF_INTEREST=4
+export LEAF_TO_SPEND_FROM=4
 
 b-cli -named createwallet \
     wallet_name=$W_NAME \

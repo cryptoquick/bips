@@ -1,4 +1,4 @@
-use p2tsh_ref::{create_p2tsh_utxo, create_p2tsh_multi_leaf_taptree, parse_leaf_script_type};
+use p2tsh_ref::{create_p2tsh_utxo, create_p2tsh_multi_leaf_taptree, tap_tree_lock_type};
 use p2tsh_ref::data_structures::{UtxoReturn, TaptreeReturn, ConstructionReturn, LeafScriptType};
 use std::env;
 use log::{info, error};
@@ -8,7 +8,7 @@ fn main() -> ConstructionReturn {
 
     let _ = env_logger::try_init(); // Use try_init to avoid reinitialization error
 
-    let tap_tree_lock_type = parse_leaf_script_type();
+    let tap_tree_lock_type = tap_tree_lock_type();
     info!("tap_tree_lock_type: {:?}", tap_tree_lock_type);
 
     let taptree_return: TaptreeReturn = create_p2tsh_multi_leaf_taptree();

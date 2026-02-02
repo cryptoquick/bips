@@ -37,7 +37,7 @@ static SECP: Lazy<Secp256k1<bitcoin::secp256k1::All>> = Lazy::new(Secp256k1::new
 /// Creates a Huffman tree with leaves of the specified script type.
 ///
 /// For Mixed type, leaves alternate between Schnorr (even indices) and SLH-DSA (odd indices).
-/// The LEAF_OF_INTEREST_TYPE env var can override the type for the leaf of interest.
+/// The LEAF_TO_SPEND_FROM_TYPE env var can override the type for the leaf of interest.
 ///
 /// Returns: (huffman_entries, keypairs_of_interest, script_buf_of_interest, actual_leaf_type)
 fn create_huffman_tree(leaf_script_type: LeafScriptType) -> (Vec<(u32, ScriptBuf)>, MultiKeypair, ScriptBuf, LeafScriptType) {
@@ -49,16 +49,16 @@ fn create_huffman_tree(leaf_script_type: LeafScriptType) -> (Vec<(u32, ScriptBuf
         }
     }
 
-    let mut leaf_of_interest: u32 = 0;
-    if let Ok(env_value) = env::var("LEAF_OF_INTEREST") {
+    let mut leaf_to_spend_from: u32 = 0;
+    if let Ok(env_value) = env::var("LEAF_TO_SPEND_FROM") {
         if let Ok(parsed_value) = env_value.parse::<u32>() {
-            leaf_of_interest = parsed_value;
+            leaf_to_spend_from = parsed_value;
         }
     }
 
     // For Mixed mode, allow overriding the type of the leaf of interest
-    let leaf_of_interest_type: Option<LeafScriptType> = if leaf_script_type == LeafScriptType::Mixed {
-        env::var("LEAF_OF_INTEREST_TYPE").ok().map(|s| LeafScriptType::from_string(&s))
+    let leaf_to_spend_from_type: Option<LeafScriptType> = if leaf_script_type == LeafScriptType::Mixed {
+        env::var("LEAF_TO_SPEND_FROM_TYPE").ok().map(|s| LeafScriptType::from_string(&s))
     } else {
         None
     };
@@ -66,11 +66,11 @@ fn create_huffman_tree(leaf_script_type: LeafScriptType) -> (Vec<(u32, ScriptBuf
     if total_leaf_count < 1 {
         panic!("total_leaf_count must be greater than 0");
     }
-    if leaf_of_interest >= total_leaf_count {
-        panic!("leaf_of_interest must be less than total_leaf_count and greater than 0");
+    if leaf_to_spend_from >= total_leaf_count {
+        panic!("leaf_to_spend_from must be less than total_leaf_count and greater than 0");
     }
 
-    debug!("Creating multi-leaf taptree with total_leaf_count: {}, leaf_of_interest: {}", total_leaf_count, leaf_of_interest);
+    debug!("Creating multi-leaf taptree with total_leaf_count: {}, leaf_to_spend_from: {}", total_leaf_count, leaf_to_spend_from);
     let mut huffman_entries: Vec<(u32, ScriptBuf)> = vec![];
     let mut keypairs_of_interest: Option<MultiKeypair> = None;
     let mut script_buf_of_interest: Option<ScriptBuf> = None;
@@ -83,8 +83,8 @@ fn create_huffman_tree(leaf_script_type: LeafScriptType) -> (Vec<(u32, ScriptBuf
         // Determine the effective script type for this leaf
         let effective_script_type = if leaf_script_type == LeafScriptType::Mixed {
             // For Mixed mode, check if this is the leaf of interest with an override
-            if leaf_index == leaf_of_interest && leaf_of_interest_type.is_some() {
-                leaf_of_interest_type.unwrap()
+            if leaf_index == leaf_to_spend_from && leaf_to_spend_from_type.is_some() {
+                leaf_to_spend_from_type.unwrap()
             } else {
                 // Default pattern: even indices use Schnorr, odd indices use SLH-DSA
                 if leaf_index % 2 == 0 {
@@ -155,7 +155,7 @@ fn create_huffman_tree(leaf_script_type: LeafScriptType) -> (Vec<(u32, ScriptBuf
 
             let huffman_entry = (random_weight, script_buf.clone());
             huffman_entries.push(huffman_entry);
-            if leaf_index == leaf_of_interest {
+            if leaf_index == leaf_to_spend_from {
                 keypairs_of_interest = Some(keypairs);
                 script_buf_of_interest = Some(script_buf.clone());
                 actual_leaf_type_of_interest = effective_script_type;
@@ -175,7 +175,7 @@ fn create_huffman_tree(leaf_script_type: LeafScriptType) -> (Vec<(u32, ScriptBuf
 /// - SCHNORR_ONLY: All leaves use Schnorr signatures
 /// - CONCATENATED_SCHNORR_AND_SLH_DSA: All leaves require both Schnorr and SLH-DSA signatures
 /// - MIXED: Different leaves use different algorithms (Schnorr or SLH-DSA) (default)
-pub fn parse_leaf_script_type() -> LeafScriptType {
+pub fn tap_tree_lock_type() -> LeafScriptType {
     match env::var("TAP_TREE_LOCK_TYPE") {
         Ok(value) => match value.as_str() {
             "SLH_DSA_ONLY" => LeafScriptType::SlhDsaOnly,
@@ -195,7 +195,7 @@ pub fn parse_leaf_script_type() -> LeafScriptType {
 }
 
 pub fn create_p2tsh_multi_leaf_taptree() -> TaptreeReturn {
-    let leaf_script_type = parse_leaf_script_type();
+    let leaf_script_type = tap_tree_lock_type();
 
     let (huffman_entries, keypairs_of_interest, script_buf_of_interest, actual_leaf_type) = create_huffman_tree(leaf_script_type);
     let p2tsh_builder: P2tshBuilder = P2tshBuilder::with_huffman_tree(huffman_entries).unwrap();
@@ -617,21 +617,21 @@ fn compact_size(n: u64) -> Vec<u8> {
 
 pub fn acquire_schnorr_keypair() -> UnifiedKeypair {
 
-        /*  OsRng typically draws from the OS's entropy pool (hardware random num generators, system events, etc), ie:
-            *   1.  $ cat /proc/sys/kernel/random/entropy_avail
-            *   2.  $ sudo dmesg | grep -i "random\|rng\|entropy"
+    /*  OsRng typically draws from the OS's entropy pool (hardware random num generators, system events, etc), ie:
+        *   1.  $ cat /proc/sys/kernel/random/entropy_avail
+        *   2.  $ sudo dmesg | grep -i "random\|rng\|entropy"
 
-            The Linux kernel's RNG (/dev/random and /dev/urandom) typically combines multiple entropy sources: ie:
-            *   Hardware RNG (if available)
-            *   CPU RNG instructions (RDRAND/RDSEED)
-            *   Hardware events (disk I/O, network packets, keyboard/mouse input)
-            *   Timer jitter
-            *   Interrupt timing
-        */
-        let keypair = Keypair::new(&SECP, &mut OsRng);
+        The Linux kernel's RNG (/dev/random and /dev/urandom) typically combines multiple entropy sources: ie:
+        *   Hardware RNG (if available)
+        *   CPU RNG instructions (RDRAND/RDSEED)
+        *   Hardware events (disk I/O, network packets, keyboard/mouse input)
+        *   Timer jitter
+        *   Interrupt timing
+    */
+    let keypair = Keypair::new(&SECP, &mut OsRng);
     
-        let privkey: SecretKey = keypair.secret_key();
-        let pubkey: (XOnlyPublicKey, Parity) = XOnlyPublicKey::from_keypair(&keypair);
+    let privkey: SecretKey = keypair.secret_key();
+    let pubkey: (XOnlyPublicKey, Parity) = XOnlyPublicKey::from_keypair(&keypair);
     UnifiedKeypair::new_schnorr(privkey, pubkey.0)
 }
 
