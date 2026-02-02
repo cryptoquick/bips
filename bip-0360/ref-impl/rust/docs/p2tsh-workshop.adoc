@@ -160,14 +160,20 @@ Default is `MIXED`.
 +
 [source,bash]
 -----
-$ export TAP_TREE_LOCK_TYPE=MIXED
+export TAP_TREE_LOCK_TYPE=MIXED
 -----
 
 .. If you set _TAP_TREE_LOCK_TYPE=SCHNORR_ONLY_, then the locking script of your TapTree leaves will utilize _Schnorr_ cryptography.
 +
 Schnorr is not quantum-resistant.  However, its signature size is relatively small: 64 bytes.
+A _SCHNORR_ONLY_ tap tree with 5 leaves (aka: TOTAL_LEAF_COUNT) could be represented as follows:
++
+image::images/tap_tree_schnorr_only.png[s,300]
 
 .. If you set _TAP_TREE_LOCK_TYPE=SLH_DSA_ONLY_, then the locking script of your TapTree leaves will utilize _SLH-DSA_ cryptography.
+A _SLH_DSA_ONLY_ tap tree with 5 leaves (aka: TOTAL_LEAF_COUNT) could be represented as follows:
++
+image::images/tap_tree_slh_dsa_only.png[l,300]
 +
 SLH_DSA is quantum-resistant.  However, the trade-off is the much larger signature size 7,856 bytes when spending.
 +
@@ -184,6 +190,9 @@ NOTE:  The benefit of constructing a taptree with a mixed set of cryptography us
 
 .. If you set _TAP_TREE_LOCK_TYPE=CONCATENATED_SCHNORR_AND_SLH_DSA_, then the locking script of your TapTree leaves will be secured using both SCHNORR and SLH-DSA cryptography in a concatenated / serial manner.
 Private keys for both SCHNORR and SLH-DSA will be needed when unlocking.
+A _CONCATENATED_SCHNORR_AND_SLH_DSA_ tap tree with 5 leaves (aka: TOTAL_LEAF_COUNT) could be represented as follows:
++
+image::images/tap_tree_concatenated.png[p,300]
 
 . Set the tap leaf index to later use as the unlocking script (when spending) For example, to later spend from the 5th leaf of the tap tree:
 + 
@@ -460,20 +469,20 @@ As such, the following is an example series of steps (on a Fedora 42 host) to co
 . Set BITCOIN_SOURCE_DIR
 +
 -----
-$ export BITCOIN_SOURCE_DIR=/path/to/root/dir/of/cloned/bitcoin/source
+export BITCOIN_SOURCE_DIR=/path/to/root/dir/of/cloned/bitcoin/source
 -----
 
 . build
 +
 -----
-$ cmake -B build \
+cmake -B build \
         -DWITH_ZMQ=ON \
         -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
         -DBUILD_BENCH=ON \
         -DBUILD_DAEMON=ON \
         -DSANITIZERS=address,undefined
 
-$ cmake --build build -j$(nproc)
+cmake --build build -j$(nproc)
 -----
 
 . run in either `regtest` or `signet` mode:
@@ -481,13 +490,13 @@ $ cmake --build build -j$(nproc)
 .. regtest:
 +
 -----
-$ ./build/bin/bitcoind -daemon=0 -regtest=1 -txindex -prune=0
+./build/bin/bitcoind -daemon=0 -regtest=1 -txindex -prune=0
 -----
 
 .. signet:
 +
 -----
-$ ./build/bin/bitcoind -daemon=0 -signet=1 -txindex -prune=0
+./build/bin/bitcoind -daemon=0 -signet=1 -txindex -prune=0
 -----
 +
 NOTE: If running in `signet`, your bitcoin core will need to be configured with the `signetchallenge` property.
@@ -511,13 +520,13 @@ Every developer or CI machine building `p2tsh-ref` must have cmake and a C toolc
 . Debian / Ubuntu
 +
 -----
-$ sudo apt update
-$ sudo apt install cmake build-essential clang libclang-dev
+sudo apt update
+sudo apt install cmake build-essential clang libclang-dev
 -----
 
 . Fedora / RHEL
 +
 -----
-$ sudo dnf5 update
-$ sudo dnf5 install cmake make gcc gcc-c++ clang clang-libs llvm-devel
+sudo dnf5 update
+sudo dnf5 install cmake make gcc gcc-c++ clang clang-libs llvm-devel
 -----

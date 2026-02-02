@@ -45,13 +45,13 @@ NOTE: If you have built the custom `p2tsh` enabled Bitcoin Core, you can simply 
 For this purpose, a docker container with this `bitcoin-cli` utility is provided:
 +
 -----
-$ docker pull quay.io/jbride2000/bitcoin-cli:p2tsh-pqc-0.0.1
+docker pull quay.io/jbride2000/bitcoin-cli:p2tsh-pqc-0.0.1
 -----
 
 .. Configure an alias to the `bitcoin-cli` command that connects to your customized bitcoin-core node.
 +
 -----
-$ alias b-cli='docker run --rm  --network host bitcoin-cli:p2tsh-pqc-0.0.1 -rpcconnect=192.168.122.1 -rpcport=18443 -rpcuser=regtest -rpcpassword=regtest'
+alias b-cli='docker run --rm  --network host bitcoin-cli:p2tsh-pqc-0.0.1 -rpcconnect=192.168.122.1 -rpcport=18443 -rpcuser=regtest -rpcpassword=regtest'
 -----
 
 . *jq*: ensure json parsing utility is link:https://jqlang.org/download/[installed] and available via your $PATH.
@@ -75,7 +75,7 @@ The locking scripts can use either _Schnorr_ (as per BIP-360) or _SLH-DSA_ (defi
 +
 [source,bash]
 -----
-$ export BITCOIN_NETWORK=regtest
+export BITCOIN_NETWORK=regtest
 -----
 +
 Doing so influences the P2TSH address that you'll create later in this tutorial.
@@ -94,14 +94,20 @@ Default is `MIXED`.
 +
 [source,bash]
 -----
-$ export TAP_TREE_LOCK_TYPE=MIXED
+export TAP_TREE_LOCK_TYPE=MIXED
 -----
 
 .. If you set _TAP_TREE_LOCK_TYPE=SCHNORR_ONLY_, then the locking script of your TapTree leaves will utilize _Schnorr_ cryptography.
 +
 Schnorr is not quantum-resistant.  However, its signature size is relatively small: 64 bytes.
+A _SCHNORR_ONLY_ tap tree with 5 leaves (aka: TOTAL_LEAF_COUNT) could be represented as follows:
++
+image::images/tap_tree_schnorr_only.png[s,300]
 
 .. If you set _TAP_TREE_LOCK_TYPE=SLH_DSA_ONLY_, then the locking script of your TapTree leaves will utilize _SLH-DSA_ cryptography.
+A _SLH_DSA_ONLY_ tap tree with 5 leaves (aka: TOTAL_LEAF_COUNT) could be represented as follows:
++
+image::images/tap_tree_slh_dsa_only.png[l,300]
 +
 SLH_DSA is quantum-resistant.  However, the trade-off is the much larger signature size 7,856 bytes when spending.
 +
@@ -116,7 +122,11 @@ image::images/tap_tree_mixed.png[t,300]
 +
 NOTE:  The benefit of constructing a taptree with a mixed set of cryptography used as locking scripts in the leaves is articulated nicely in link:https://www.bitmex.com/blog/Taproot%20Quantum%20Spend%20Paths[this article from BitMex].
 
-.. If you set _TAP_TREE_LOCK_TYPE=CONCATENATED_SCHNORR_AND_SLH_DSA_, then the locking script of your TapTree leaves will be secured using both SCHNORR and SLH-DSA cryptography in a concatenated / serial manner.  Private keys for both SCHNORR and SLH-DSA will be needed when unlocking.
+.. If you set _TAP_TREE_LOCK_TYPE=CONCATENATED_SCHNORR_AND_SLH_DSA_, then the locking script of your TapTree leaves will be secured using both SCHNORR and SLH-DSA cryptography in a concatenated / serial manner.
+Private keys for both SCHNORR and SLH-DSA will be needed when unlocking.
+A _CONCATENATED_SCHNORR_AND_SLH_DSA_ tap tree with 5 leaves (aka: TOTAL_LEAF_COUNT) could be represented as follows:
++
+image::images/tap_tree_concatenated.png[p,300]
 
 . Set the tap leaf index to later use as the unlocking script (when spending) For example, to later spend from the 5th leaf of the tap tree:
 +
@@ -129,7 +139,7 @@ export LEAF_TO_SPEND_FROM=4
 +
 [source,bash]
 -----
-$ export BITCOIN_ADDRESS_INFO=$( cargo run --example p2tsh_construction ) \
+export BITCOIN_ADDRESS_INFO=$( cargo run --example p2tsh_construction ) \
     && echo $BITCOIN_ADDRESS_INFO | jq -r .
 -----
 +
@@ -152,7 +162,8 @@ The source code for the above logic is found in this project:  src/lib.rs
 </details>
 ++++
 
-.  Only if you previously set `TAP_TREE_LOCK_TYPE=MIXED`, set the environment variable `SPENDING_LEAF_TYPE`.  Valid values are `SHNORR_ONLY` or `SLH_DSA_ONLY` based on the type of locking script that was used in the leaf you will spend from later in this lab.  The logs from the previous step tell you the appropriate value to set.  For instance:
+.  Only if you previously set `TAP_TREE_LOCK_TYPE=MIXED`, set the environment variable `SPENDING_LEAF_TYPE`.
+Valid values are `SHNORR_ONLY` or `SLH_DSA_ONLY` based on the type of locking script that was used in the leaf you will spend from later in this lab.  The logs from the previous step tell you the appropriate value to set.  For instance:
 +
 -----
 NOTE: TAP_TREE_LOCK_TYPE=MIXED requires setting SPENDING_LEAF_TYPE when spending (based on leaf_script_type in output above) as follows:
@@ -163,7 +174,7 @@ NOTE: TAP_TREE_LOCK_TYPE=MIXED requires setting SPENDING_LEAF_TYPE when spending
 +
 [source,bash]
 -----
-$ export MERKLE_ROOT=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.taptree_return.tree_root_hex' ) \
+export MERKLE_ROOT=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.taptree_return.tree_root_hex' ) \
     && export LEAF_SCRIPT_PRIV_KEYS_HEX=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.taptree_return.leaf_script_priv_keys_hex' ) \
     && export LEAF_SCRIPT_HEX=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.taptree_return.leaf_script_hex' ) \
     && export CONTROL_BLOCK_HEX=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.taptree_return.control_block_hex' ) \
@@ -175,7 +186,7 @@ $ export MERKLE_ROOT=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.taptree_return.tree
 +
 [source,bash]
 -----
-$ b-cli decodescript $LEAF_SCRIPT_HEX | jq -r '.asm'
+b-cli decodescript $LEAF_SCRIPT_HEX | jq -r '.asm'
 -----
 +
 NOTE:  If not using PQC, notice that this script commits to a Schnorr 32-byte x-only public key.
@@ -191,7 +202,7 @@ If on `regtest` network, execute the following:
 +
 [source,bash]
 -----
-$ export COINBASE_REWARD_TX_ID=$( b-cli -named generatetoaddress nblocks=1 address="$P2TSH_ADDR" maxtries=5  | jq -r '.[]' ) \
+export COINBASE_REWARD_TX_ID=$( b-cli -named generatetoaddress nblocks=1 address="$P2TSH_ADDR" maxtries=5  | jq -r '.[]' ) \
     && echo $COINBASE_REWARD_TX_ID
 -----
 +
@@ -214,7 +225,7 @@ $BITCOIN_SOURCE_DIR/contrib/signet/miner --cli "bitcoin-cli -conf=$HOME/anduro-3
 +
 [source,bash]
 -----
-$ export P2TSH_DESC=$( b-cli getdescriptorinfo "addr($P2TSH_ADDR)" | jq -r '.descriptor' ) \
+export P2TSH_DESC=$( b-cli getdescriptorinfo "addr($P2TSH_ADDR)" | jq -r '.descriptor' ) \
     && echo $P2TSH_DESC \
     && b-cli scantxoutset start '[{"desc": "'''$P2TSH_DESC'''"}]'
 -----
@@ -223,7 +234,7 @@ $ export P2TSH_DESC=$( b-cli getdescriptorinfo "addr($P2TSH_ADDR)" | jq -r '.des
 +
 [source,bash]
 -----
-$ export FUNDING_TX_ID=$( b-cli scantxoutset start '[{"desc": "'''$P2TSH_DESC'''"}]' | jq -r '.unspents[0].txid' ) \
+export FUNDING_TX_ID=$( b-cli scantxoutset start '[{"desc": "'''$P2TSH_DESC'''"}]' | jq -r '.unspents[0].txid' ) \
     && echo $FUNDING_TX_ID
 -----
 
@@ -231,14 +242,14 @@ $ export FUNDING_TX_ID=$( b-cli scantxoutset start '[{"desc": "'''$P2TSH_DESC'''
 +
 [source,bash]
 -----
-$ export FUNDING_UTXO_INDEX=0
+export FUNDING_UTXO_INDEX=0
 -----
 
 . view details of funding UTXO to the P2TSH address:
 +
 [source,bash]
 -----
-$ export FUNDING_UTXO=$( b-cli getrawtransaction $FUNDING_TX_ID 1 | jq -r '.vout['''$FUNDING_UTXO_INDEX''']' ) \
+export FUNDING_UTXO=$( b-cli getrawtransaction $FUNDING_TX_ID 1 | jq -r '.vout['''$FUNDING_UTXO_INDEX''']' ) \
     && echo $FUNDING_UTXO | jq -r .
 -----
 +
@@ -260,7 +271,7 @@ For the purpose of this tutorial, you will spend funds to a new P2WPKH utxo.  (t
 +
 [source,bash]
 -----
-$ export FUNDING_UTXO_AMOUNT_SATS=$(echo $FUNDING_UTXO | jq -r '.value' | awk '{printf "%.0f", $1 * 100000000}') \
+export FUNDING_UTXO_AMOUNT_SATS=$(echo $FUNDING_UTXO | jq -r '.value' | awk '{printf "%.0f", $1 * 100000000}') \
     && echo $FUNDING_UTXO_AMOUNT_SATS
 -----
 
@@ -276,7 +287,7 @@ _bad-txns-premature-spend-of-coinbase, tried to spend coinbase at depth 1_
 +
 [source,bash]
 -----
-$ b-cli -generate 110
+b-cli -generate 110
 -----
 
 .. signet
@@ -290,14 +301,7 @@ The `common/utils` directory of this project provides a script called: link:../.
 +
 [source,bash]
 -----
-$ export SPEND_DETAILS=$( cargo run --example p2tsh_spend )
-
-$ export RAW_P2TSH_SPEND_TX=$( echo $SPEND_DETAILS | jq -r '.tx_hex' ) \
-        && echo "RAW_P2TSH_SPEND_TX = $RAW_P2TSH_SPEND_TX" \
-    && export SIG_HASH=$( echo $SPEND_DETAILS | jq -r '.sighash' ) \
-        && echo "SIG_HASH = $SIG_HASH" \
-    && export SIG_BYTES=$( echo $SPEND_DETAILS | jq -r '.sig_bytes' ) \
-        && echo "SIG_BYTES = $SIG_BYTES"
+export SPEND_DETAILS=$( cargo run --example p2tsh_spend )
 -----
 +
 [subs=+quotes]
@@ -317,11 +321,23 @@ The source code for the above logic is found in this project:  src/lib.rs
 </details>
 ++++
 
+. Set environment variables passed to _bitcoin-cli_ when spending:
++
+[source,bash]
+-----
+export RAW_P2TSH_SPEND_TX=$( echo $SPEND_DETAILS | jq -r '.tx_hex' ) \
+        && echo "RAW_P2TSH_SPEND_TX = $RAW_P2TSH_SPEND_TX" \
+    && export SIG_HASH=$( echo $SPEND_DETAILS | jq -r '.sighash' ) \
+        && echo "SIG_HASH = $SIG_HASH" \
+    && export SIG_BYTES=$( echo $SPEND_DETAILS | jq -r '.sig_bytes' ) \
+        && echo "SIG_BYTES = $SIG_BYTES"
+-----
+
 . Inspect the spending tx:
 +
 [source,bash]
 -----
-$ b-cli decoderawtransaction $RAW_P2TSH_SPEND_TX
+b-cli decoderawtransaction $RAW_P2TSH_SPEND_TX
 -----
 +
 Pay particular attention to the `vin.txinwitness` field.
@@ -332,14 +348,14 @@ What do you observe as the first byte of the `control block` element ?
 +
 [source,bash]
 -----
-$ b-cli testmempoolaccept '["'''$RAW_P2TSH_SPEND_TX'''"]'
+b-cli testmempoolaccept '["'''$RAW_P2TSH_SPEND_TX'''"]'
 -----
 
 . Submit tx:
 +
 [source,bash]
 -----
-$ export P2TSH_SPENDING_TX_ID=$( b-cli sendrawtransaction $RAW_P2TSH_SPEND_TX ) \
+export P2TSH_SPENDING_TX_ID=$( b-cli sendrawtransaction $RAW_P2TSH_SPEND_TX ) \
     && echo $P2TSH_SPENDING_TX_ID
 -----
 +
@@ -351,7 +367,7 @@ NOTE:  Should return same tx id as was included in $RAW_P2TSH_SPEND_TX
 +
 [source,bash]
 -----
-$ b-cli getrawtransaction $P2TSH_SPENDING_TX_ID 1
+b-cli getrawtransaction $P2TSH_SPENDING_TX_ID 1
 -----
 +
 NOTE:  There will not yet be a field `blockhash` in the response.
@@ -362,7 +378,7 @@ NOTE:  There will not yet be a field `blockhash` in the response.
 +
 [source,bash]
 -----
-$ b-cli -generate 1
+b-cli -generate 1
 -----
 
 .. signet:
@@ -371,7 +387,7 @@ If on `signet` network, then execute the following:
 +
 [source,bash]
 -----
-$ $BITCOIN_SOURCE_DIR/contrib/signet/miner --cli "bitcoin-cli -conf=$HOME/anduro-360/configs/bitcoin.conf.signet" generate \
+$BITCOIN_SOURCE_DIR/contrib/signet/miner --cli "bitcoin-cli -conf=$HOME/anduro-360/configs/bitcoin.conf.signet" generate \
     --address $P2TSH_ADDR \
     --grind-cmd "$BITCOIN_SOURCE_DIR/build/bin/bitcoin-util grind" \
     --min-nbits --set-block-time $(date +%s) \
@@ -382,7 +398,7 @@ $ $BITCOIN_SOURCE_DIR/contrib/signet/miner --cli "bitcoin-cli -conf=$HOME/anduro
 +
 [source,bash]
 -----
-$ export BLOCK_HASH=$( b-cli getrawtransaction $P2TSH_SPENDING_TX_ID 1 | jq -r '.blockhash' ) \
+export BLOCK_HASH=$( b-cli getrawtransaction $P2TSH_SPENDING_TX_ID 1 | jq -r '.blockhash' ) \
     && echo $BLOCK_HASH
 -----
 
@@ -390,7 +406,7 @@ $ export BLOCK_HASH=$( b-cli getrawtransaction $P2TSH_SPENDING_TX_ID 1 | jq -r '
 +
 [source,bash]
 -----
-$ b-cli getblock $BLOCK_HASH | jq -r .tx
+b-cli getblock $BLOCK_HASH | jq -r .tx
 -----
 
 == Appendix
@@ -407,20 +423,20 @@ As such, the following is an example series of steps (on a Fedora 42 host) to co
 . Set BITCOIN_SOURCE_DIR
 +
 -----
-$ export BITCOIN_SOURCE_DIR=/path/to/root/dir/of/cloned/bitcoin/source
+export BITCOIN_SOURCE_DIR=/path/to/root/dir/of/cloned/bitcoin/source
 -----
 
 . build
 +
 -----
-$ cmake -B build \
+cmake -B build \
         -DWITH_ZMQ=ON \
         -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
         -DBUILD_BENCH=ON \
         -DBUILD_DAEMON=ON \
         -DSANITIZERS=address,undefined
 
-$ cmake --build build -j$(nproc)
+cmake --build build -j$(nproc)
 -----
 
 . run in either `regtest` or `signet` mode:
@@ -428,13 +444,13 @@ $ cmake --build build -j$(nproc)
 .. regtest:
 +
 -----
-$ ./build/bin/bitcoind -daemon=0 -regtest=1 -txindex -prune=0
+./build/bin/bitcoind -daemon=0 -regtest=1 -txindex -prune=0
 -----
 
 .. signet:
 +
 -----
-$ ./build/bin/bitcoind -daemon=0 -signet=1 -txindex -prune=0
+./build/bin/bitcoind -daemon=0 -signet=1 -txindex -prune=0
 -----
 +
 NOTE: If running in `signet`, your bitcoin core will need to be configured with the `signetchallenge` property.
@@ -456,15 +472,15 @@ Every developer or CI machine building `p2tsh-ref` must have cmake and a C toolc
 . Debian / Ubuntu
 +
 -----
-$ sudo apt update
-$ sudo apt install cmake build-essential clang libclang-dev
+sudo apt update
+sudo apt install cmake build-essential clang libclang-dev
 -----
 
 . Fedora / RHEL
 +
 -----
-$ sudo dnf5 update
-$ sudo dnf5 install cmake make gcc gcc-c++ clang clang-libs llvm-devel
+sudo dnf5 update
+sudo dnf5 install cmake make gcc gcc-c++ clang clang-libs llvm-devel
 -----
 
 ==== OSX
@@ -478,9 +494,9 @@ This tutorial assumes that a bitcoin core wallet is available.
 +
 -----
 
-$ export W_NAME=anduro
+export W_NAME=anduro
 
-$ b-cli -named createwallet \
+b-cli -named createwallet \
     wallet_name=$W_NAME \
     descriptors=true \
     load_on_startup=true
