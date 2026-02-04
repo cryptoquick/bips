@@ -10,8 +10,7 @@ edition = "2024"
 #   cat .cargo/config.toml
 miniscript = { version="=13.0.0-pqc-0.2", registry="kellnr-denver-space" }
 bitcoin = { version="0.32.6", features = ["rand-std", "serde", "base64"], registry = "kellnr-denver-space" }
-
-bitcoinpqc = { version="0.2.0", features = ["serde"] }
+bitcoinpqc = { version="0.2.1", features = ["serde"], registry="kellnr-denver-space" }
 
 # BDK Wallet with P2TSH support
 bdk_wallet = { version = "=3.0.0-alpha.0-pqc-0.1", registry = "kellnr-denver-space" }

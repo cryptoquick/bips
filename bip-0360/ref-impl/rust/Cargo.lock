@@ -132,7 +132,7 @@ checksum = "e7687f76ee256115a2778e4b115bad9b439b87a8fccd52c4358c0f532482cf4c"
 dependencies = [
  "bdk_chain",
  "bitcoin",
- "bitcoinpqc",
+ "bitcoinpqc 0.2.0",
  "miniscript",
  "rand_core 0.6.4",
  "serde",
@@ -225,6 +225,21 @@ name = "bitcoinpqc"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf74aafaea8106c29daed19657c3952a4f297d44fbd437d5dd697772bb463fc2"
+dependencies = [
+ "bindgen",
+ "bitmask-enum",
+ "cmake",
+ "hex",
+ "libc",
+ "secp256k1 0.31.1",
+ "serde",
+]
+
+[[package]]
+name = "bitcoinpqc"
+version = "0.2.1"
+source = "sparse+https://crates.denver.space/api/v1/crates/"
+checksum = "a314c9d8047fd22e053030eb8937592a3a9656b4c0e552ad6e7863cae2c3a46c"
 dependencies = [
  "bindgen",
  "bitmask-enum",
@@ -484,7 +499,7 @@ checksum = "4cf5cd2ed677044868fdcfbbc28175d535f5086524674f85938c474258bc60aa"
 dependencies = [
  "bech32",
  "bitcoin",
- "bitcoinpqc",
+ "bitcoinpqc 0.2.0",
  "serde",
 ]
 
@@ -517,7 +532,7 @@ dependencies = [
  "anyhow",
  "bdk_wallet",
  "bitcoin",
- "bitcoinpqc",
+ "bitcoinpqc 0.2.1",
  "env_logger",
  "hex",
  "log",
