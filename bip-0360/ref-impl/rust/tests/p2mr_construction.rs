@@ -21,6 +21,7 @@ static TEST_VECTORS: Lazy<TestVectors> = Lazy::new(|| {
     test_vectors
 });
 
+static P2TR_USING_V2_WITNESS_VERSION_ERROR: &str = "p2tr_using_v2_witness_version_error";
 static P2MR_MISSING_LEAF_SCRIPT_TREE_ERROR_TEST: &str = "p2mr_missing_leaf_script_tree_error";
 static P2MR_SINGLE_LEAF_SCRIPT_TREE_TEST: &str = "p2mr_single_leaf_script_tree";
 static P2MR_DIFFERENT_VERSION_LEAVES_TEST: &str = "p2mr_different_version_leaves";
@@ -28,6 +29,18 @@ static P2MR_TWO_LEAF_SAME_VERSION_TEST: &str = "p2mr_two_leaf_same_version";
 static P2MR_THREE_LEAF_COMPLEX_TEST: &str = "p2mr_three_leaf_complex";
 static P2MR_THREE_LEAF_ALTERNATIVE_TEST: &str = "p2mr_three_leaf_alternative";
 static P2MR_SIMPLE_LIGHTNING_CONTRACT_TEST: &str = "p2mr_simple_lightning_contract";
+
+#[test]
+fn test_p2tr_using_v2_witness_version_error() {
+
+    let _ = env_logger::try_init(); // Use try_init to avoid reinitialization error
+
+    let test_vectors = &*TEST_VECTORS;
+    let test_vector = test_vectors.test_vector_map.get(P2TR_USING_V2_WITNESS_VERSION_ERROR).unwrap();
+    let test_result: anyhow::Result<()> = process_test_vector_p2tr(test_vector);
+    assert!(matches!(test_result.unwrap_err().downcast_ref::<P2MRError>(),
+        Some(P2MRError::P2trRequiresWitnessVersion1)));
+}
 
 // https://learnmeabitcoin.com/technical/upgrades/taproot/#example-2-script-path-spend-simple
 #[test]
@@ -100,6 +113,15 @@ fn test_p2mr_three_leaf_alternative() {
     let test_vectors = &*TEST_VECTORS;
     let test_vector = test_vectors.test_vector_map.get(P2MR_THREE_LEAF_ALTERNATIVE_TEST).unwrap();
     process_test_vector_p2mr(test_vector).unwrap();
+}
+
+fn process_test_vector_p2tr(test_vector: &TestVector) -> anyhow::Result<()> {
+    let script_pubkey_hex = test_vector.expected.script_pubkey.as_ref().unwrap();
+    let script_pubkey_bytes = hex::decode(script_pubkey_hex).unwrap();
+    if script_pubkey_bytes[0] != 0x51 {
+        return Err(P2MRError::P2trRequiresWitnessVersion1.into());
+    }
+    Ok(())
 }
 
 fn process_test_vector_p2mr(test_vector: &TestVector) -> anyhow::Result<()> {

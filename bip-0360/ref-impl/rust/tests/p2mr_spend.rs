@@ -76,7 +76,7 @@ fn test_script_path_spend_signatures() {
     let spend_output_amount_sats: u64 = 15000;
 
     let test_sighash_bytes: Vec<u8> = hex::decode("752453d473e511a0da2097d664d69fe5eb89d8d9d00eab924b42fc0801a980c9").unwrap();
-    let test_signature_bytes: Vec<u8> = hex::decode("01769105cbcbdcaaee5e58cd201ba3152477fda31410df8b91b4aee2c4864c7700615efb425e002f146a39ca0a4f2924566762d9213bd33f825fad83977fba7f01").unwrap();
+    let test_signature_bytes: Vec<u8> = hex::decode("01769105cbcbdcaaee5e58cd201ba3152477fda31410df8b91b4aee2c4864c7700615efb425e002f146a39ca0a4f2924566762d9213bd33f825fad83977fba7f").unwrap();
 
     // Modified from learnmeabitcoin example
     // Changed from c0 to c1 control byte to reflect p2mr specification:  The parity bit of the control byte is always 1 since P2MR does not have a key-spend path.

@@ -118,6 +118,9 @@ pub struct TestVector {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct TestVectorGiven {
 
+    #[serde(rename = "internalPubkey")]
+    pub internal_pubkey: Option<String>,
+
     #[serde(rename = "scriptTree")]
     pub script_tree: Option<TVScriptTree>,
 

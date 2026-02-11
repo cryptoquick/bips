@@ -2,6 +2,23 @@
     "version": 1,
     "test_vectors": [
         {
+            "id": "p2tr_using_v2_witness_version_error",
+            "objective": "Tests that a P2TR v2 scriptPubKey fails with use of witness version 2",
+            "given": {
+                "internalPubkey": "d6889cb081036e0faefa3a35157ad71086b123b2b144b649798b494c300a961d",
+                "scriptTree": null
+            },
+            "intermediary": {
+                "merkleRoot": null,
+                "tweak": "b86e7be8f39bab32a6f2c0443abbc210f0edac0e2c53d501b36b64437d9c6c70",
+                "tweakedPubkey": "53a1f6e454df1aa2776a2814a721372d6258050de330b3c6d10ee8f4e0dda343"
+            },
+            "expected": {
+                "scriptPubKey": "522053a1f6e454df1aa2776a2814a721372d6258050de330b3c6d10ee8f4e0dda343",
+                "error": "P2TR requires witness version of 1"
+            }
+        },
+        {
             "id": "p2mr_missing_leaf_script_tree_error",
             "objective": "Tests P2MR with missing leaf script tree",
             "given": {
