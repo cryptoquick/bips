@@ -1,6 +1,6 @@
-use p2tsh_ref::{ pay_to_p2wpkh_tx, verify_schnorr_signature_via_bytes, verify_slh_dsa_via_bytes, tap_tree_lock_type };
+use p2mr_ref::{ pay_to_p2wpkh_tx, verify_schnorr_signature_via_bytes, verify_slh_dsa_via_bytes, tap_tree_lock_type };
 
-use p2tsh_ref::data_structures::{SpendDetails, LeafScriptType};
+use p2mr_ref::data_structures::{SpendDetails, LeafScriptType};
 use std::env;
 use log::{info, error};
 
@@ -52,7 +52,7 @@ fn main() -> SpendDetails {
             error!("CONTROL_BLOCK_HEX environment variable is required but not set");
             std::process::exit(1);
         });
-    info!("P2TSH control block size: {}", control_block_bytes.len());
+    info!("P2MR control block size: {}", control_block_bytes.len());
 
     // TAP_TREE_LOCK_TYPE environment variable is required to determine key structure
     let leaf_script_type: LeafScriptType = tap_tree_lock_type();

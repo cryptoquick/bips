@@ -3,17 +3,17 @@
 :toc2:
 :linkattrs:
 
-= P2TSH End-to-End Tutorial
+= P2MR End-to-End Tutorial
 
 :numbered:
 
 This tutorial is inspired by the link:https://learnmeabitcoin.com/technical/upgrades/taproot/#example-3-script-path-spend-signature[script-path-spend-signature] example of the _learnmeabitcoin_ tutorial.
 
-It is customized to create, fund and spend from a P2TSH UTXO to a P2WPKH address.
+It is customized to create, fund and spend from a P2MR UTXO to a P2WPKH address.
 
 In addition, this tutorial allows for the (un)locking mechanism of the script to optionally use _Post Quantum Cryptography_ (PQC).
 
-The purpose of this tutorial is to demonstrate construction and spending of a link:https://github.com/cryptoquick/bips/blob/p2qrh/bip-0360.mediawiki[bip-360] `p2tsh` UTXO (optionally using _Post-Quantum Cryptography_).
+The purpose of this tutorial is to demonstrate construction and spending of a link:https://github.com/cryptoquick/bips/blob/p2qrh/bip-0360.mediawiki[bip-360] `p2mr` UTXO (optionally using _Post-Quantum Cryptography_).
 
 The steps outlined in this tutorial are executed using a custom Bitcoin Core instance running either in `regtest` or `signet`.
 
@@ -24,51 +24,51 @@ The steps outlined in this tutorial are executed using a custom Bitcoin Core ins
 If participating in a workshop, your instructor will provide a bitcoin environment.
 Related: your instructor should also provide you with a wallet.
 
-Otherwise, if running this tutorial on your own, follow the instructions in the appendix of this doc:  <<build_p2tsh>>.
+Otherwise, if running this tutorial on your own, follow the instructions in the appendix of this doc:  <<build_p2mr>>.
 
 
 === Shell Environment
 
 . *docker / podman*
 +
-NOTE:  If you have built the custom `p2tsh` enabled Bitcoin Core, you do not need docker (nor podman) installed.  Skip this section.
+NOTE:  If you have built the custom `p2mr` enabled Bitcoin Core, you do not need docker (nor podman) installed.  Skip this section.
 +
-This tutorial makes use of a `p2tsh` enabled _bitcoin-cli_ utility.
+This tutorial makes use of a `p2mr` enabled _bitcoin-cli_ utility.
 This utility is made available as a docker (or podman) container.
 Ensure your host machine has either docker or podman installed.
 
 . *bitcoin-cli* command line utility:
 +
-NOTE: If you have built the custom `p2tsh` enabled Bitcoin Core, you can simply use the `bitcoin-cli` utility found in the `build/bin/` directory.  No need to use the _dockerized_ utility described below.
+NOTE: If you have built the custom `p2mr` enabled Bitcoin Core, you can simply use the `bitcoin-cli` utility found in the `build/bin/` directory.  No need to use the _dockerized_ utility described below.
 
-.. You will need a `bitcoin-cli` binary that is `p2tsh` enabled.
+.. You will need a `bitcoin-cli` binary that is `p2mr` enabled.
 For this purpose, a docker container with this `bitcoin-cli` utility is provided:
 +
 -----
-docker pull quay.io/jbride2000/bitcoin-cli:p2tsh-pqc-0.0.1
+docker pull quay.io/jbride2000/bitcoin-cli:p2mr-pqc-0.0.1
 -----
 
 .. Configure an alias to the `bitcoin-cli` command that connects to your customized bitcoin-core node.
 +
 -----
-alias b-cli='docker run --rm  --network host bitcoin-cli:p2tsh-pqc-0.0.1 -rpcconnect=192.168.122.1 -rpcport=18443 -rpcuser=regtest -rpcpassword=regtest'
+alias b-cli='docker run --rm  --network host bitcoin-cli:p2mr-pqc-0.0.1 -rpcconnect=192.168.122.1 -rpcport=18443 -rpcuser=regtest -rpcpassword=regtest'
 -----
 
 . *jq*: ensure json parsing utility is link:https://jqlang.org/download/[installed] and available via your $PATH.
 . *awk* : standard utility for all Linux distros (often packaged as `gawk`).
 . *Rust* development environment with _cargo_ utility.  Use link:https://rustup[Rustup] to install.
 
-== Create & Fund P2TSH UTXO
+== Create & Fund P2MR UTXO
 
-The purpose of this workshop is to demonstrate construction and spending of a link:https://github.com/cryptoquick/bips/blob/p2qrh/bip-0360.mediawiki[bip-360] _P2TSH_ address (optionally using _Post-Quantum Cryptography_).
+The purpose of this workshop is to demonstrate construction and spending of a link:https://github.com/cryptoquick/bips/blob/p2qrh/bip-0360.mediawiki[bip-360] _P2MR_ address (optionally using _Post-Quantum Cryptography_).
 
-In this section of the workshop, you create and fund a P2TSH address.
+In this section of the workshop, you create and fund a P2MR address.
 
-The following depicts the construction of a P2TSH _TapTree_ and computation its _scriptPubKey_.
+The following depicts the construction of a P2MR _TapTree_ and computation its _scriptPubKey_.
 
-image::images/p2tsh_construction.png[]
+image::images/p2mr_construction.png[]
 
-A P2TSH address is created by adding locking scripts to leaves of a _TapTree_.
+A P2MR address is created by adding locking scripts to leaves of a _TapTree_.
 The locking scripts can use either _Schnorr_ (as per BIP-360) or _SLH-DSA_ (defined in a future BIP) cryptography.
 
 . Set an environment variable specific to your Bitcoin network environment (regtest, signet, etc)
@@ -78,7 +78,7 @@ The locking scripts can use either _Schnorr_ (as per BIP-360) or _SLH-DSA_ (defi
 export BITCOIN_NETWORK=regtest
 -----
 +
-Doing so influences the P2TSH address that you'll create later in this tutorial.
+Doing so influences the P2MR address that you'll create later in this tutorial.
 
 
 . Define number of total leaves in tap tree :
@@ -135,26 +135,26 @@ image::images/tap_tree_concatenated.png[p,300]
 export LEAF_TO_SPEND_FROM=4
 -----
 
-. Generate a P2TSH scripPubKey with multi-leaf taptree:
+. Generate a P2MR scripPubKey with multi-leaf taptree:
 +
 [source,bash]
 -----
-export BITCOIN_ADDRESS_INFO=$( cargo run --example p2tsh_construction ) \
+export BITCOIN_ADDRESS_INFO=$( cargo run --example p2mr_construction ) \
     && echo $BITCOIN_ADDRESS_INFO | jq -r .
 -----
 +
-NOTE:  In `regtest`, you can expect a P2TSH address that starts with: `bcrt1z` .
+NOTE:  In `regtest`, you can expect a P2MR address that starts with: `bcrt1z` .
 +
 [subs=+quotes]
 ++++
 <details>
 <summary><b>What just happened?</b></summary>
-The Rust based reference implementation for BIP-0360 is leveraged to construct a transaction with a `p2tsh` UTXO as follows:
+The Rust based reference implementation for BIP-0360 is leveraged to construct a transaction with a `p2mr` UTXO as follows:
 
 <ul>
   <li>A configurable number of leaves are generated each with their own locking script.</li>
   <li>Each of these leaves are added to a Huffman tree that sorts the leaves by weight.</li>
-  <li>The merkle root of the tree is calculated and subsequently used to generate the p2tsh witness program and BIP0350 address.</li>
+  <li>The merkle root of the tree is calculated and subsequently used to generate the p2mr witness program and BIP0350 address.</li>
 </ul>
 </p>
 The source code for the above logic is found in this project:  src/lib.rs
@@ -179,7 +179,7 @@ export MERKLE_ROOT=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.taptree_return.tree_r
     && export LEAF_SCRIPT_HEX=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.taptree_return.leaf_script_hex' ) \
     && export CONTROL_BLOCK_HEX=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.taptree_return.control_block_hex' ) \
     && export FUNDING_SCRIPT_PUBKEY=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.utxo_return.script_pubkey_hex' ) \
-    && export P2TSH_ADDR=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.utxo_return.bech32m_address' )
+    && export P2MR_ADDR=$( echo $BITCOIN_ADDRESS_INFO | jq -r '.utxo_return.bech32m_address' )
 -----
 
 . View tapscript used in target leaf of taptree:
@@ -192,7 +192,7 @@ b-cli decodescript $LEAF_SCRIPT_HEX | jq -r '.asm'
 NOTE:  If not using PQC, notice that this script commits to a Schnorr 32-byte x-only public key.
 If using PQC, this script commits to a Schnorr 32-byte SLH-DSA pub key and a OP_SUCCESS127 (represented as `OP_SUBSTR`) opcode.
 
-. Fund this P2TSH address with the coinbase reward of a newly generated block:
+. Fund this P2MR address with the coinbase reward of a newly generated block:
 +
 Choose from one of the following networks:
 
@@ -202,7 +202,7 @@ If on `regtest` network, execute the following:
 +
 [source,bash]
 -----
-export COINBASE_REWARD_TX_ID=$( b-cli -named generatetoaddress nblocks=1 address="$P2TSH_ADDR" maxtries=5  | jq -r '.[]' ) \
+export COINBASE_REWARD_TX_ID=$( b-cli -named generatetoaddress nblocks=1 address="$P2MR_ADDR" maxtries=5  | jq -r '.[]' ) \
     && echo $COINBASE_REWARD_TX_ID
 -----
 +
@@ -215,26 +215,26 @@ If on `signet` network, then execute the following:
 [source,bash]
 -----
 $BITCOIN_SOURCE_DIR/contrib/signet/miner --cli "bitcoin-cli -conf=$HOME/anduro-360/configs/bitcoin.conf.signet" generate \
-    --address $P2TSH_ADDR \
+    --address $P2MR_ADDR \
     --grind-cmd "$BITCOIN_SOURCE_DIR/build/bin/bitcoin-util grind" \
     --min-nbits --set-block-time $(date +%s) \
     --poolid "MARA Pool"
 -----
 
-. view summary of all txs that have funded P2TSH address
+. view summary of all txs that have funded P2MR address
 +
 [source,bash]
 -----
-export P2TSH_DESC=$( b-cli getdescriptorinfo "addr($P2TSH_ADDR)" | jq -r '.descriptor' ) \
-    && echo $P2TSH_DESC \
-    && b-cli scantxoutset start '[{"desc": "'''$P2TSH_DESC'''"}]'
+export P2MR_DESC=$( b-cli getdescriptorinfo "addr($P2MR_ADDR)" | jq -r '.descriptor' ) \
+    && echo $P2MR_DESC \
+    && b-cli scantxoutset start '[{"desc": "'''$P2MR_DESC'''"}]'
 -----
 
 . grab txid of first tx with unspent funds:
 +
 [source,bash]
 -----
-export FUNDING_TX_ID=$( b-cli scantxoutset start '[{"desc": "'''$P2TSH_DESC'''"}]' | jq -r '.unspents[0].txid' ) \
+export FUNDING_TX_ID=$( b-cli scantxoutset start '[{"desc": "'''$P2MR_DESC'''"}]' | jq -r '.unspents[0].txid' ) \
     && echo $FUNDING_TX_ID
 -----
 
@@ -245,7 +245,7 @@ export FUNDING_TX_ID=$( b-cli scantxoutset start '[{"desc": "'''$P2TSH_DESC'''"}
 export FUNDING_UTXO_INDEX=0
 -----
 
-. view details of funding UTXO to the P2TSH address:
+. view details of funding UTXO to the P2MR address:
 +
 [source,bash]
 -----
@@ -256,18 +256,18 @@ export FUNDING_UTXO=$( b-cli getrawtransaction $FUNDING_TX_ID 1 | jq -r '.vout['
 NOTE:  the above only works when Bitcoin Core is started with the following arg:  -txindex
 
 
-== Spend P2TSH UTXO
+== Spend P2MR UTXO
 
-In the previous section, you created and funded a P2TSH UTXO.
+In the previous section, you created and funded a P2MR UTXO.
 That UTXO includes a leaf script locked with a key-pair (optionally based on PQC) known to you.
 
-In this section, you spend from that P2TSH UTXO.
-Specifically, you will generate an appropriate _SigHash_ and sign it (to create a signature) using the known private key that unlocks the known leaf script of the P2TSH UTXO.
+In this section, you spend from that P2MR UTXO.
+Specifically, you will generate an appropriate _SigHash_ and sign it (to create a signature) using the known private key that unlocks the known leaf script of the P2MR UTXO.
 
 For the purpose of this tutorial, you will spend funds to a new P2WPKH utxo.  (there is nothing novel about this P2WPKH utxo).
 
 
-. Determine value (in sats) of the funding P2TSH utxo:
+. Determine value (in sats) of the funding P2MR utxo:
 +
 [source,bash]
 -----
@@ -301,18 +301,18 @@ The `common/utils` directory of this project provides a script called: link:../.
 +
 [source,bash]
 -----
-export SPEND_DETAILS=$( cargo run --example p2tsh_spend )
+export SPEND_DETAILS=$( cargo run --example p2mr_spend )
 -----
 +
 [subs=+quotes]
 ++++
 <details>
 <summary><b>What just happened?</b></summary>
-The Rust based reference implementation for BIP-0360 is leveraged to construct a transaction that spends from the `p2tsh` UTXO as follows:
+The Rust based reference implementation for BIP-0360 is leveraged to construct a transaction that spends from the `p2mr` UTXO as follows:
 
 <ul>
   <li>Create a transaction template (aka: SigHash) that serves as the message to be signed.</li>
-  <li>Using the known private key and the SigHash, create a signature that is capable of unlocking one of the leaf scripts of the P2TSH tree.</li>
+  <li>Using the known private key and the SigHash, create a signature that is capable of unlocking one of the leaf scripts of the P2MR tree.</li>
   <li>Add this signature to the witness section of the transaction.</li>
 </ul>
 </p>
@@ -325,8 +325,8 @@ The source code for the above logic is found in this project:  src/lib.rs
 +
 [source,bash]
 -----
-export RAW_P2TSH_SPEND_TX=$( echo $SPEND_DETAILS | jq -r '.tx_hex' ) \
-        && echo "RAW_P2TSH_SPEND_TX = $RAW_P2TSH_SPEND_TX" \
+export RAW_P2MR_SPEND_TX=$( echo $SPEND_DETAILS | jq -r '.tx_hex' ) \
+        && echo "RAW_P2MR_SPEND_TX = $RAW_P2MR_SPEND_TX" \
     && export SIG_HASH=$( echo $SPEND_DETAILS | jq -r '.sighash' ) \
         && echo "SIG_HASH = $SIG_HASH" \
     && export SIG_BYTES=$( echo $SPEND_DETAILS | jq -r '.sig_bytes' ) \
@@ -337,37 +337,37 @@ export RAW_P2TSH_SPEND_TX=$( echo $SPEND_DETAILS | jq -r '.tx_hex' ) \
 +
 [source,bash]
 -----
-b-cli decoderawtransaction $RAW_P2TSH_SPEND_TX
+b-cli decoderawtransaction $RAW_P2MR_SPEND_TX
 -----
 +
 Pay particular attention to the `vin.txinwitness` field.
 Do the three elements (script input, script and control block) of the witness stack for this script path spend make sense ?
 What do you observe as the first byte of the `control block` element ?
 
-. Test standardness of the spending tx by sending to local mempool of p2tsh enabled Bitcoin Core:
+. Test standardness of the spending tx by sending to local mempool of p2mr enabled Bitcoin Core:
 +
 [source,bash]
 -----
-b-cli testmempoolaccept '["'''$RAW_P2TSH_SPEND_TX'''"]'
+b-cli testmempoolaccept '["'''$RAW_P2MR_SPEND_TX'''"]'
 -----
 
 . Submit tx:
 +
 [source,bash]
 -----
-export P2TSH_SPENDING_TX_ID=$( b-cli sendrawtransaction $RAW_P2TSH_SPEND_TX ) \
-    && echo $P2TSH_SPENDING_TX_ID
+export P2MR_SPENDING_TX_ID=$( b-cli sendrawtransaction $RAW_P2MR_SPEND_TX ) \
+    && echo $P2MR_SPENDING_TX_ID
 -----
 +
-NOTE:  Should return same tx id as was included in $RAW_P2TSH_SPEND_TX
+NOTE:  Should return same tx id as was included in $RAW_P2MR_SPEND_TX
 
-== Mine P2TSH Spend TX
+== Mine P2MR Spend TX
 
 . View tx in mempool:
 +
 [source,bash]
 -----
-b-cli getrawtransaction $P2TSH_SPENDING_TX_ID 1
+b-cli getrawtransaction $P2MR_SPENDING_TX_ID 1
 -----
 +
 NOTE:  There will not yet be a field `blockhash` in the response.
@@ -388,7 +388,7 @@ If on `signet` network, then execute the following:
 [source,bash]
 -----
 $BITCOIN_SOURCE_DIR/contrib/signet/miner --cli "bitcoin-cli -conf=$HOME/anduro-360/configs/bitcoin.conf.signet" generate \
-    --address $P2TSH_ADDR \
+    --address $P2MR_ADDR \
     --grind-cmd "$BITCOIN_SOURCE_DIR/build/bin/bitcoin-util grind" \
     --min-nbits --set-block-time $(date +%s) \
     --poolid "MARA Pool"
@@ -398,7 +398,7 @@ $BITCOIN_SOURCE_DIR/contrib/signet/miner --cli "bitcoin-cli -conf=$HOME/anduro-3
 +
 [source,bash]
 -----
-export BLOCK_HASH=$( b-cli getrawtransaction $P2TSH_SPENDING_TX_ID 1 | jq -r '.blockhash' ) \
+export BLOCK_HASH=$( b-cli getrawtransaction $P2MR_SPENDING_TX_ID 1 | jq -r '.blockhash' ) \
     && echo $BLOCK_HASH
 -----
 
@@ -411,14 +411,14 @@ b-cli getblock $BLOCK_HASH | jq -r .tx
 
 == Appendix
 
-[[build_p2tsh]]
-=== Build P2TSH / PQC Enabled Bitcoin Core
+[[build_p2mr]]
+=== Build P2MR / PQC Enabled Bitcoin Core
 
-The link:https://github.com/jbride/bitcoin/tree/p2tsh[p2tsh branch] of bitcoin core is needed.
+The link:https://github.com/jbride/bitcoin/tree/p2mr[p2mr branch] of bitcoin core is needed.
 
-Build instructions for the `p2tsh` branch are the same as `master` and is documented link:https://github.com/bitcoin/bitcoin/blob/master/doc/build-unix.md[here].
+Build instructions for the `p2mr` branch are the same as `master` and is documented link:https://github.com/bitcoin/bitcoin/blob/master/doc/build-unix.md[here].
 
-As such, the following is an example series of steps (on a Fedora 42 host) to compile and run the `p2tsh` branch of bitcoin core:
+As such, the following is an example series of steps (on a Fedora 42 host) to compile and run the `p2mr` branch of bitcoin core:
 
 . Set BITCOIN_SOURCE_DIR
 +
@@ -458,14 +458,14 @@ link:https://edil.com.br/blog/creating-a-custom-bitcoin-signet[This tutorial] pr
 
 === libbitcoinpqc build
 
-The `p2tsh-pqc` branch of this project includes a dependency on the link:https://crates.io/crates/libbitcoinpqc[libbitcoinpqc crate].
+The `p2mr-pqc` branch of this project includes a dependency on the link:https://crates.io/crates/libbitcoinpqc[libbitcoinpqc crate].
 libbitcoinpqc contains native code (C/C++/ASM) and is made available to Rust projects via Rust bindings.
 This C/C++/ASM code is provided in the libbitcoinpqc crate as source code (not prebuilt binaries).
 
 Subsequently, the `Cargo` utility needs to build this libbitcoinpqc C native code on your local machine.
 You will need to have C development related libraries installed on your local machine.
 
-Every developer or CI machine building `p2tsh-ref` must have cmake and a C toolchain installed locally.
+Every developer or CI machine building `p2mr-ref` must have cmake and a C toolchain installed locally.
 
 ==== Linux
 

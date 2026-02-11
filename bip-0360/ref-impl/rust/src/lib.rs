@@ -18,7 +18,7 @@ use bitcoin::{ Amount, TxOut, WPubkeyHash,
     transaction::{Transaction, Sequence}
 };
 
-use bitcoin::p2tsh::{P2tshScriptBuf, P2tshBuilder, P2tshSpendInfo, P2tshControlBlock, P2TSH_LEAF_VERSION};
+use bitcoin::p2mr::{P2mrScriptBuf, P2mrBuilder, P2mrSpendInfo, P2mrControlBlock, P2MR_LEAF_VERSION};
 
 use bitcoinpqc::{
     generate_keypair, public_key_size, secret_key_size, Algorithm, KeyPair, sign, verify,
@@ -194,27 +194,27 @@ pub fn tap_tree_lock_type() -> LeafScriptType {
     }
 }
 
-pub fn create_p2tsh_multi_leaf_taptree() -> TaptreeReturn {
+pub fn create_p2mr_multi_leaf_taptree() -> TaptreeReturn {
     let leaf_script_type = tap_tree_lock_type();
 
     let (huffman_entries, keypairs_of_interest, script_buf_of_interest, actual_leaf_type) = create_huffman_tree(leaf_script_type);
-    let p2tsh_builder: P2tshBuilder = P2tshBuilder::with_huffman_tree(huffman_entries).unwrap();
+    let p2mr_builder: P2mrBuilder = P2mrBuilder::with_huffman_tree(huffman_entries).unwrap();
 
 
-    let p2tsh_spend_info: P2tshSpendInfo = p2tsh_builder.clone().finalize().unwrap();
-    let merkle_root:TapNodeHash = p2tsh_spend_info.merkle_root.unwrap();
+    let p2mr_spend_info: P2mrSpendInfo = p2mr_builder.clone().finalize().unwrap();
+    let merkle_root:TapNodeHash = p2mr_spend_info.merkle_root.unwrap();
 
 
-    let tap_tree: TapTree = p2tsh_builder.clone().into_inner().try_into_taptree().unwrap();
+    let tap_tree: TapTree = p2mr_builder.clone().into_inner().try_into_taptree().unwrap();
     let mut script_leaves: ScriptLeaves = tap_tree.script_leaves();
     let script_leaf = script_leaves
         .find(|leaf| leaf.script() == script_buf_of_interest.as_script())
         .expect("Script leaf not found");
 
-    let merkle_root_node_info: NodeInfo = p2tsh_builder.clone().into_inner().try_into_node_info().unwrap();
+    let merkle_root_node_info: NodeInfo = p2mr_builder.clone().into_inner().try_into_node_info().unwrap();
     let merkle_root: TapNodeHash = merkle_root_node_info.node_hash();
 
-    let leaf_hash: TapLeafHash = TapLeafHash::from_script(script_leaf.script(), LeafVersion::from_consensus(P2TSH_LEAF_VERSION).unwrap());
+    let leaf_hash: TapLeafHash = TapLeafHash::from_script(script_leaf.script(), LeafVersion::from_consensus(P2MR_LEAF_VERSION).unwrap());
 
     // Convert leaf hash to big-endian for display (like Bitcoin Core)
     let mut leaf_hash_bytes = leaf_hash.as_raw_hash().to_byte_array().to_vec();
@@ -230,11 +230,11 @@ pub fn create_p2tsh_multi_leaf_taptree() -> TaptreeReturn {
 
     info!("Leaf script: {}, merkle branch: {:?}", leaf_script, merkle_branch);
 
-    let control_block: P2tshControlBlock = P2tshControlBlock{
+    let control_block: P2mrControlBlock = P2mrControlBlock{
         merkle_branch: merkle_branch.clone(),
     };
 
-    // Not a requirement here but useful to demonstrate what Bitcoin Core does as the verifier when spending from a p2tsh UTXO
+    // Not a requirement here but useful to demonstrate what Bitcoin Core does as the verifier when spending from a p2mr UTXO
     control_block.verify_script_in_merkle_root_path(leaf_script, merkle_root);
 
     let control_block_hex: String = hex::encode(control_block.serialize());
@@ -329,23 +329,23 @@ pub fn get_bitcoin_network() -> Network {
     bitcoin_network
 }
 
-pub fn create_p2tsh_utxo(merkle_root_hex: String) -> UtxoReturn {
+pub fn create_p2mr_utxo(merkle_root_hex: String) -> UtxoReturn {
 
     let merkle_root_bytes= hex::decode(merkle_root_hex.clone()).unwrap();
     let merkle_root: TapNodeHash = TapNodeHash::from_byte_array(merkle_root_bytes.try_into().unwrap());
     
     /* commit (in scriptPubKey) to the merkle root of all the script path leaves. ie:
-        This output key is what gets committed to in the final P2TSH address (ie: scriptPubKey)
+        This output key is what gets committed to in the final P2MR address (ie: scriptPubKey)
     */
-    let script_buf: P2tshScriptBuf = P2tshScriptBuf::new_p2tsh(merkle_root);
+    let script_buf: P2mrScriptBuf = P2mrScriptBuf::new_p2mr(merkle_root);
     let script: &Script = script_buf.as_script();
     let script_pubkey = script.to_hex_string();
 
     let bitcoin_network = get_bitcoin_network();
     
     // derive bech32m address and verify against test vector
-    // p2tsh address is comprised of network HRP + WitnessProgram (version + program)
-    let bech32m_address = Address::p2tsh(Some(merkle_root), bitcoin_network);
+    // p2mr address is comprised of network HRP + WitnessProgram (version + program)
+    let bech32m_address = Address::p2mr(Some(merkle_root), bitcoin_network);
 
     return UtxoReturn {
         script_pubkey_hex: script_pubkey,
@@ -355,7 +355,7 @@ pub fn create_p2tsh_utxo(merkle_root_hex: String) -> UtxoReturn {
 
 }
 
-// Given script path p2tr or p2tsh UTXO details, spend to p2wpkh
+// Given script path p2tr or p2mr UTXO details, spend to p2wpkh
 pub fn pay_to_p2wpkh_tx(
     funding_tx_id_bytes: Vec<u8>,
     funding_utxo_index: u32,
@@ -552,7 +552,7 @@ pub fn create_p2tr_utxo(merkle_root_hex: String, internal_pubkey_hex: String) ->
     let bitcoin_network = get_bitcoin_network();
 
     // 4)  derive bech32m address and verify against test vector
-    //     p2tsh address is comprised of network HRP + WitnessProgram (version + program)
+    //     p2mr address is comprised of network HRP + WitnessProgram (version + program)
     let bech32m_address = Address::p2tr(
         &SECP,
         internal_xonly_pubkey,

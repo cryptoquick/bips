@@ -1,5 +1,5 @@
-use p2tsh_ref::{create_p2tsh_utxo, create_p2tsh_multi_leaf_taptree, tap_tree_lock_type};
-use p2tsh_ref::data_structures::{UtxoReturn, TaptreeReturn, ConstructionReturn, LeafScriptType};
+use p2mr_ref::{create_p2mr_utxo, create_p2mr_multi_leaf_taptree, tap_tree_lock_type};
+use p2mr_ref::data_structures::{UtxoReturn, TaptreeReturn, ConstructionReturn, LeafScriptType};
 use std::env;
 use log::{info, error};
 
@@ -11,8 +11,8 @@ fn main() -> ConstructionReturn {
     let tap_tree_lock_type = tap_tree_lock_type();
     info!("tap_tree_lock_type: {:?}", tap_tree_lock_type);
 
-    let taptree_return: TaptreeReturn = create_p2tsh_multi_leaf_taptree();
-    let p2tsh_utxo_return: UtxoReturn = create_p2tsh_utxo(taptree_return.clone().tree_root_hex);
+    let taptree_return: TaptreeReturn = create_p2mr_multi_leaf_taptree();
+    let p2mr_utxo_return: UtxoReturn = create_p2mr_utxo(taptree_return.clone().tree_root_hex);
 
     // Alert user about SPENDING_LEAF_TYPE requirement when using MIXED mode
     if tap_tree_lock_type == LeafScriptType::Mixed {
@@ -22,6 +22,6 @@ fn main() -> ConstructionReturn {
 
     return ConstructionReturn {
         taptree_return: taptree_return,
-        utxo_return: p2tsh_utxo_return,
+        utxo_return: p2mr_utxo_return,
     };
 }
