@@ -111,6 +111,7 @@ pub struct TestVector {
     pub id: String,
     pub objective: String,
     pub given: TestVectorGiven,
+    #[serde(default)]
     pub intermediary: TestVectorIntermediary,
     pub expected: TestVectorExpected,
 }
@@ -132,7 +133,7 @@ pub struct TestVectorGiven {
     pub control_block: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Default, Serialize, Deserialize, Clone)]
 pub struct TestVectorIntermediary {
 
     #[serde(default)]
