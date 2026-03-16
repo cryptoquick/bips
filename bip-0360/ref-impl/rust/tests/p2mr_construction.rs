@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 use bitcoin::{Network, ScriptBuf};
 use bitcoin::taproot::{LeafVersion, TapTree, ScriptLeaves, TapLeafHash, TaprootMerkleBranch, TapNodeHash};
-use bitcoin::p2mr::{P2mrBuilder, P2mrControlBlock, P2mrSpendInfo};
+use bitcoin::p2mr::{P2mrBuilder, P2mrControlBlock, P2mrSpendInfo, P2MR_LEAF_VERSION};
 use bitcoin::hashes::Hash;
 
 use hex;
@@ -72,7 +72,9 @@ fn test_p2mr_different_version_leaves() {
 
     let test_vectors = &*TEST_VECTORS;
     let test_vector = test_vectors.test_vector_map.get(P2MR_DIFFERENT_VERSION_LEAVES_TEST).unwrap();
-    process_test_vector_p2mr(test_vector).unwrap();
+    let test_result = process_test_vector_p2mr(test_vector);
+    assert!(matches!(test_result.unwrap_err().downcast_ref::<P2MRError>(),
+        Some(P2MRError::InvalidLeafVersion(_, _))));
 }
 
 #[test]
@@ -137,29 +139,37 @@ fn process_test_vector_p2mr(test_vector: &TestVector) -> anyhow::Result<()> {
     let mut p2mr_builder: P2mrBuilder = P2mrBuilder::new();
 
     let mut control_block_data: Vec<(ScriptBuf, LeafVersion)> = Vec::new();
+    let mut traversal_result: anyhow::Result<()> = Ok(());
 
     // 1)  traverse test vector script tree and add leaves to P2MR builder
     if let Some(script_tree) = tv_script_tree {
 
         script_tree.traverse_with_right_subtree_first(0, Direction::Root,&mut |node, depth, direction| {
 
+            if traversal_result.is_err() { return; }
+
             if let TVScriptTree::Leaf(tv_leaf) = node {
-                
+
                 let tv_leaf_script_bytes = hex::decode(&tv_leaf.script).unwrap();
-    
+
                 // NOTE:  IOT to execute script_info.control_block(..), will add these to a vector
                 let tv_leaf_script_buf = ScriptBuf::from_bytes(tv_leaf_script_bytes.clone());
                 let tv_leaf_version = LeafVersion::from_consensus(tv_leaf.leaf_version).unwrap();
+
+                if tv_leaf.leaf_version != P2MR_LEAF_VERSION {
+                    traversal_result = Err(P2MRError::InvalidLeafVersion(tv_leaf.id, tv_leaf.leaf_version).into());
+                    return;
+                }
+
                 control_block_data.push((tv_leaf_script_buf.clone(), tv_leaf_version));
-                
+
                 let mut modified_depth = depth + 1;
                 if direction == Direction::Root {
                     modified_depth = depth;
                 }
-                debug!("traverse_with_depth: leaf_count: {}, depth: {}, modified_depth: {}, direction: {}, tv_leaf_script: {}", 
+                debug!("traverse_with_depth: leaf_count: {}, depth: {}, modified_depth: {}, direction: {}, tv_leaf_script: {}",
                     tv_leaf_count, depth, modified_depth, direction, tv_leaf.script);
-                
-                // NOTE: Some of the the test vectors in this project specify leaves with non-standard versions (ie: 250 / 0xfa)
+
                 p2mr_builder = p2mr_builder.clone().add_leaf_with_ver(depth, tv_leaf_script_buf.clone(), tv_leaf_version)
                     .unwrap_or_else(|e| {
                         panic!("Failed to add leaf: {:?}", e);
@@ -176,6 +186,8 @@ fn process_test_vector_p2mr(test_vector: &TestVector) -> anyhow::Result<()> {
     }else {
         return Err(P2MRError::MissingScriptTreeLeaf.into());
     }
+
+    traversal_result?;
 
     let spend_info: P2mrSpendInfo = p2mr_builder.clone()
         .finalize()

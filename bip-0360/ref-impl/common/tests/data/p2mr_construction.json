@@ -57,7 +57,7 @@
         },
         {
             "id": "p2mr_different_version_leaves",
-            "objective": "Tests P2MR with two script leaves of different versions.  TO-DO:  currently ignores given leaf version and over-rides.  Probably better to throw error",
+            "objective": "Tests P2MR with two script leaves of different versions.  BIP-360 requires all leaves to use leaf version 0xc0; a non-standard version must throw an error.",
             "given": {
                 "scriptTree": [
                     {
@@ -75,20 +75,8 @@
                     }
                 ]
             },
-            "intermediary": {
-                "leafHashes": [
-                    "8ad69ec7cf41c2a4001fd1f738bf1e505ce2277acdcaa63fe4765192497f47a7",
-                    "f224a923cd0021ab202ab139cc56802ddb92dcfc172b9212261a539df79a112a"
-                ],
-                "merkleRoot": "6c2dc106ab816b73f9d07e3cd1ef2c8c1256f519748e0813e4edd2405d277bef"
-            },
             "expected": {
-                "scriptPubKey": "52206c2dc106ab816b73f9d07e3cd1ef2c8c1256f519748e0813e4edd2405d277bef",
-                "bip350Address": "bc1zdskuzp4ts94h87ws0c7drmev3sf9dagewj8qsylyahfyqhf800hsam4d6e",
-                "scriptPathControlBlocks": [
-                    "c1f224a923cd0021ab202ab139cc56802ddb92dcfc172b9212261a539df79a112a",
-                    "c18ad69ec7cf41c2a4001fd1f738bf1e505ce2277acdcaa63fe4765192497f47a7"
-                ]
+                "error": "BIP-360 requires leaf version 0xc0; leaf 1 has version 250"
             }
         },
         {
