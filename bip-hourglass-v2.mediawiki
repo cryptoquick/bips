@@ -14,7 +14,7 @@
 
 == Abstract ==
 
-This BIP specifies a new set of spending rules for Bitcoin called "Hourglass." The intent is to impose a throughput restriction on the number of P2PK spends to one per block. This revised proposal of Hourglass (Hourglass V2) additionally limits the net amount of that spend to one bitcoin per block—limiting the economic impacts of potential quantum attacks on these outputs.
+This BIP specifies spending rules for Bitcoin called Hourglass. It limits P2PK spends to one input per block and caps the net release at one bitcoin per block. This is a refinement of the original Hourglass proposal (referred to below as Hourglass v1). The goal is to prevent a catastrophic supply shock in the event of large-scale quantum key recovery, without resorting to permanent confiscation of coins at the protocol level through burning or freezing.
 
 
 == Copyright ==
@@ -24,24 +24,30 @@ This document is licensed under the 3-clause BSD license.
 
 == Motivation ==
 
-A major concern for Bitcoin is the potential for quantum retrieval of coins in P2PK outputs, including but not limited to Satoshi's Coins.
+Bitcoin usability has always operated under two basic assumptions:
 
-Advancements in quantum computing (or other ECDLP breaks) could enable attacks on these outputs (~1.7M coins are currently stored in quantum-vulnerable P2PK addresses), potentially triggering an unprecedented supply shock, an extreme drop in fiat-denominated value, and a drastic reduction in the network's security budget.
+1. Cryptographic Security: If you do not reveal your private key, your funds cannot be moved by anyone else.
+2. Censorship Resistance: If you have the private key necessary to satisfy the locking script of an output, nobody can prevent you from moving the funds.
+
+Advancements in quantum computing (or other ECDLP breaks) threaten the first assumption. Any protocol-level response necessarily involves constraining the second to some degree.
+
+One major concern for Bitcoin is the potential for quantum retrieval of coins in P2PK outputs, including but not limited to Satoshi's Coins.  An ECDLP break could enable attacks on these outputs (~1.7M coins are currently stored in quantum-vulnerable P2PK addresses), potentially triggering an unprecedented supply shock, an extreme drop in purchasing power and exchange value, and a drastic reduction in the network's security budget.
 
 Some advocate for burning or freezing all P2PK coins at a set date and considering these coins "abandoned" if not moved to quantum-resistant addresses by this date. This is a simple solution, but may be viewed as confiscatory without keyholder consent—and may set a dangerous precedent for changing the monetary policy going forward.
 
 Nobody knows for sure when, or if, quantum computers will be able to reverse secp256k1 in the future, and pre-emptive confiscation of coins could be viewed as heavy-handed given the risks. That said, lack of action could lead to quantum retrieval of up to 1.7M P2PK coins in a matter of hours.
 
-Despite potentially catastrophic market impacts, some still advocate for a “liquidation” approach—that is, making no changes and allowing P2PK coins to be recovered by those with quantum capabilities. This option opens the door to what could be the greatest supply shock in Bitcoin's history—potentially destabilizing markets in ways that will be difficult to recover from.
+Despite the potential consequences, some still advocate for a “liquidation” approach—that is, making no changes and allowing P2PK coins to be recovered by those with quantum capabilities. This option opens the door to what could be the greatest supply shock in Bitcoin's history, with cascading effects on the network's hashrate and long-term security that would be difficult to recover from.
 
-It's worth noting that Bitcoin's market price in dollars is a crucial factor in Bitcoin's crypto-economic security model. The farther Bitcoin's price falls in fiat terms, the lower aggregate hashrate will likely drop, making Bitcoin more vulnerable to attack.
+It's worth noting that Bitcoin's exchange value is a crucial factor in Bitcoin's crypto-economic security model. The farther Bitcoin's exchange value falls, the lower aggregate hashrate will likely drop, making the network more vulnerable to attack.
 
-Hourglass V2 mitigates the downsides of both "confiscatory" and "liquidation" approaches by severely limiting the potential supply shock of a quantum event, without burning coins or flooding markets.
+Hourglass mitigates the downsides of both "confiscatory" and "liquidation" approaches by rate-limiting the release of P2PK coins, without destroying them or triggering an uncontrolled supply shock.
+
 
 
 == Specification ==
 
-Once activated:
+Once activated, Hourglass enforces the following rules:
 
 1. Only one P2PK output may be included as a transaction input per block.
 
@@ -54,32 +60,54 @@ Once activated:
 
 == Rationale ==
 
-There are roughly 34,000 P2PK addresses with an average balance of 50 coins each. The original Hourglass proposal reduces the amount of P2PK coins that could hit the market to a maximum of roughly 7,200 coins per day. Feedback received from economic actors in the space indicates that this is not enough of a restriction to mitigate the market risks posed by quantum attacks on these coins.
+There are roughly 34,000 P2PK addresses with an average balance of 50 coins each. The original proposal (Hourglass V1) reduced the amount of P2PK coins that could hit the market to a maximum of roughly 7,200 bitcoins per day. Feedback received from economic actors in the space indicates that this is not enough of a restriction to mitigate the market risks posed by quantum constraint on these coins.
 
-Hourglass V2 further restricts the output amount to a maximum of 1 bitcoin per block, or roughly 144 bitcoin per day. This is far less than the 450 coins per day introduced by the current block reward subsidy, and should effectively mitigate the market impacts of quantum attacks on P2PK coins.
+The current version of Hourglass further tightens this restriction to a maximum net release of 1 bitcoin per block, or roughly 144 bitcoin per day. This is far less than the 450 coins per day introduced by the current block reward subsidy, and should effectively contain the supply-side impacts of quantum attacks on P2PK coins.
 
 Without a spending constraint, over 6,000 P2PK transactions could be executed in each block — potentially releasing more than 300,000 coins per block to the market. At this rate, all P2PK coins could be spent in just a few hours if no mitigations are activated.
 
-Under the rules of Hourglass V2, it would take more than 32 years to move all P2PK coins, dramatically reducing quantum-related market risks. On the flipside, original keyholders should remain able to move their coins with relative ease - even after Hourglass is in place - assuming no quantum-actors are currently competing for P2PK transactions.
+In the absence of quantum competition, P2PK keyholders should be able to move their coins with relative ease even after Hourglass activation. A typical P2PK output holds 50 BTC. Post-Hourglass, the entire amount of nearly three such outputs could be moved in 24 hours.
 
-In the absence of quantum competition, P2PK keyholders should be able to move their coins in a matter of weeks or months despite Hourglass V2 activation.
+In addition to supply shock mitigation, Hourglass creates a competitive fee market for P2PK spends, potentially increasing fee revenue for miners. With Hourglass in place, actors wishing to move their P2PK coins will have to bid against each other to secure each single bitcoin transaction in a block. While it's unclear how many users will compete for each bitcoin slot, it seems reasonable to assume that some competition will be created by this spending constraint.
 
-In addition to market protection, Hourglass V2 may create a competitive fee market for P2PK spends, potentially increasing fee revenue for miners. With Hourglass V2 in place, actors wishing to move their P2PK coins will have to bid against each other to secure each single bitcoin transaction in a block. While it's unclear how many users will compete for each bitcoin slot, it seems reasonable to assume that some competition will be created by this spending constraint.
+It's worth noting that increased competition for fees will become critical for maintaining Bitcoin's security budget as the block reward subsidy declines. If multiple quantum actors are competing for spends, it's possible that up to that amount could be paid in the form of fees to Bitcoin miners. In this case, Hourglass could result in a de facto block reward subsidy dwarfing new coin issuance, substantially strengthening the fee-based security model for a number of decades.
 
-It's worth noting that increased competition for fees will become critical for maintaining Bitcoin's security budget as the block reward subsidy declines. If multiple quantum actors are competing for spends, it's possible that up to that amount could be paid in the form of fees to Bitcoin miners. In this case, Hourglass could result in a de facto block reward subsidy dwarfing new coin issuance, substantially bolstering the security budget for a number of decades.
+The 1 bitcoin per-block spend limit was selected as a Schelling point. It is simple to reason about, easy to communicate, and produces outcomes consistent with the goals of this proposal. Under this limit, a keyholder with a typical P2PK output of approximately 50 BTC can fully migrate their coins in roughly 50 blocks (approximately 8 hours) in the absence of competing transactions. Assuming the vast majority of the approximately 34,000 P2PK addresses aren't moved prior to activation, the limit results in a minimum draw-down period exceeding 32 years, which is sufficient to prevent any acute supply shock regardless of the pace of quantum capability development. It is also noted that in a competitive environment where multiple actors attempt to claim the single permitted P2PK slot per block, fees for such transactions could approach the full 1 BTC spend limit, producing a sustained secondary contribution to miner revenue.
 
-While other output types, such as P2TR and reused addresses, may also be quantum-vulnerable, this proposal focuses on P2PK as a most likely early target of those engaged in quantum key recovery.
+Some reviewers have proposed that the per-block limit be structured to decay on a fixed schedule, in a manner analogous to the block reward subsidy, on the basis that the economic pressure to migrate vulnerable coins should increase over time. This proposal does not adopt that approach. The potential for elevated miner fees under Hourglass is a game-theoretic consequence of the spending constraint, not a primary design objective. The primary purpose of this BIP is to mitigate the risk of large-scale quantum recovery of P2PK outputs in a manner that avoids permanent confiscation of coins. A fixed limit satisfies this objective while reducing implementation complexity and eliminating a decay schedule as a future point of contention.
 
-If the same restrictions are put on other vulnerable output types currently in use today, the rate of outputs that could be transitioned to quantum-resistant outputs would be limited — impacting users' ability to move to quantum-resistant addresses. For this reason, we do not recommend applying Hourglass V2 spending conditions to non-P2PK address types. P2PK addresses are no longer commonly used and are generally considered deprecated, making them reasonable output types to sunset.
+While other output types, such as P2TR and reused addresses, may also be quantum-vulnerable; this proposal focuses on P2PK as a most likely early target of those engaged in quantum key recovery.
+
+If the same restrictions are put on other vulnerable output types currently in use today, the rate of outputs that could be transitioned to quantum-resistant outputs would be limited — impacting users' ability to move to quantum-resistant addresses. For this reason, we do not recommend applying Hourglass spending conditions to non-P2PK address types. P2PK addresses are no longer commonly used and are generally considered deprecated, making them reasonable output types to sunset.
 
 This BIP effectively sunsets the P2PK address format due to its quantum vulnerability.
 
-Jameson Lopp said in an essay, "It's prudent to expect significant economic disruption if large amounts of coins fall into new hands." [1] Hourglass is one means of limiting this disruption.
+Jameson Lopp has noted the network risks posed by sudden redistribution of legacy coins: "It's prudent to expect significant economic disruption if large amounts of coins fall into new hands." [1] Hourglass limits the rate at which this could occur.
 
+
+== Activation ==
+
+This BIP will be deployed using BIP 8 (https://github.com/bitcoin/bips/blob/master/bip-0008.mediawiki) with a mandatory flag day.
+
+The following parameters shall be used:
+
+* Name: 'hourglass'
+* Timeout: 1 April 2028
+* Threshold: 95%
+* Lock-in period: 26,000 blocks (approximately 6 months)
+* Mandatory activation: If the 95% threshold has not been met by 1 January 2028, the rules of this BIP will activate unconditionally on 1 April 2028.
+
+This mechanism gives the economic majority ample time to prepare while providing a clear and predictable activation date, ensuring the proposal cannot remain in indefinite limbo.
 
 == Backward Compatibility ==
 
-TBD
+Hourglass is a soft fork. Blocks produced under these rules are valid under existing consensus rules; however, nodes that have not upgraded will not enforce the new spending restrictions on P2PK outputs.
+
+Non-upgraded nodes will accept blocks containing P2PK transactions that violate the Hourglass rules. For this reason, economic enforcement depends on adoption by a supermajority of the network, as specified in the Activation section. Transactions that would be invalid under Hourglass may still be relayed by non-upgraded nodes prior to activation.
+
+Existing P2PK outputs are not invalidated by this proposal. Keyholders retain the ability to spend their coins under the constraints imposed by these rules. No coins are destroyed or rendered permanently unspendable.
+
+Wallet software and transaction construction tools that currently handle P2PK inputs will require updates to comply with the one-input-per-block and 1 BTC net release constraints. Miners will require updated block validation logic to enforce these rules upon activation.
 
 
 == Acknowledgements ==
@@ -94,5 +122,6 @@ Credit goes to Charlie Glahe for providing the original idea. Additional feedbac
 
 == Changelog ==
 
+* 2026-04-22 - Revisions for clarity and activation details
 * 2026-02-10 - Hourglass v2 - 1 bitcoin P2PK throughput constraint
 * 2025-04-29 - Hourglass v1 - One P2PK input per block
