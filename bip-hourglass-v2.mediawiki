@@ -103,7 +103,7 @@ This mechanism gives the economic majority ample time to prepare while providing
 
 Hourglass is a soft fork. Blocks produced under these rules are valid under existing consensus rules; however, nodes that have not upgraded will not enforce the new spending restrictions on P2PK outputs.
 
-Non-upgraded nodes will accept blocks containing P2PK transactions that violate the Hourglass rules. For this reason, economic enforcement depends on adoption by a supermajority of the network, as specified in the Activation section. Transactions that would be invalid under Hourglass may still be relayed by non-upgraded nodes prior to activation.
+Non-upgraded nodes will accept blocks containing P2PK transactions that violate the Hourglass rules. For this reason, economic enforcement depends on adoption by a supermajority of the network, as specified in the Activation section. Transactions spending P2PK outputs in any way that would be invalid under Hourglass may still be relayed by non-upgraded nodes prior to activation. The vast majority of transactions will remain unaffected. This is only to restrict the throughput of P2PK coin spends in light of a direct violation of Bitcoin's private property promise if the cryptographic assumptions underpinning signature security is some day compromised to such a degree that multiple independent users can spend the same P2PK scriptPubKey (say in the event that a private key could be derived from a public key using a quantum computer, a threat model explained in more detail in BIP 360).
 
 Existing P2PK outputs are not invalidated by this proposal. Keyholders retain the ability to spend their coins under the constraints imposed by these rules. No coins are destroyed or rendered permanently unspendable.
 
